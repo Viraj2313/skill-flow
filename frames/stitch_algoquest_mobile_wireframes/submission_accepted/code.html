@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Submission Result — Accepted</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffd7ef",
+                    "surface-container-high": "#e8e9e0",
+                    "on-secondary-fixed": "#271900",
+                    "background": "#fafaf1",
+                    "on-surface-variant": "#44483d",
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "primary-fixed-dim": "#aed288",
+                    "primary": "#426124",
+                    "on-background": "#1a1c17",
+                    "inverse-surface": "#2f312b",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e3e3da",
+                    "on-tertiary-fixed": "#37052f",
+                    "on-primary-fixed": "#0e2000",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#aed288",
+                    "tertiary": "#7e446f",
+                    "inverse-on-surface": "#f1f1e8",
+                    "primary-container": "#5a7a3a",
+                    "surface-container-low": "#f4f4eb",
+                    "surface": "#fafaf1",
+                    "on-primary-container": "#e5ffc6",
+                    "surface-tint": "#486729",
+                    "secondary-container": "#fdc34d",
+                    "on-primary-fixed-variant": "#314f13",
+                    "outline-variant": "#c4c8b9",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "tertiary-fixed-dim": "#f9b0e2",
+                    "surface-dim": "#dadbd2",
+                    "on-tertiary-container": "#fff3f7",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#7b5800",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e3e3da",
+                    "secondary-fixed": "#ffdea6",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1a1c17",
+                    "on-secondary-container": "#715000",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#74796b",
+                    "surface-bright": "#fafaf1",
+                    "tertiary-container": "#9a5c89",
+                    "primary-fixed": "#c9eea1",
+                    "surface-container": "#eeeee6",
+                    "on-tertiary-fixed-variant": "#6a335d",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "xs": "8px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "tap_target": "44px",
+                    "margin": "20px",
+                    "md": "16px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "h2": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "stat-lg": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "label-caps": ["JetBrains Mono"],
+                    "h1": ["Inter"],
+                    "body": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #1a1915;
+            color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .success-glow {
+            background: radial-gradient(circle at center, rgba(66, 97, 36, 0.15) 0%, rgba(26, 25, 21, 0) 70%);
+        }
+
+        .notebook-grid {
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .check-anim {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: dash 0.8s ease-out forwards;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border: 1px solid #ddd9cf;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="h-screen w-screen flex flex-col justify-center items-center relative overflow-hidden">
+<!-- Background Layers -->
+<div class="absolute inset-0 success-glow pointer-events-none"></div>
+<div class="absolute inset-0 notebook-grid pointer-events-none"></div>
+<!-- Main Content Container -->
+<main class="z-10 w-full max-w-md px-margin flex flex-col items-center">
+<!-- Animated Success Checkmark -->
+<div class="mb-lg fade-in-up">
+<svg fill="none" height="88" viewbox="0 0 88 88" width="88" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-20" cx="44" cy="44" r="42" stroke="#426124" stroke-width="4"></circle>
+<path class="check-anim" d="M26 44L38 56L62 32" stroke="#426124" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+</svg>
+</div>
+<!-- Headline -->
+<h1 class="font-code text-h1 text-center text-primary-fixed mb-xl tracking-wider fade-in-up delay-1">
+            ACCEPTED
+        </h1>
+<!-- Stats Bento Grid (2x2) -->
+<div class="grid grid-cols-2 gap-md w-full mb-xl">
+<!-- Runtime -->
+<div class="stat-card p-md rounded-xl flex flex-col items-start fade-in-up delay-2">
+<span class="font-label-caps text-on-surface-variant mb-xs">RUNTIME</span>
+<div class="flex items-baseline">
+<span class="font-stat-lg text-on-surface">124</span>
+<span class="font-code text-body-sm text-outline ml-base">ms</span>
+</div>
+</div>
+<!-- Memory -->
+<div class="stat-card p-md rounded-xl flex flex-col items-start fade-in-up delay-2">
+<span class="font-label-caps text-on-surface-variant mb-xs">MEMORY</span>
+<div class="flex items-baseline">
+<span class="font-stat-lg text-on-surface">18.4</span>
+<span class="font-code text-body-sm text-outline ml-base">MB</span>
+</div>
+</div>
+<!-- Tests -->
+<div class="stat-card p-md rounded-xl flex flex-col items-start fade-in-up delay-3">
+<span class="font-label-caps text-on-surface-variant mb-xs">TESTS</span>
+<div class="flex items-center text-primary">
+<span class="font-stat-lg">12</span>
+<span class="font-stat-lg text-outline mx-base">/</span>
+<span class="font-stat-lg">12</span>
+</div>
+</div>
+<!-- XP Reward -->
+<div class="stat-card p-md rounded-xl flex flex-col items-start border-secondary fade-in-up delay-3">
+<span class="font-label-caps text-secondary mb-xs">REWARD</span>
+<div class="flex items-center text-secondary">
+<span class="font-stat-lg">+75</span>
+<span class="font-code text-body-sm ml-base">XP</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="w-full flex flex-col gap-md items-center fade-in-up delay-4">
+<button class="w-full h-tap_target border-2 border-primary text-primary-fixed-dim rounded-lg font-h3 transition-all duration-200 active:scale-95 hover:bg-primary/10">
+                VIEW AI REVIEW
+            </button>
+<button class="flex items-center gap-xs font-code text-body text-outline-variant hover:text-white transition-colors duration-200 py-base">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                BACK TO PROBLEMS
+            </button>
+</div>
+</main>
+<!-- Visual Polish: Floating Particles -->
+<div class="absolute inset-0 pointer-events-none" id="particles"></div>
+<script>
+        // Simple micro-interaction for the success screen
+        const particlesContainer = document.getElementById('particles');
+        const colors = ['#426124', '#f7bd48', '#ffffff'];
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            const size = Math.random() * 4 + 2;
+            const x = Math.random() * window.innerWidth;
+            const y = window.innerHeight + 10;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            particle.style.position = 'absolute';
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.backgroundColor = color;
+            particle.style.borderRadius = '50%';
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            particle.style.opacity = Math.random() * 0.4;
+            particle.style.transition = `all ${Math.random() * 3 + 2}s linear`;
+
+            particlesContainer.appendChild(particle);
+
+            setTimeout(() => {
+                particle.style.transform = `translateY(-${window.innerHeight + 20}px) translateX(${(Math.random() - 0.5) * 100}px)`;
+                particle.style.opacity = '0';
+            }, 100);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 5000);
+        }
+
+        // Spawn particles over time
+        setInterval(createParticle, 300);
+
+        // Interactive hover sound simulation (visual feedback)
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.borderColor = '#426124';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.borderColor = '#ddd9cf';
+            });
+        });
+    </script>
+</body></html>

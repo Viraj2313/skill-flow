@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffd7ef",
+                    "surface-container-high": "#e8e9e0",
+                    "on-secondary-fixed": "#271900",
+                    "background": "#fafaf1",
+                    "on-surface-variant": "#44483d",
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "primary-fixed-dim": "#aed288",
+                    "primary": "#426124",
+                    "on-background": "#1a1c17",
+                    "inverse-surface": "#2f312b",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e3e3da",
+                    "on-tertiary-fixed": "#37052f",
+                    "on-primary-fixed": "#0e2000",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#aed288",
+                    "tertiary": "#7e446f",
+                    "inverse-on-surface": "#f1f1e8",
+                    "primary-container": "#5a7a3a",
+                    "surface-container-low": "#f4f4eb",
+                    "surface": "#fafaf1",
+                    "on-primary-container": "#e5ffc6",
+                    "surface-tint": "#486729",
+                    "secondary-container": "#fdc34d",
+                    "on-primary-fixed-variant": "#314f13",
+                    "outline-variant": "#c4c8b9",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "tertiary-fixed-dim": "#f9b0e2",
+                    "surface-dim": "#dadbd2",
+                    "on-tertiary-container": "#fff3f7",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary": "#7b5800",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e3e3da",
+                    "secondary-fixed": "#ffdea6",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1a1c17",
+                    "on-secondary-container": "#715000",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#74796b",
+                    "surface-bright": "#fafaf1",
+                    "tertiary-container": "#9a5c89",
+                    "primary-fixed": "#c9eea1",
+                    "surface-container": "#eeeee6",
+                    "on-tertiary-fixed-variant": "#6a335d",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "xs": "8px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "tap_target": "44px",
+                    "margin": "20px",
+                    "md": "16px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "h2": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "stat-lg": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "label-caps": ["JetBrains Mono"],
+                    "h1": ["Inter"],
+                    "body": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        .dot-grid {
+            background-image: radial-gradient(#1c1917 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.04;
+        }
+        .parchment-texture {
+            background-color: #f5f4ef;
+        }
+        .sunken-inset {
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .paper-card {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="parchment-texture min-h-screen text-on-surface font-body overflow-x-hidden">
+<!-- Background Dot Grid -->
+<div class="fixed inset-0 dot-grid pointer-events-none"></div>
+<!-- Search Top Bar -->
+<header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant px-margin h-[72px] flex items-center gap-md">
+<button class="w-tap_target h-tap_target flex items-center justify-center text-on-surface hover:bg-surface-container-low rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex-1 relative group">
+<div class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="w-full h-11 pl-10 pr-4 bg-surface-container-low border border-outline-variant rounded-lg font-body text-body focus:ring-2 focus:ring-primary focus:border-transparent sunken-inset transition-all" id="searchInput" placeholder="Search algorithms..." type="text" value="Tree"/>
+</div>
+<button class="text-primary font-h3 text-h3 hover:opacity-80 active:scale-95 transition-all">
+            Cancel
+        </button>
+</header>
+<main class="max-w-2xl mx-auto px-margin py-lg space-y-xl">
+<!-- Empty State / Recent & Popular (Hidden when searching) -->
+<div class="hidden space-y-xl" id="defaultView">
+<section>
+<div class="flex items-center justify-between mb-md">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Recent Queries</h2>
+<button class="text-body-sm text-outline hover:text-error transition-colors">Clear all</button>
+</div>
+<div class="flex flex-wrap gap-sm">
+<div class="flex items-center gap-xs px-sm py-1.5 bg-surface-container border border-outline-variant rounded-full group">
+<span class="font-code text-code text-on-surface">Binary Search</span>
+<button class="text-outline group-hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<div class="flex items-center gap-xs px-sm py-1.5 bg-surface-container border border-outline-variant rounded-full group">
+<span class="font-code text-code text-on-surface">Dijkstra</span>
+<button class="text-outline group-hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<div class="flex items-center gap-xs px-sm py-1.5 bg-surface-container border border-outline-variant rounded-full group">
+<span class="font-code text-code text-on-surface">Dynamic Programming</span>
+<button class="text-outline group-hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+</section>
+<section>
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-md">Popular Topics</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-sm">
+<button class="flex items-center justify-center p-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low paper-card transition-all active:scale-[0.98]">
+<span class="font-h3 text-h3 text-primary">Array</span>
+</button>
+<button class="flex items-center justify-center p-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low paper-card transition-all active:scale-[0.98]">
+<span class="font-h3 text-h3 text-primary">String</span>
+</button>
+<button class="flex items-center justify-center p-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low paper-card transition-all active:scale-[0.98]">
+<span class="font-h3 text-h3 text-primary">Graphs</span>
+</button>
+<button class="flex items-center justify-center p-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low paper-card transition-all active:scale-[0.98]">
+<span class="font-h3 text-h3 text-primary">DP</span>
+</button>
+<button class="flex items-center justify-center p-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low paper-card transition-all active:scale-[0.98]">
+<span class="font-h3 text-h3 text-primary">Sort</span>
+</button>
+<button class="flex items-center justify-center p-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low paper-card transition-all active:scale-[0.98]">
+<span class="font-h3 text-h3 text-primary">Heaps</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Results State -->
+<div class="space-y-md" id="resultsView">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-md">Search Results for "Tree"</h2>
+<!-- Problem Row 1 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex items-center justify-between paper-card hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-3 h-3 rounded-full bg-primary" title="Easy"></div>
+<div class="space-y-0.5">
+<h3 class="font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors">Binary Tree Inorder Traversal</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trees • Depth-First Search</p>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+<!-- Problem Row 2 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex items-center justify-between paper-card hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-3 h-3 rounded-full bg-secondary" title="Medium"></div>
+<div class="space-y-0.5">
+<h3 class="font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors">Lowest Common Ancestor</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trees • Recursion</p>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+<!-- Problem Row 3 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex items-center justify-between paper-card hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-3 h-3 rounded-full bg-error" title="Hard"></div>
+<div class="space-y-0.5">
+<h3 class="font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors">Binary Tree Maximum Path Sum</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trees • Dynamic Programming</p>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+<!-- Problem Row 4 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex items-center justify-between paper-card hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-3 h-3 rounded-full bg-primary" title="Easy"></div>
+<div class="space-y-0.5">
+<h3 class="font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors">Symmetric Tree</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trees • Breadth-First Search</p>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+<!-- Problem Row 5 -->
+<div class="bg-surface border border-outline-variant rounded-xl p-md flex items-center justify-between paper-card hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-3 h-3 rounded-full bg-secondary" title="Medium"></div>
+<div class="space-y-0.5">
+<h3 class="font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors">Construct Binary Tree</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Trees • Array Mapping</p>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</div>
+</div>
+<!-- Show more / Empty illustration space -->
+<div class="py-xl text-center">
+<button class="px-lg py-sm text-primary font-h3 text-h3 border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">
+                    Load more results
+                </button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Shared Component) -->
+<nav class="fixed bottom-0 w-full z-50 h-[56px] bg-surface-container-lowest dark:bg-surface-container-highest border-t border-outline-variant shadow-sm flex justify-around items-center px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low w-full h-full transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-primary w-full h-full bg-surface-container-low transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-label-caps text-label-caps">Skills</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low w-full h-full transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">extension</span>
+<span class="font-label-caps text-label-caps">Challenge</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low w-full h-full transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-caps text-label-caps">Ranks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low w-full h-full transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple View Toggling for Demo
+        const searchInput = document.getElementById('searchInput');
+        const defaultView = document.getElementById('defaultView');
+        const resultsView = document.getElementById('resultsView');
+
+        searchInput.addEventListener('input', (e) => {
+            if (e.target.value.length > 0) {
+                defaultView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+            } else {
+                defaultView.classList.remove('hidden');
+                resultsView.classList.add('hidden');
+            }
+        });
+
+        // Initialize with results for "Tree"
+        if(searchInput.value === "") {
+            defaultView.classList.remove('hidden');
+            resultsView.classList.add('hidden');
+        }
+    </script>
+</body></html>

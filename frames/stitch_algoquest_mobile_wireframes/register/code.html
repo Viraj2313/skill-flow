@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest — Create Account</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#9a5c89",
+                    "tertiary-fixed": "#ffd7ef",
+                    "secondary-container": "#fdc34d",
+                    "tertiary": "#7e446f",
+                    "outline-variant": "#c4c8b9",
+                    "on-background": "#1a1c17",
+                    "surface-dim": "#dadbd2",
+                    "surface-container-high": "#e8e9e0",
+                    "on-secondary-fixed": "#271900",
+                    "surface-tint": "#486729",
+                    "on-primary-container": "#e5ffc6",
+                    "surface-container-low": "#f4f4eb",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#e3e3da",
+                    "on-surface-variant": "#44483d",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#ffdea6",
+                    "outline": "#74796b",
+                    "primary-fixed": "#c9eea1",
+                    "primary": "#426124",
+                    "surface-container-highest": "#e3e3da",
+                    "on-tertiary-fixed": "#37052f",
+                    "on-secondary-container": "#715000",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#aed288",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-primary-fixed-variant": "#314f13",
+                    "inverse-surface": "#2f312b",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "on-surface": "#1a1c17",
+                    "primary-container": "#5a7a3a",
+                    "inverse-on-surface": "#f1f1e8",
+                    "surface": "#fafaf1",
+                    "on-tertiary-container": "#fff3f7",
+                    "on-tertiary-fixed-variant": "#6a335d",
+                    "tertiary-fixed-dim": "#f9b0e2",
+                    "secondary": "#7b5800",
+                    "primary-fixed-dim": "#aed288",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#eeeee6",
+                    "surface-bright": "#fafaf1",
+                    "on-primary-fixed": "#0e2000",
+                    "background": "#fafaf1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "gutter": "16px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "sm": "12px",
+                    "margin": "20px",
+                    "xs": "8px",
+                    "lg": "24px",
+                    "tap_target": "44px"
+            },
+            "fontFamily": {
+                    "h2": ["Inter"],
+                    "h1": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "body": ["Inter"],
+                    "h3": ["Inter"],
+                    "stat-lg": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "label-caps": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f5f4ef;
+            background-image: radial-gradient(#1c1917 1px, transparent 0);
+            background-size: 24px 24px;
+            background-attachment: fixed;
+            opacity: 1;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(#1c1917 1px, transparent 0);
+            background-size: 24px 24px;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sunken-input {
+            background-color: #ebe8e0;
+            border: 1px solid #ddd9cf;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .paper-card {
+            background-color: #ffffff;
+            border: 1px solid #ddd9cf;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body text-on-surface min-h-screen flex flex-col items-center justify-center p-margin">
+<!-- Top Navigation Suppression: Not shown for linear/onboarding flow -->
+<div class="w-full max-w-md space-y-lg">
+<!-- Brand Header -->
+<div class="text-center space-y-xs">
+<h1 class="font-h1 text-h1 text-primary tracking-tight">AlgoQuest</h1>
+<p class="font-body text-on-surface-variant">Master the algorithms of tomorrow.</p>
+</div>
+<!-- Auth Container -->
+<div class="paper-card rounded-xl p-lg space-y-lg">
+<!-- Tab Switcher -->
+<div class="flex border-b border-outline-variant">
+<button class="flex-1 pb-base font-h3 text-h3 text-outline hover:text-on-surface transition-colors">
+                    Login
+                </button>
+<button class="flex-1 pb-base font-h3 text-h3 text-primary border-b-2 border-primary">
+                    Sign Up
+                </button>
+</div>
+<!-- Form -->
+<form class="space-y-md" onsubmit="return false;">
+<!-- Display Name Field -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Display Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">badge</span>
+<input class="sunken-input w-full py-3 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-body text-on-surface transition-all" placeholder="John Doe" type="text"/>
+</div>
+</div>
+<!-- Username Field -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Username</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">alternate_email</span>
+<input class="sunken-input w-full py-3 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-body text-on-surface transition-all" placeholder="johndoe_dev" type="text"/>
+</div>
+</div>
+<!-- Email Field -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">mail</span>
+<input class="sunken-input w-full py-3 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-body text-on-surface transition-all" placeholder="name@example.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">lock</span>
+<input class="sunken-input w-full py-3 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-body text-on-surface transition-all" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary-container text-on-primary py-tap_target rounded-lg font-h3 text-h3 shadow-sm hover:opacity-90 active:scale-[0.98] transition-all mt-lg" type="submit">
+                    CREATE ACCOUNT
+                </button>
+</form>
+<!-- Social Divider -->
+<div class="relative flex items-center py-base">
+<div class="flex-grow border-t border-outline-variant"></div>
+<span class="flex-shrink mx-4 font-label-caps text-label-caps text-outline uppercase">Or continue with</span>
+<div class="flex-grow border-t border-outline-variant"></div>
+</div>
+<!-- Social Auth Buttons -->
+<div class="grid grid-cols-2 gap-md">
+<button class="paper-card flex items-center justify-center py-3 rounded-lg hover:bg-surface-container-low transition-colors">
+<img class="w-5 h-5 mr-2" data-alt="A clean, minimalist vector logo of Google in its primary colors, rendered as a crisp icon on a white academic stationery background. The lighting is soft and even, emphasizing clarity and modern design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYnl5UfjaLUgnoER37-WU23nXYTop5aiO4ZbuMtOtAbrr7YM8sxeRk8Meli5Tpe3axRwUQvJYTD3T0ltMxT0u7U1-d3I4bWF46gK3G38EuducTKToASwsAgYy8IcgZct_LR5fqwqrByZ2LnUlf3vezstEptUfGrgeQEWsHSx22C8ijnwJbNyxHV5C1mCXZttdezTFaekjz9VFAGzZ-uoNQ2f3hicdx3Eds9O6EUDtm7QSHe-iTbJv2uo7xFVAgyebAaalUR6xr_Uw3"/>
+<span class="font-body-sm text-body-sm font-semibold">Google</span>
+</button>
+<button class="paper-card flex items-center justify-center py-3 rounded-lg hover:bg-surface-container-low transition-colors">
+<img class="w-5 h-5 mr-2" data-alt="A professional minimalist vector logo of GitHub, featuring the iconic Octocat silhouette in deep charcoal black. The icon is set against a clean, warm white surface that mimics high-quality paper texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCm8VgUEwH32cUhPNWfufwROTtvPT8Tr0lbXt-Gv3hdC4XulclmjI3YKXBSChr_kUj1RLMGH3wafY5P_k-fgX9oPpWayBRPlbUhM3EGi0K_DnWkS0PAsNvw3JMONNzU4_bS_tzPkWmQjZ55yA0D5aBZ3mBZnllHQbQv4EiZ2UC_oxpsc-bfRsJZKHvLrvsnV1ckOM8jK5pm0TzSU6gmgTAG-Lyopfjs5X1tt_auLYGXSg0r_woz4FaPgdOsX8srqGV0XcEoxuSVSU1p"/>
+<span class="font-body-sm text-body-sm font-semibold">GitHub</span>
+</button>
+</div>
+</div>
+<!-- Terms Footer -->
+<footer class="text-center px-lg">
+<p class="font-label-caps text-label-caps text-outline leading-relaxed">
+                By creating an account, you agree to AlgoQuest's 
+                <a class="text-primary hover:underline" href="#">Terms of Service</a> 
+                and <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+            </p>
+</footer>
+</div>
+<!-- Background Illustration (Atmospheric) -->
+<div class="fixed bottom-0 left-0 w-full h-1/3 -z-10 pointer-events-none overflow-hidden opacity-10">
+
+</div>
+<script>
+        // Micro-interaction for input focusing
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.parentElement.querySelector('label').classList.add('text-primary');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.parentElement.querySelector('label').classList.remove('text-primary');
+            });
+        });
+
+        // Simple button press feedback
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest — Skill Tree</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --dot-bg: #f5f4ef;
+            --dot-color: rgba(28, 25, 21, 0.04);
+            --dot-size: 24px;
+        }
+        body {
+            background-color: var(--dot-bg);
+            background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: var(--dot-size) var(--dot-size);
+            font-family: 'Inter', sans-serif;
+            color: #1a1c17;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .node-container {
+            position: relative;
+            z-index: 10;
+        }
+        .connection-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .skill-node {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .skill-node:active {
+            transform: scale(0.92);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#9a5c89",
+                        "tertiary-fixed": "#ffd7ef",
+                        "secondary-container": "#fdc34d",
+                        "tertiary": "#7e446f",
+                        "outline-variant": "#c4c8b9",
+                        "on-background": "#1a1c17",
+                        "surface-dim": "#dadbd2",
+                        "surface-container-high": "#e8e9e0",
+                        "on-secondary-fixed": "#271900",
+                        "surface-tint": "#486729",
+                        "on-primary-container": "#e5ffc6",
+                        "surface-container-low": "#f4f4eb",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e3e3da",
+                        "on-surface-variant": "#44483d",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdea6",
+                        "outline": "#74796b",
+                        "primary-fixed": "#c9eea1",
+                        "primary": "#426124",
+                        "surface-container-highest": "#e3e3da",
+                        "on-tertiary-fixed": "#37052f",
+                        "on-secondary-container": "#715000",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#aed288",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-primary-fixed-variant": "#314f13",
+                        "inverse-surface": "#2f312b",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#1a1c17",
+                        "primary-container": "#5a7a3a",
+                        "inverse-on-surface": "#f1f1e8",
+                        "surface": "#fafaf1",
+                        "on-tertiary-container": "#fff3f7",
+                        "on-tertiary-fixed-variant": "#6a335d",
+                        "tertiary-fixed-dim": "#f9b0e2",
+                        "secondary": "#7b5800",
+                        "primary-fixed-dim": "#aed288",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eeeee6",
+                        "surface-bright": "#fafaf1",
+                        "on-primary-fixed": "#0e2000",
+                        "background": "#fafaf1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "gutter": "16px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "sm": "12px",
+                        "margin": "20px",
+                        "xs": "8px",
+                        "lg": "24px",
+                        "tap_target": "44px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Inter"],
+                        "h1": ["Inter"],
+                        "code": ["JetBrains Mono"],
+                        "body": ["Inter"],
+                        "h3": ["Inter"],
+                        "stat-lg": ["JetBrains Mono"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="bg-surface sticky top-0 z-[100] border-b border-outline-variant flex items-center w-full px-margin h-tap_target">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-h3">account_tree</span>
+<h1 class="font-h2 text-h2 font-bold text-primary">AlgoQuest</h1>
+</div>
+<div class="ml-auto flex items-center gap-md">
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label-caps text-label-caps text-on-surface">1,240 XP</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center pt-xl pb-[120px] px-margin overflow-y-auto w-full max-w-xl mx-auto">
+<div class="w-full text-center mb-xl">
+<h2 class="font-h1 text-h1 text-on-surface mb-2">Core Algorithms</h2>
+<p class="font-body text-body text-on-surface-variant max-w-[280px] mx-auto">Master the foundational building blocks of efficient computation.</p>
+</div>
+<div class="relative w-full min-h-[900px] flex flex-col items-center">
+<!-- SVG Connection Layer -->
+<svg class="connection-layer" viewbox="0 0 360 900">
+<!-- Tier 1 to 2 -->
+<line stroke="#426124" stroke-width="2" x1="180" x2="100" y1="60" y2="180"></line>
+<line stroke="#426124" stroke-width="2" x1="180" x2="260" y1="60" y2="180"></line>
+<!-- Tier 2 to 3 -->
+<line stroke="#426124" stroke-width="2" x1="100" x2="60" y1="180" y2="340"></line>
+<line stroke="#426124" stroke-width="2" x1="100" x2="180" y1="180" y2="340"></line>
+<line stroke="#c4c8b9" stroke-dasharray="4,4" stroke-width="2" x1="260" x2="300" y1="180" y2="340"></line>
+<!-- Tier 3 to 4 -->
+<line stroke="#c4c8b9" stroke-dasharray="4,4" stroke-width="2" x1="60" x2="100" y1="340" y2="520"></line>
+<line stroke="#c4c8b9" stroke-dasharray="4,4" stroke-width="2" x1="180" x2="180" y1="340" y2="520"></line>
+<line stroke="#c4c8b9" stroke-dasharray="4,4" stroke-width="2" x1="300" x2="260" y1="340" y2="520"></line>
+<!-- Tier 4 to 5 -->
+<line stroke="#c4c8b9" stroke-dasharray="4,4" stroke-width="2" x1="100" x2="180" y1="520" y2="720"></line>
+<line stroke="#c4c8b9" stroke-dasharray="4,4" stroke-width="2" x1="260" x2="180" y1="520" y2="720"></line>
+</svg>
+<!-- Skill Tree Tiers -->
+<!-- Tier 1: Foundation -->
+<div class="node-container flex flex-col items-center absolute top-0" style="left: 50%; transform: translateX(-50%);">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center shadow-sm">
+<svg class="absolute inset-0 w-[60px] h-[60px]">
+<circle class="progress-ring__circle" cx="30" cy="30" fill="transparent" r="28" stroke="#426124" stroke-width="3" style="stroke-dasharray: 175.9; stroke-dashoffset: 0;"></circle>
+</svg>
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-on-surface">ARRAYS</span>
+</div>
+<!-- Tier 2: Sequence & Logic -->
+<div class="node-container flex flex-col items-center absolute" style="top: 140px; left: 40px;">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center shadow-sm">
+<svg class="absolute inset-0 w-[60px] h-[60px]">
+<circle class="progress-ring__circle" cx="30" cy="30" fill="transparent" r="28" stroke="#426124" stroke-width="3" style="stroke-dasharray: 175.9; stroke-dashoffset: 0;"></circle>
+</svg>
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-on-surface">STRINGS</span>
+</div>
+<div class="node-container flex flex-col items-center absolute" style="top: 140px; right: 40px;">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-primary-container flex items-center justify-center shadow-sm">
+<svg class="absolute inset-0 w-[60px] h-[60px]">
+<circle class="progress-ring__circle" cx="30" cy="30" fill="transparent" r="28" stroke="#ffffff" stroke-width="3" style="stroke-dasharray: 175.9; stroke-dashoffset: 60;"></circle>
+</svg>
+<span class="material-symbols-outlined text-on-primary text-[28px]">data_array</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-primary font-bold">RECURSION</span>
+</div>
+<!-- Tier 3: Linear Collections -->
+<div class="node-container flex flex-col items-center absolute" style="top: 300px; left: 10px;">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center shadow-sm">
+<svg class="absolute inset-0 w-[60px] h-[60px]">
+<circle class="progress-ring__circle" cx="30" cy="30" fill="transparent" r="28" stroke="#426124" stroke-width="3" style="stroke-dasharray: 175.9; stroke-dashoffset: 0;"></circle>
+</svg>
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-on-surface">LINKED LISTS</span>
+</div>
+<div class="node-container flex flex-col items-center absolute" style="top: 300px; left: 50%; transform: translateX(-50%);">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center shadow-sm">
+<svg class="absolute inset-0 w-[60px] h-[60px]">
+<circle class="progress-ring__circle" cx="30" cy="30" fill="transparent" r="28" stroke="#426124" stroke-width="3" style="stroke-dasharray: 175.9; stroke-dashoffset: 0;"></circle>
+</svg>
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-on-surface">STACK &amp; QUEUE</span>
+</div>
+<div class="node-container flex flex-col items-center absolute" style="top: 300px; right: 10px;">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-low border border-outline-variant flex items-center justify-center opacity-70 grayscale">
+<span class="material-symbols-outlined text-outline text-[24px]">lock</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-outline">HASH TABLES</span>
+</div>
+<!-- Tier 4: Hierarchical & Non-Linear -->
+<div class="node-container flex flex-col items-center absolute" style="top: 480px; left: 40px;">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-low border border-outline-variant flex items-center justify-center opacity-70 grayscale">
+<span class="material-symbols-outlined text-outline text-[24px]">lock</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-outline">TREES</span>
+</div>
+<div class="node-container flex flex-col items-center absolute" style="top: 480px; left: 50%; transform: translateX(-50%);">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-low border border-outline-variant flex items-center justify-center opacity-70 grayscale">
+<span class="material-symbols-outlined text-outline text-[24px]">lock</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-outline">HEAPS</span>
+</div>
+<div class="node-container flex flex-col items-center absolute" style="top: 480px; right: 40px;">
+<div class="skill-node relative w-[60px] h-[60px] rounded-full bg-surface-container-low border border-outline-variant flex items-center justify-center opacity-70 grayscale">
+<span class="material-symbols-outlined text-outline text-[24px]">lock</span>
+</div>
+<span class="font-label-caps text-label-caps mt-2 text-outline">GRAPHS</span>
+</div>
+<!-- Tier 5: Advanced Logic -->
+<div class="node-container flex flex-col items-center absolute" style="top: 680px; left: 50%; transform: translateX(-50%);">
+<div class="skill-node relative w-[72px] h-[72px] rounded-full bg-surface-container-low border-2 border-outline flex items-center justify-center opacity-50">
+<span class="material-symbols-outlined text-outline text-[32px]">psychology</span>
+</div>
+<span class="font-label-caps text-label-caps mt-3 text-outline">DYNAMIC PROGRAMMING</span>
+<span class="absolute -top-4 bg-secondary text-on-secondary px-2 py-0.5 rounded-full text-[9px] font-bold tracking-widest uppercase">Expert</span>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 h-[56px] bg-surface-container-lowest dark:bg-surface-container-highest border-t border-outline-variant flex justify-around items-center px-2 shadow-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim border-t-2 border-primary transition-transform duration-150 active:scale-95 h-full" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+<span class="font-label-caps text-label-caps">Skills</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">extension</span>
+<span class="font-label-caps text-label-caps">Challenge</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-caps text-label-caps">Ranks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant transition-transform duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+<!-- Contextual FAB (Hidden on Skill Tree per instructions, but placeholder if logic changed) -->
+<!-- The FAB is suppressed on Skill Tree screens per 'Contextual FAB Suppression' rule. -->
+<script>
+        // Micro-interaction for node clicks
+        document.querySelectorAll('.skill-node').forEach(node => {
+            node.addEventListener('click', () => {
+                const label = node.nextElementSibling.textContent;
+                console.log(`Navigating to ${label} module...`);
+                // Interactive feedback
+                node.style.borderColor = '#5a7a3a';
+                setTimeout(() => {
+                    node.style.borderColor = '';
+                }, 400);
+            });
+        });
+
+        // Atmospheric effect: Subtle float for nodes
+        const nodes = document.querySelectorAll('.node-container');
+        nodes.forEach((node, i) => {
+            const delay = i * 200;
+            node.style.transition = 'transform 3s ease-in-out';
+            setInterval(() => {
+                const yOffset = Math.sin(Date.now() / 1000 + i) * 3;
+                node.style.transform = `translateX(-50%) translateY(${yOffset}px)`;
+            }, 50);
+        });
+    </script>
+</body></html>

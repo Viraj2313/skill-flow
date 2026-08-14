@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - Onboarding</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e3e3da",
+                    "on-tertiary-fixed-variant": "#6a335d",
+                    "primary-fixed": "#c9eea1",
+                    "on-secondary-fixed": "#271900",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#fdc34d",
+                    "on-surface-variant": "#44483d",
+                    "inverse-surface": "#2f312b",
+                    "surface": "#fafaf1",
+                    "surface-container-low": "#f4f4eb",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#314f13",
+                    "primary-container": "#5a7a3a",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-primary-fixed": "#0e2000",
+                    "on-secondary-container": "#715000",
+                    "on-surface": "#1a1c17",
+                    "surface-dim": "#dadbd2",
+                    "tertiary": "#7e446f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#fafaf1",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#aed288",
+                    "tertiary-fixed": "#ffd7ef",
+                    "outline-variant": "#c4c8b9",
+                    "primary": "#426124",
+                    "inverse-primary": "#aed288",
+                    "on-tertiary-fixed": "#37052f",
+                    "surface-container-high": "#e8e9e0",
+                    "surface-tint": "#486729",
+                    "secondary": "#7b5800",
+                    "surface-container": "#eeeee6",
+                    "tertiary-container": "#9a5c89",
+                    "inverse-on-surface": "#f1f1e8",
+                    "on-tertiary-container": "#fff3f7",
+                    "on-primary-container": "#e5ffc6",
+                    "secondary-fixed": "#ffdea6",
+                    "tertiary-fixed-dim": "#f9b0e2",
+                    "surface-container-highest": "#e3e3da",
+                    "on-background": "#1a1c17",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "background": "#fafaf1",
+                    "outline": "#74796b",
+                    "on-secondary-fixed-variant": "#5d4200"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "12px",
+                    "lg": "24px",
+                    "tap_target": "44px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "margin": "20px"
+            },
+            "fontFamily": {
+                    "label-caps": ["JetBrains Mono"],
+                    "h2": ["Inter"],
+                    "stat-lg": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "body": ["Inter"],
+                    "h1": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f5f4ef;
+            background-image: radial-gradient(#1c1917 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-repeat: repeat;
+            /* Applying the 4% opacity effect from the prompt guidance */
+            background-attachment: fixed;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f5f4ef;
+            z-index: -2;
+        }
+        .dot-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 1px 1px, rgba(28, 25, 23, 0.04) 1px, transparent 0);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        .custom-shadow {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface min-h-screen flex flex-col items-center overflow-hidden">
+<div class="dot-overlay"></div>
+<!-- Top Navigation Bar (Skip Link) -->
+<header class="w-full h-tap_target px-margin flex items-center justify-end z-10">
+<button class="font-label-caps text-label-caps text-outline hover:text-primary transition-colors tracking-widest active:scale-95 duration-150">
+            SKIP
+        </button>
+</header>
+<!-- Main Onboarding Content -->
+<main class="flex-1 w-full max-w-md px-margin flex flex-col items-center justify-center text-center">
+<!-- Visual Anchor: Bento-style code block simulation -->
+<div class="relative w-full mb-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+<!-- Icon Background Container -->
+<div class="w-32 h-32 rounded-full bg-white border border-outline-variant flex items-center justify-center mx-auto custom-shadow relative z-10">
+<span class="material-symbols-outlined text-[80px] text-primary" data-icon="terminal">terminal</span>
+</div>
+<!-- Atmospheric Code Card (Aesthetic Layering) -->
+<div class="absolute -top-4 -right-4 w-32 h-20 bg-surface-container-low rounded-lg border border-outline-variant p-sm opacity-60 hidden sm:block">
+<div class="h-1.5 w-12 bg-primary-container rounded-full mb-base"></div>
+<div class="h-1.5 w-16 bg-outline-variant rounded-full mb-base"></div>
+<div class="h-1.5 w-8 bg-secondary-container rounded-full"></div>
+</div>
+<div class="absolute -bottom-2 -left-4 w-28 h-16 bg-surface-container-low rounded-lg border border-outline-variant p-sm opacity-60 hidden sm:block">
+<div class="h-1.5 w-14 bg-tertiary-container rounded-full mb-base"></div>
+<div class="h-1.5 w-10 bg-outline-variant rounded-full"></div>
+</div>
+</div>
+<!-- Typography Cluster -->
+<div class="space-y-md animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150">
+<h2 class="font-h2 text-h2 text-on-surface">Real-time Execution</h2>
+<p class="font-body text-body text-on-surface-variant max-w-[280px] mx-auto leading-relaxed">
+                Write and run code in your language of choice. Instant feedback, live test results, and performance metrics as you solve.
+            </p>
+</div>
+<!-- Secondary Visual: Language Badges -->
+<div class="flex gap-xs mt-lg opacity-80 animate-in fade-in duration-1000 delay-300">
+<div class="px-sm py-1 bg-white border border-outline-variant rounded-full text-label-caps font-label-caps text-on-surface-variant">Python</div>
+<div class="px-sm py-1 bg-white border border-outline-variant rounded-full text-label-caps font-label-caps text-on-surface-variant">JS</div>
+<div class="px-sm py-1 bg-white border border-outline-variant rounded-full text-label-caps font-label-caps text-on-surface-variant">C++</div>
+<div class="px-sm py-1 bg-white border border-outline-variant rounded-full text-label-caps font-label-caps text-on-surface-variant">Java</div>
+</div>
+</main>
+<!-- Bottom Action Section -->
+<footer class="w-full max-w-md px-margin pb-xl pt-md flex flex-col items-center gap-lg">
+<!-- Page Indicator Dots -->
+<div class="flex gap-sm">
+<!-- Dot 1 -->
+<div class="w-2.5 h-2.5 rounded-full bg-outline-variant opacity-40"></div>
+<!-- Dot 2 (Active) -->
+<div class="w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-primary/10"></div>
+<!-- Dot 3 -->
+<div class="w-2.5 h-2.5 rounded-full bg-outline-variant opacity-40"></div>
+</div>
+<!-- Next Button -->
+<button class="w-full h-[56px] bg-primary text-white font-h3 text-h3 rounded-lg flex items-center justify-center gap-sm shadow-sm active:scale-[0.98] transition-all duration-150 hover:bg-primary-container">
+<span>NEXT</span>
+<span class="material-symbols-outlined font-bold" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</footer>
+<!-- Interactive Atmospheric Micro-interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nextBtn = document.querySelector('button.bg-primary');
+            const skipBtn = document.querySelector('header button');
+            
+            // Subtle click handlers
+            nextBtn.addEventListener('click', () => {
+                // Potential navigation logic
+                console.log('Navigating to slide 3...');
+                document.body.classList.add('opacity-0');
+                document.body.style.transition = 'opacity 0.4s ease';
+            });
+
+            skipBtn.addEventListener('click', () => {
+                console.log('Skipping onboarding...');
+            });
+
+            // Parallax mouse effect for the visual anchor
+            const container = document.querySelector('main');
+            container.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2) / 40;
+                const moveY = (e.clientY - window.innerHeight / 2) / 40;
+                const visual = document.querySelector('.animate-in');
+                if (visual) {
+                    visual.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
+                }
+            });
+        });
+    </script>
+</body></html>

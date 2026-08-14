@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - Problem List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#9a5c89",
+                    "tertiary-fixed": "#ffd7ef",
+                    "secondary-container": "#fdc34d",
+                    "tertiary": "#7e446f",
+                    "outline-variant": "#c4c8b9",
+                    "on-background": "#1a1c17",
+                    "surface-dim": "#dadbd2",
+                    "surface-container-high": "#e8e9e0",
+                    "on-secondary-fixed": "#271900",
+                    "surface-tint": "#486729",
+                    "on-primary-container": "#e5ffc6",
+                    "surface-container-low": "#f4f4eb",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#e3e3da",
+                    "on-surface-variant": "#44483d",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#ffdea6",
+                    "outline": "#74796b",
+                    "primary-fixed": "#c9eea1",
+                    "primary": "#426124",
+                    "surface-container-highest": "#e3e3da",
+                    "on-tertiary-fixed": "#37052f",
+                    "on-secondary-container": "#715000",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#aed288",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-primary-fixed-variant": "#314f13",
+                    "inverse-surface": "#2f312b",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "on-surface": "#1a1c17",
+                    "primary-container": "#5a7a3a",
+                    "inverse-on-surface": "#f1f1e8",
+                    "surface": "#fafaf1",
+                    "on-tertiary-container": "#fff3f7",
+                    "on-tertiary-fixed-variant": "#6a335d",
+                    "tertiary-fixed-dim": "#f9b0e2",
+                    "secondary": "#7b5800",
+                    "primary-fixed-dim": "#aed288",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#eeeee6",
+                    "surface-bright": "#fafaf1",
+                    "on-primary-fixed": "#0e2000",
+                    "background": "#fafaf1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "gutter": "16px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "sm": "12px",
+                    "margin": "20px",
+                    "xs": "8px",
+                    "lg": "24px",
+                    "tap_target": "44px"
+            },
+            "fontFamily": {
+                    "h2": ["Inter"],
+                    "h1": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "body": ["Inter"],
+                    "h3": ["Inter"],
+                    "stat-lg": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "label-caps": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .parchment-bg {
+            background-color: #f5f4ef;
+            background-image: radial-gradient(#1c1917 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            background-repeat: repeat;
+            opacity: 1;
+        }
+        .parchment-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(245, 244, 239, 0.96);
+            z-index: -1;
+        }
+        .bottom-sheet {
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #ebe8e0;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ddd9cf;
+            border-radius: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body overflow-hidden h-screen">
+<!-- Background Layer: Dimmed Skill Tree -->
+<div class="absolute inset-0 parchment-bg overflow-hidden flex flex-col pointer-events-none opacity-40 grayscale-[0.5]">
+<!-- TopAppBar (Simulated background) -->
+<header class="flex items-center w-full px-margin h-tap_target border-b border-outline-variant bg-surface">
+<span class="material-symbols-outlined text-primary mr-4" data-icon="arrow_back">arrow_back</span>
+<h1 class="font-h2 text-h2 font-bold text-primary">AlgoQuest</h1>
+</header>
+<!-- Skill Tree Nodes (Abstracted) -->
+<div class="flex-1 p-8 flex flex-col items-center space-y-12 overflow-hidden">
+<div class="w-20 h-20 rounded-full bg-primary-container flex items-center justify-center border-4 border-white shadow-sm">
+<span class="material-symbols-outlined text-on-primary-container text-4xl" data-icon="account_tree">account_tree</span>
+</div>
+<div class="w-1 h-12 bg-outline-variant"></div>
+<div class="flex space-x-12">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest border-2 border-outline-variant"></div>
+<div class="w-16 h-16 rounded-full bg-surface-container-highest border-2 border-outline-variant"></div>
+</div>
+</div>
+</div>
+<!-- Overlay Dimmer -->
+<div class="absolute inset-0 bg-black/30 backdrop-blur-[1px] z-10"></div>
+<!-- Bottom Sheet Container -->
+<div class="absolute bottom-0 left-0 right-0 h-[751px] bg-surface rounded-t-[20px] shadow-2xl z-20 flex flex-col bottom-sheet overflow-hidden border-t border-outline-variant">
+<!-- Drag Handle Area -->
+<div class="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
+<div class="w-10 h-1 rounded-full bg-outline-variant/60"></div>
+</div>
+<!-- Header Section -->
+<header class="px-margin pt-2 pb-4 space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="data_object" style="font-variation-settings: 'FILL' 1;">data_object</span>
+</div>
+<div>
+<h2 class="font-h2 text-h2 text-on-surface">Data Structures</h2>
+<div class="flex items-center space-x-2 mt-1">
+<span class="font-label-caps text-label-caps text-primary uppercase tracking-widest">Level 3/5</span>
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="w-[60%] h-full bg-primary"></div>
+</div>
+</div>
+</div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-outline" data-icon="close">close</span>
+</button>
+</div>
+<!-- Filter Pills -->
+<div class="flex space-x-2 overflow-x-auto pb-2 custom-scrollbar">
+<button class="px-4 py-1.5 rounded-full bg-primary text-on-primary font-label-caps text-label-caps transition-all active:scale-95">ALL</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant border border-outline-variant/30 font-label-caps text-label-caps hover:bg-surface-container transition-all">EASY</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant border border-outline-variant/30 font-label-caps text-label-caps hover:bg-surface-container transition-all">MEDIUM</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant border border-outline-variant/30 font-label-caps text-label-caps hover:bg-surface-container transition-all">HARD</button>
+</div>
+</header>
+<!-- Problem List -->
+<div class="flex-1 overflow-y-auto px-margin pb-32 space-y-3 custom-scrollbar">
+<!-- Problem Row: Solved -->
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/40 flex items-center justify-between group hover:border-primary/40 transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-2.5 h-2.5 rounded-full bg-[#5a7a3a]" title="Easy"></div>
+<div>
+<h3 class="font-h3 text-body font-semibold text-on-surface">Implementing a Linked List</h3>
+<div class="flex items-center space-x-3 mt-1">
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-code">+50 XP</span>
+<span class="text-body-sm text-outline flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="schedule">schedule</span>
+                                15m
+                            </span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<!-- Problem Row: In Progress -->
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/40 flex items-center justify-between group hover:border-primary/40 transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-2.5 h-2.5 rounded-full bg-[#b8860b]" title="Medium"></div>
+<div>
+<h3 class="font-h3 text-body font-semibold text-on-surface">Reverse a Binary Tree</h3>
+<div class="flex items-center space-x-3 mt-1">
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-code">+75 XP</span>
+<span class="text-body-sm text-outline flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="schedule">schedule</span>
+                                25m
+                            </span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-outline-variant text-xl" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+</div>
+<!-- Problem Row: Hard -->
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/40 flex items-center justify-between group hover:border-primary/40 transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-2.5 h-2.5 rounded-full bg-[#ba1a1a]" title="Hard"></div>
+<div>
+<h3 class="font-h3 text-body font-semibold text-on-surface">LRU Cache Design</h3>
+<div class="flex items-center space-x-3 mt-1">
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-code">+120 XP</span>
+<span class="text-body-sm text-outline flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="schedule">schedule</span>
+                                45m
+                            </span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-outline-variant text-xl" data-icon="lock">lock</span>
+</div>
+</div>
+<!-- Problem Row: Medium -->
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/40 flex items-center justify-between group hover:border-primary/40 transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-2.5 h-2.5 rounded-full bg-[#b8860b]" title="Medium"></div>
+<div>
+<h3 class="font-h3 text-body font-semibold text-on-surface">Queue using Stacks</h3>
+<div class="flex items-center space-x-3 mt-1">
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-code">+70 XP</span>
+<span class="text-body-sm text-outline flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="schedule">schedule</span>
+                                20m
+                            </span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-outline-variant text-xl" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+</div>
+<!-- Problem Row: Solved -->
+<div class="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/40 flex items-center justify-between group hover:border-primary/40 transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-2.5 h-2.5 rounded-full bg-[#5a7a3a]" title="Easy"></div>
+<div>
+<h3 class="font-h3 text-body font-semibold text-on-surface">Balanced Parentheses</h3>
+<div class="flex items-center space-x-3 mt-1">
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-code">+45 XP</span>
+<span class="text-body-sm text-outline flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="schedule">schedule</span>
+                                10m
+                            </span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Sticky Footer -->
+<div class="absolute bottom-0 left-0 right-0 p-margin bg-gradient-to-t from-surface via-surface to-transparent pt-12 pb-8">
+<button class="w-full bg-primary-container text-white py-4 rounded-xl font-h3 shadow-lg active:scale-95 transition-transform flex items-center justify-center space-x-2">
+<span class="material-symbols-outlined" data-icon="rocket_launch">rocket_launch</span>
+<span>START TOPIC</span>
+</button>
+</div>
+</div>
+<!-- Micro-interaction Script -->
+<script>
+        // Simple drag simulation and interactions
+        const bottomSheet = document.querySelector('.bottom-sheet');
+        let startY = 0;
+        let currentY = 0;
+
+        bottomSheet.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        }, {passive: true});
+
+        bottomSheet.addEventListener('touchmove', (e) => {
+            currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            if (diff > 0) {
+                bottomSheet.style.transform = `translateY(${diff}px)`;
+            }
+        }, {passive: true});
+
+        bottomSheet.addEventListener('touchend', (e) => {
+            const diff = currentY - startY;
+            if (diff > 150) {
+                // Potential close gesture logic
+                bottomSheet.style.transform = `translateY(100%)`;
+            } else {
+                bottomSheet.style.transform = `translateY(0)`;
+            }
+        });
+
+        // Filter toggle effect
+        const filters = document.querySelectorAll('.filter-pill');
+        filters.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filters.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-on-primary');
+                    b.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+                });
+                btn.classList.add('bg-primary', 'text-on-primary');
+                btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>

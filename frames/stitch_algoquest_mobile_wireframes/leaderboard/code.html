@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - Global Rankings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#9a5c89",
+                        "tertiary-fixed": "#ffd7ef",
+                        "secondary-container": "#fdc34d",
+                        "tertiary": "#7e446f",
+                        "outline-variant": "#c4c8b9",
+                        "on-background": "#1a1c17",
+                        "surface-dim": "#dadbd2",
+                        "surface-container-high": "#e8e9e0",
+                        "on-secondary-fixed": "#271900",
+                        "surface-tint": "#486729",
+                        "on-primary-container": "#e5ffc6",
+                        "surface-container-low": "#f4f4eb",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e3e3da",
+                        "on-surface-variant": "#44483d",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdea6",
+                        "outline": "#74796b",
+                        "primary-fixed": "#c9eea1",
+                        "primary": "#426124",
+                        "surface-container-highest": "#e3e3da",
+                        "on-tertiary-fixed": "#37052f",
+                        "on-secondary-container": "#715000",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#aed288",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-primary-fixed-variant": "#314f13",
+                        "inverse-surface": "#2f312b",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#1a1c17",
+                        "primary-container": "#5a7a3a",
+                        "inverse-on-surface": "#f1f1e8",
+                        "surface": "#fafaf1",
+                        "on-tertiary-container": "#fff3f7",
+                        "on-tertiary-fixed-variant": "#6a335d",
+                        "tertiary-fixed-dim": "#f9b0e2",
+                        "secondary": "#7b5800",
+                        "primary-fixed-dim": "#aed288",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eeeee6",
+                        "surface-bright": "#fafaf1",
+                        "on-primary-fixed": "#0e2000",
+                        "background": "#fafaf1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "gutter": "16px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "sm": "12px",
+                        "margin": "20px",
+                        "xs": "8px",
+                        "lg": "24px",
+                        "tap_target": "44px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Inter"],
+                        "h1": ["Inter"],
+                        "code": ["JetBrains Mono"],
+                        "body": ["Inter"],
+                        "h3": ["Inter"],
+                        "stat-lg": ["JetBrains Mono"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fafaf1;
+            background-image: radial-gradient(#1c1917 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            background-attachment: fixed;
+            color: #1a1c17;
+        }
+        .paper-card {
+            background: #ffffff;
+            border: 1px solid #ddd9cf;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .sunken-inset {
+            background: #ebe8e0;
+            border: 1px solid #ddd9cf;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .rank-gold { border-left: 4px solid #fdc34d; }
+        .rank-silver { border-left: 4px solid #c4c8b9; }
+        .rank-bronze { border-left: 4px solid #b8860b; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-body min-h-screen pb-24">
+<!-- Top AppBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-margin h-tap_target flex items-center justify-between">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+<h1 class="font-h2 text-h2 font-bold text-primary">AlgoQuest</h1>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</div>
+</header>
+<main class="pt-20 px-margin space-y-lg max-w-2xl mx-auto">
+<!-- Headline Section -->
+<header>
+<h1 class="font-h1 text-h1 text-on-surface">Global Rankings</h1>
+<p class="font-body-sm text-on-surface-variant mt-1">Compete with the world's best algorithmists.</p>
+</header>
+<!-- Division Status Card -->
+<section class="paper-card rounded-xl p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed text-3xl" data-icon="diamond" style="font-variation-settings: 'FILL' 1;">diamond</span>
+</div>
+<div>
+<h3 class="font-h3 text-h3 text-on-surface">Gold Division</h3>
+<p class="font-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+                        Season Ends In: <span class="font-code text-on-surface font-semibold">03d:14h</span>
+</p>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-sm py-xs rounded-lg font-label-caps hover:opacity-90 transition-all active:scale-95">
+                DETAILS
+            </button>
+</section>
+<!-- Filter Pills -->
+<nav class="flex gap-xs overflow-x-auto pb-2 no-scrollbar">
+<button class="bg-primary text-on-primary font-label-caps px-lg py-xs rounded-full border border-primary">GLOBAL</button>
+<button class="bg-surface text-on-surface-variant font-label-caps px-lg py-xs rounded-full border border-outline-variant hover:bg-surface-container-low">WEEKLY</button>
+<button class="bg-surface text-on-surface-variant font-label-caps px-lg py-xs rounded-full border border-outline-variant hover:bg-surface-container-low">FRIENDS</button>
+</nav>
+<!-- Leaderboard List -->
+<section class="space-y-sm">
+<!-- Rank 1 -->
+<div class="paper-card rounded-xl p-md flex items-center gap-md rank-gold relative overflow-hidden">
+<div class="font-stat-lg text-stat-lg text-secondary-container w-8 text-center">1</div>
+<div class="w-10 h-10 rounded-full sunken-inset flex-shrink-0 bg-cover bg-center" data-alt="A cinematic close-up portrait of a digital avatar, a high-tech scholar with minimalist geometric patterns on their skin. The lighting is warm and golden, reflecting the premium gold division status. The background is a soft, blurred study room with stacks of classic leather-bound books and floating digital interfaces, embodying a warm minimalist academic aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBabYYIjaaAKV9uBAiu1WlrfASRCUGBvmdsaGLhqtjLX9qHCwu_olW70If8HpGm9SPyIC-S2vhNCzzbq5Djs0i9UH5nDzJqdqbmPPRCfG6-BLD7gStnRyh4jNwnI97ssWoTDPPY7MqS7PwOVVoPhBu1eWmsCAxhi988V2nyrnB9h66xR4O5gwY58LsG45DJfA45EOxk_pHCyqOxQ1mqHrJ0K8T5B4I5Sxq8gKBWoY7QPewCUZOy70MzTQZa4n9Q9hf8ykdksYCg9lKy')"></div>
+<div class="flex-grow">
+<h4 class="font-h3 text-h3 text-on-surface leading-tight">BinaryBard</h4>
+<p class="font-label-caps text-on-surface-variant">MASTER ALGORITHMIST</p>
+</div>
+<div class="text-right mr-2">
+<span class="font-code text-primary font-bold">12,450 XP</span>
+</div>
+<button class="material-symbols-outlined text-primary hover:bg-primary-container/10 p-2 rounded-full transition-colors" data-icon="swords" title="Duel">swords</button>
+</div>
+<!-- Rank 2 -->
+<div class="paper-card rounded-xl p-md flex items-center gap-md rank-silver">
+<div class="font-stat-lg text-stat-lg text-outline w-8 text-center">2</div>
+<div class="w-10 h-10 rounded-full sunken-inset flex-shrink-0 bg-cover bg-center" data-alt="A portrait of a serene female developer avatar wearing modern glasses that reflect lines of golden code. She is set against a clean, off-white minimalist workspace with subtle architectural lines. The color palette is composed of soft greys, moss greens, and warm parchment tones, emphasizing a professional and focused atmosphere." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCAb6AlCBvrenNkbA6WhiIwtt1Fk-ysX-nva8H8SNmtRAoT5atMPv7xNXiAuKDniJNqxQCFo8hmcL2MW0a-wDCAsRn9GHcJ3tcETyU9X7GeI4OGZbgGmA4C1vm-pVG34CSB7Cq1ttVKOzBZc8PQofJMsPTijB9jkbv-xiHDKStwXdj1lxF0ulniEIYR6Wn4Q2sC0Y1T4K9aHks_pjKlqd8MyPshIYg7NNE0rYYqRR2m2WE4_SiZdb9JyNh-dPWujrbbuMxPDgE8gju9')"></div>
+<div class="flex-grow">
+<h4 class="font-h3 text-h3 text-on-surface leading-tight">NullPointerEx</h4>
+<p class="font-label-caps text-on-surface-variant">SENIOR ARCHITECT</p>
+</div>
+<div class="text-right mr-2">
+<span class="font-code text-primary font-bold">11,820 XP</span>
+</div>
+<button class="material-symbols-outlined text-primary hover:bg-primary-container/10 p-2 rounded-full transition-colors" data-icon="swords">swords</button>
+</div>
+<!-- Rank 3 -->
+<div class="paper-card rounded-xl p-md flex items-center gap-md rank-bronze">
+<div class="font-stat-lg text-stat-lg text-secondary w-8 text-center">3</div>
+<div class="w-10 h-10 rounded-full sunken-inset flex-shrink-0 bg-cover bg-center" data-alt="A digital art piece showing a creative coding enthusiast's avatar, featuring a warm aesthetic with earthy tones. The character is surrounded by floating nodes and connections that look like delicate sketches in an engineering notebook. High-key lighting creates a soft, approachable mood consistent with the parchment-inspired design system." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_EaXNuYPlx-sv_rDJa3PJ9_IT-RsFWd0vxMa5lQh4jBqX5_y8fKenrCc3rYvbWsGbG5vp0dV2e9pQL9EX85quYDF_2tr3mNvuh-rC_SRImRBmLYvNszeXPFSQR5_KopOXcdHSM4oRCgSV_iKBEsiQvvoPIeX69CIuPoLfU9wd6Gjv_DPPEtYGaCAviBll8QDHxMSX_6zsqCZb8xtNIrM9yznp0mxL4rOwzheN6OK-lsuH6dmxZiObUJDARaOxVTOQiLLrQFX1iJVX')"></div>
+<div class="flex-grow">
+<h4 class="font-h3 text-h3 text-on-surface leading-tight">RecursiveRain</h4>
+<p class="font-label-caps text-on-surface-variant">LOGIC WIZARD</p>
+</div>
+<div class="text-right mr-2">
+<span class="font-code text-primary font-bold">10,940 XP</span>
+</div>
+<button class="material-symbols-outlined text-primary hover:bg-primary-container/10 p-2 rounded-full transition-colors" data-icon="swords">swords</button>
+</div>
+<!-- YOU Row -->
+<div class="bg-primary-fixed-dim/30 border border-primary/20 rounded-xl p-md flex items-center gap-md shadow-inner">
+<div class="font-stat-lg text-stat-lg text-primary w-8 text-center">14</div>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-h3 text-h3 text-on-surface leading-tight">YOU</h4>
+<p class="font-label-caps text-primary">ADVANCED SOLVER</p>
+</div>
+<div class="text-right mr-2">
+<span class="font-code text-primary font-bold">8,215 XP</span>
+</div>
+<div class="w-10"></div>
+</div>
+<!-- Rank 15 -->
+<div class="paper-card rounded-xl p-md flex items-center gap-md opacity-80">
+<div class="font-stat-lg text-stat-lg text-on-surface-variant w-8 text-center text-sm">15</div>
+<div class="w-10 h-10 rounded-full sunken-inset flex-shrink-0 bg-cover bg-center" data-alt="A minimalist profile avatar of a tech-savvy learner, depicted with clean lines and a soft color palette. The background is a simple dot-grid pattern reminiscent of an engineering journal. The character has a calm expression, wearing a simple linen shirt, standing in natural, diffused daylight." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDceWM5jQ4JiStfBOgf9f7soWkYAZL0KqfaS9a1eD8o4yjBlz9MEVSx18SpAFgGuiBmPsjGIfGo7l1xnD1t4IuSd2ykFVMv1XsdPSHpKjVqTGonuGzn_4URQoGvfbuPOZ_u__c9LMxg8azcMA_H6pzd1xLn6KBZwLc7GPL20D1IFTLBRKW7YScDlSFmpynnVDmot0qnJTQ5TC3t3a7QWGD0dvnSjf0O1EhJjMYK31925TJyX0-9b0OPWkIZZfo7OIov0AiEXuEhHV0M')"></div>
+<div class="flex-grow">
+<h4 class="font-h3 text-h3 text-on-surface leading-tight">StackOverflow</h4>
+<p class="font-label-caps text-on-surface-variant">CODE CURATOR</p>
+</div>
+<div class="text-right mr-2">
+<span class="font-code text-on-surface-variant">7,980 XP</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors" data-icon="swords">swords</button>
+</div>
+<!-- Rank 16 -->
+<div class="paper-card rounded-xl p-md flex items-center gap-md opacity-80">
+<div class="font-stat-lg text-stat-lg text-on-surface-variant w-8 text-center text-sm">16</div>
+<div class="w-10 h-10 rounded-full sunken-inset flex-shrink-0 bg-cover bg-center" data-alt="An avatar of a student focusing on a transparent digital screen, showing glowing node-link diagrams. The scene is bright and airy with a warm light-mode aesthetic. The visual style is human-centric and tactile, with textures like paper and canvas visible in the background elements." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA5Q0nqczTBTFsanUfMljXHSxzbQVxV5EI-k7k-m8V6xABHYyk_EWFgUod6Ldy1uD--l_1KMe8IgJsiaFR5z1NUBAeMlCWNEidgLuNw9mDeKuSfyAkjOg715Z80kx2B_8wNF9DspgMN36fg0iAv1wl1NrFELnln2DljU-kq7g6I0AGJrj_Lv94cXPYdAQLWFUKsnfPeL4l4ZistHGhsOoXqrSE1azL6De97QfxHeyo3vbPuN9uIjzILT0_Sgp1mGv4NidYvD5ukC0bU')"></div>
+<div class="flex-grow">
+<h4 class="font-h3 text-h3 text-on-surface leading-tight">ByteSized</h4>
+<p class="font-label-caps text-on-surface-variant">LEARNING SPRINT</p>
+</div>
+<div class="text-right mr-2">
+<span class="font-code text-on-surface-variant">7,540 XP</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors" data-icon="swords">swords</button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 h-[56px] bg-surface-container-lowest border-t border-outline-variant flex justify-around items-center px-2 shadow-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low flex-1 h-full transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low flex-1 h-full transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-label-caps text-label-caps">Skills</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low flex-1 h-full transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="extension">extension</span>
+<span class="font-label-caps text-label-caps">Challenge</span>
+</a>
+<!-- ACTIVE TAB: RANKS -->
+<a class="flex flex-col items-center justify-center text-primary border-t-2 border-primary flex-1 h-full transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="font-label-caps text-label-caps">Ranks</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low flex-1 h-full transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for filter pills
+        const pills = document.querySelectorAll('nav button');
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                pills.forEach(p => {
+                    p.classList.remove('bg-primary', 'text-on-primary');
+                    p.classList.add('bg-surface', 'text-on-surface-variant');
+                });
+                pill.classList.remove('bg-surface', 'text-on-surface-variant');
+                pill.classList.add('bg-primary', 'text-on-primary');
+            });
+        });
+
+        // Duel button click effect
+        document.querySelectorAll('button[data-icon="swords"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const icon = btn.innerText;
+                btn.innerText = 'done';
+                btn.classList.add('text-primary');
+                setTimeout(() => {
+                    btn.innerText = 'swords';
+                }, 1000);
+            });
+        });
+    </script>
+</body></html>

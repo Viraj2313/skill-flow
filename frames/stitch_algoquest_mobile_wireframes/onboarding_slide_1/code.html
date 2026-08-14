@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e3e3da",
+                        "on-tertiary-fixed-variant": "#6a335d",
+                        "primary-fixed": "#c9eea1",
+                        "on-secondary-fixed": "#271900",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#fdc34d",
+                        "on-surface-variant": "#44483d",
+                        "inverse-surface": "#2f312b",
+                        "surface": "#fafaf1",
+                        "surface-container-low": "#f4f4eb",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#314f13",
+                        "primary-container": "#5a7a3a",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-primary-fixed": "#0e2000",
+                        "on-secondary-container": "#715000",
+                        "on-surface": "#1a1c17",
+                        "surface-dim": "#dadbd2",
+                        "tertiary": "#7e446f",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fafaf1",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#aed288",
+                        "tertiary-fixed": "#ffd7ef",
+                        "outline-variant": "#c4c8b9",
+                        "primary": "#426124",
+                        "inverse-primary": "#aed288",
+                        "on-tertiary-fixed": "#37052f",
+                        "surface-container-high": "#e8e9e0",
+                        "surface-tint": "#486729",
+                        "secondary": "#7b5800",
+                        "surface-container": "#eeeee6",
+                        "tertiary-container": "#9a5c89",
+                        "inverse-on-surface": "#f1f1e8",
+                        "on-tertiary-container": "#fff3f7",
+                        "on-primary-container": "#e5ffc6",
+                        "secondary-fixed": "#ffdea6",
+                        "tertiary-fixed-dim": "#f9b0e2",
+                        "surface-container-highest": "#e3e3da",
+                        "on-background": "#1a1c17",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "background": "#fafaf1",
+                        "outline": "#74796b",
+                        "on-secondary-fixed-variant": "#5d4200"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "xs": "8px",
+                        "base": "4px",
+                        "sm": "12px",
+                        "lg": "24px",
+                        "tap_target": "44px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin": "20px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "h2": ["Inter"],
+                        "h3": ["Inter"],
+                        "body": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "code": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f5f4ef;
+            background-image: radial-gradient(#1c1917 1px, transparent 0);
+            background-size: 24px 24px;
+            background-attachment: fixed;
+        }
+        .dot-grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(#1c1917 0.75px, transparent 0);
+            background-size: 24px 24px;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface antialiased min-h-screen flex flex-col relative overflow-hidden">
+<div class="dot-grid-overlay"></div>
+<!-- Header Section -->
+<header class="relative z-10 px-margin pt-sm flex justify-end items-center h-tap_target">
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors tracking-widest">
+            SKIP
+        </button>
+</header>
+<!-- Main Content Section -->
+<main class="flex-grow flex flex-col items-center justify-center relative z-10 px-margin text-center">
+<!-- Visual Illustration Container -->
+<div class="mb-xl flex items-center justify-center relative">
+<!-- Decorative Background Element -->
+<div class="absolute w-32 h-32 bg-primary/5 rounded-full scale-150 animate-pulse"></div>
+<span class="material-symbols-outlined text-[80px] text-primary select-none" style="font-size: 80px;">
+                map
+            </span>
+</div>
+<!-- Typography -->
+<h2 class="font-h2 text-h2 text-on-surface mb-md">Structured Roadmap</h2>
+<p class="font-body text-body text-on-surface-variant max-w-[280px] leading-relaxed">
+            Navigate a curated curriculum of data structures and algorithms. Master the basics before unlocking advanced arenas.
+        </p>
+</main>
+<!-- Footer Navigation Section -->
+<footer class="relative z-10 px-margin pb-xl flex flex-col items-center space-y-xl">
+<!-- Pagination Dots -->
+<div class="flex space-x-xs">
+<div class="w-2.5 h-2.5 rounded-full bg-primary shadow-sm"></div>
+<div class="w-2.5 h-2.5 rounded-full border border-outline-variant bg-transparent"></div>
+<div class="w-2.5 h-2.5 rounded-full border border-outline-variant bg-transparent"></div>
+</div>
+<!-- Primary Action Button -->
+<button class="w-full h-[52px] bg-primary-container text-on-primary hover:bg-primary transition-all duration-200 active:scale-95 rounded-lg flex items-center justify-center shadow-md">
+<span class="font-label-caps text-label-caps tracking-widest flex items-center">
+                NEXT <span class="material-symbols-outlined ml-base text-[18px]">arrow_forward</span>
+</span>
+</button>
+</footer>
+<!-- Decorative Image Card (Subtle Background Detail) -->
+<div class="absolute -bottom-10 -right-10 opacity-10 pointer-events-none transform rotate-12">
+<div class="w-64 h-64 bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden p-md">
+<div class="h-4 w-3/4 bg-surface-variant rounded mb-sm"></div>
+<div class="h-4 w-1/2 bg-surface-variant rounded mb-md"></div>
+<div class="grid grid-cols-2 gap-sm">
+<div class="h-20 bg-surface-variant rounded-lg"></div>
+<div class="h-20 bg-surface-variant rounded-lg"></div>
+</div>
+</div>
+</div>
+<script>
+        // Simple micro-interaction for the button
+        const nextBtn = document.querySelector('button');
+        nextBtn.addEventListener('mouseenter', () => {
+            const arrow = nextBtn.querySelector('.material-symbols-outlined');
+            arrow.classList.add('translate-x-1');
+            arrow.style.transition = 'transform 0.2s ease-out';
+        });
+        nextBtn.addEventListener('mouseleave', () => {
+            const arrow = nextBtn.querySelector('.material-symbols-outlined');
+            arrow.classList.remove('translate-x-1');
+        });
+    </script>
+</body></html>

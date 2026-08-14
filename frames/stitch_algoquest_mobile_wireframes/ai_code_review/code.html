@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest AI Code Review</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffd7ef",
+                        "surface-container-high": "#e8e9e0",
+                        "on-secondary-fixed": "#271900",
+                        "background": "#fafaf1",
+                        "on-surface-variant": "#44483d",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "primary-fixed-dim": "#aed288",
+                        "primary": "#426124",
+                        "on-background": "#1a1c17",
+                        "inverse-surface": "#2f312b",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e3e3da",
+                        "on-tertiary-fixed": "#37052f",
+                        "on-primary-fixed": "#0e2000",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#aed288",
+                        "tertiary": "#7e446f",
+                        "inverse-on-surface": "#f1f1e8",
+                        "primary-container": "#5a7a3a",
+                        "surface-container-low": "#f4f4eb",
+                        "surface": "#fafaf1",
+                        "on-primary-container": "#e5ffc6",
+                        "surface-tint": "#486729",
+                        "secondary-container": "#fdc34d",
+                        "on-primary-fixed-variant": "#314f13",
+                        "outline-variant": "#c4c8b9",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "tertiary-fixed-dim": "#f9b0e2",
+                        "surface-dim": "#dadbd2",
+                        "on-tertiary-container": "#fff3f7",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#7b5800",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e3e3da",
+                        "secondary-fixed": "#ffdea6",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1a1c17",
+                        "on-secondary-container": "#715000",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#74796b",
+                        "surface-bright": "#fafaf1",
+                        "tertiary-container": "#9a5c89",
+                        "primary-fixed": "#c9eea1",
+                        "surface-container": "#eeeee6",
+                        "on-tertiary-fixed-variant": "#6a335d",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "4px",
+                        "lg": "8px",
+                        "xl": "12px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "xs": "8px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "tap_target": "44px",
+                        "margin": "20px",
+                        "md": "16px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Inter"],
+                        "code": ["JetBrains Mono"],
+                        "stat-lg": ["JetBrains Mono"],
+                        "h3": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "h1": ["Inter"],
+                        "body": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .dot-grid {
+            background-image: radial-gradient(#1c1917 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.04;
+        }
+        .paper-shadow {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .bottom-sheet-transition {
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, #ebe8e0 25%, #f5f4ef 50%, #ebe8e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface min-h-screen overflow-hidden">
+<!-- Background Dot Grid -->
+<div class="fixed inset-0 dot-grid pointer-events-none"></div>
+<!-- Underlying Editor Content (Blurred Background) -->
+<main class="relative z-0 p-margin max-w-2xl mx-auto opacity-40 blur-[2px] pointer-events-none">
+<header class="flex items-center justify-between mb-lg">
+<h1 class="font-h1 text-h1 text-primary">AlgoQuest</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container"></div>
+</header>
+<div class="bg-surface border border-outline-variant rounded-xl p-md mb-md">
+<pre class="font-code text-code text-on-surface-variant"><code>function binarySearch(arr, target) {
+  let left = 0;
+  let right = arr.length - 1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    if (arr[mid] === target) return mid;
+    if (arr[mid] < target) left = mid + 1;
+    else right = mid - 1;
+  }
+  return -1;
+}</code></pre>
+</div>
+</main>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-on-background/20 backdrop-blur-sm z-40 transition-opacity duration-300" id="backdrop"></div>
+<!-- Bottom Sheet (85% Height) -->
+<div class="fixed bottom-0 left-0 right-0 h-[751px] bg-background z-50 rounded-t-[24px] border-t border-outline-variant shadow-2xl flex flex-col bottom-sheet-transition translate-y-0" id="bottomSheet">
+<!-- Drag Handle Indicator -->
+<div class="w-full flex justify-center pt-sm pb-base">
+<div class="w-12 h-1.5 bg-outline-variant rounded-full opacity-50"></div>
+</div>
+<!-- Sheet Header -->
+<header class="px-margin py-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="smart_toy">smart_toy</span>
+<h2 class="font-label-caps text-label-caps text-on-surface tracking-widest uppercase">AI CODE REVIEW</h2>
+</header>
+<!-- Content Area (Scrollable) -->
+<div class="flex-1 overflow-y-auto px-margin pb-xl">
+<!-- Review Summary -->
+<section class="mb-lg">
+<p class="text-body text-on-surface-variant leading-relaxed">
+                    Your implementation of Binary Search is mathematically sound and follows standard iterative patterns. The logic effectively minimizes comparisons by halving the search space each iteration.
+                </p>
+<div class="mt-sm h-[2px] w-12 bg-primary-container/20"></div>
+</section>
+<!-- Complexity Cards (Bento Style) -->
+<div class="grid grid-cols-2 gap-sm mb-lg">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md paper-shadow">
+<span class="font-label-caps text-label-caps text-outline block mb-xs">TIME COMPLEXITY</span>
+<p class="font-stat-lg text-stat-lg text-primary">O(n log n)</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md paper-shadow">
+<span class="font-label-caps text-label-caps text-outline block mb-xs">SPACE COMPLEXITY</span>
+<p class="font-stat-lg text-stat-lg text-primary">O(n)</p>
+</div>
+</div>
+<!-- Suggestions List -->
+<h3 class="font-h3 text-h3 mb-md">Optimization Tips</h3>
+<ul class="space-y-md">
+<li class="flex gap-md group">
+<div class="flex-none w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-code text-sm">1</div>
+<div class="flex-1 pb-md border-b border-outline-variant">
+<div class="flex items-center gap-xs mb-xs">
+<span class="bg-primary-container/10 text-primary font-label-caps text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">Performance</span>
+<span class="bg-secondary-container text-on-secondary-container font-label-caps text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">Crucial</span>
+</div>
+<p class="text-body text-on-surface leading-snug">Avoid potential integer overflow when calculating <code>mid</code>. Use <code>left + Math.floor((right - left) / 2)</code> instead.</p>
+</div>
+</li>
+<li class="flex gap-md group">
+<div class="flex-none w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-code text-sm">2</div>
+<div class="flex-1 pb-md border-b border-outline-variant">
+<div class="flex items-center gap-xs mb-xs">
+<span class="bg-primary-container/10 text-primary font-label-caps text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">Readability</span>
+</div>
+<p class="text-body text-on-surface leading-snug">Add type checks to ensure <code>arr</code> is always a sorted collection before initiating the search loop.</p>
+</div>
+</li>
+<li class="flex gap-md group">
+<div class="flex-none w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-code text-sm">3</div>
+<div class="flex-1">
+<div class="flex items-center gap-xs mb-xs">
+<span class="bg-primary-container/10 text-primary font-label-caps text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">Edge Case</span>
+</div>
+<p class="text-body text-on-surface leading-snug">Consider returning a tuple <code>[index, found]</code> to handle scenarios where the target value is <code>-1</code> itself.</p>
+</div>
+</li>
+</ul>
+<!-- AI Insight Visual -->
+<div class="mt-lg rounded-xl overflow-hidden relative h-32 border border-outline-variant bg-surface-container-low">
+<div class="absolute inset-0 dot-grid opacity-10"></div>
+<div class="absolute inset-0 flex items-center justify-center p-md">
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-outline mb-xs">ALGORITHM STABILITY</p>
+<div class="flex items-end gap-1 h-8 justify-center">
+<div class="w-1.5 bg-primary rounded-full h-4 animate-pulse"></div>
+<div class="w-1.5 bg-primary rounded-full h-8 animate-pulse" style="animation-delay: 0.2s"></div>
+<div class="w-1.5 bg-primary rounded-full h-6 animate-pulse" style="animation-delay: 0.4s"></div>
+<div class="w-1.5 bg-primary rounded-full h-7 animate-pulse" style="animation-delay: 0.1s"></div>
+<div class="w-1.5 bg-primary rounded-full h-5 animate-pulse" style="animation-delay: 0.3s"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer -->
+<footer class="p-margin border-t border-outline-variant bg-background/80 backdrop-blur-md">
+<button class="w-full h-tap_target bg-primary text-on-primary font-h3 text-h3 rounded-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-sm" id="closeBtn">
+<span class="material-symbols-outlined text-[20px]" data-icon="close">close</span>
+                Dismiss Review
+            </button>
+</footer>
+</div>
+<!-- Script for interaction -->
+<script>
+        const bottomSheet = document.getElementById('bottomSheet');
+        const backdrop = document.getElementById('backdrop');
+        const closeBtn = document.getElementById('closeBtn');
+
+        function toggleSheet() {
+            const isHidden = bottomSheet.classList.contains('translate-y-full');
+            if (isHidden) {
+                bottomSheet.classList.remove('translate-y-full');
+                backdrop.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                bottomSheet.classList.add('translate-y-full');
+                backdrop.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        closeBtn.addEventListener('click', toggleSheet);
+        backdrop.addEventListener('click', toggleSheet);
+
+        // Optional: Touch drag logic placeholder
+        let startY = 0;
+        bottomSheet.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        });
+
+        bottomSheet.addEventListener('touchmove', (e) => {
+            let currentY = e.touches[0].clientY;
+            let deltaY = currentY - startY;
+            if (deltaY > 0) {
+                bottomSheet.style.transform = `translateY(${deltaY}px)`;
+            }
+        });
+
+        bottomSheet.addEventListener('touchend', (e) => {
+            let currentY = e.changedTouches[0].clientY;
+            let deltaY = currentY - startY;
+            bottomSheet.style.transform = '';
+            if (deltaY > 150) {
+                toggleSheet();
+            }
+        });
+    </script>
+</body></html>

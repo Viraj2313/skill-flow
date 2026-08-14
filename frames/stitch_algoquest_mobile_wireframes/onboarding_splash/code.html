@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - Onboarding Splash</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter and JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e3e3da",
+                        "on-tertiary-fixed-variant": "#6a335d",
+                        "primary-fixed": "#c9eea1",
+                        "on-secondary-fixed": "#271900",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#fdc34d",
+                        "on-surface-variant": "#44483d",
+                        "inverse-surface": "#2f312b",
+                        "surface": "#fafaf1",
+                        "surface-container-low": "#f4f4eb",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#314f13",
+                        "primary-container": "#5a7a3a",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-primary-fixed": "#0e2000",
+                        "on-secondary-container": "#715000",
+                        "on-surface": "#1a1c17",
+                        "surface-dim": "#dadbd2",
+                        "tertiary": "#7e446f",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fafaf1",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#aed288",
+                        "tertiary-fixed": "#ffd7ef",
+                        "outline-variant": "#c4c8b9",
+                        "primary": "#426124",
+                        "inverse-primary": "#aed288",
+                        "on-tertiary-fixed": "#37052f",
+                        "surface-container-high": "#e8e9e0",
+                        "surface-tint": "#486729",
+                        "secondary": "#7b5800",
+                        "surface-container": "#eeeee6",
+                        "tertiary-container": "#9a5c89",
+                        "inverse-on-surface": "#f1f1e8",
+                        "on-tertiary-container": "#fff3f7",
+                        "on-primary-container": "#e5ffc6",
+                        "secondary-fixed": "#ffdea6",
+                        "tertiary-fixed-dim": "#f9b0e2",
+                        "surface-container-highest": "#e3e3da",
+                        "on-background": "#1a1c17",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "background": "#fafaf1",
+                        "outline": "#74796b",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "splash-dark": "#1a1915"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "xs": "8px",
+                        "base": "4px",
+                        "sm": "12px",
+                        "lg": "24px",
+                        "tap_target": "44px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "margin": "20px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["JetBrains Mono"],
+                        "h2": ["Inter"],
+                        "stat-lg": ["JetBrains Mono"],
+                        "h3": ["Inter"],
+                        "code": ["JetBrains Mono"],
+                        "body": ["Inter"],
+                        "h1": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "h2": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "stat-lg": ["20px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "h3": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "code": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "body": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "h1": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1.2s ease-out forwards;
+        }
+
+        .dot-pulse {
+            animation: pulseDot 1.4s infinite ease-in-out;
+        }
+
+        .dot-delay-1 { animation-delay: 0.2s; }
+        .dot-delay-2 { animation-delay: 0.4s; }
+
+        .dot-grid {
+            background-image: radial-gradient(#ffffff 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-splash-dark text-on-primary antialiased overflow-hidden">
+<!-- Main Canvas -->
+<main class="relative h-screen w-full flex flex-col items-center justify-center">
+<!-- Background Dot Grid -->
+<div class="absolute inset-0 dot-grid opacity-[0.03] pointer-events-none"></div>
+<!-- Center Content: Logo and Branding -->
+<div class="flex flex-col items-center animate-fade-in">
+<!-- App Icon: Tree-graph SVG -->
+<div class="mb-lg">
+<svg class="text-primary-container" fill="none" height="120" viewbox="0 0 120 120" width="120" xmlns="http://www.w3.org/2000/svg">
+<!-- Lines connecting nodes -->
+<line stroke="currentColor" stroke-width="2" x1="60" x2="35" y1="30" y2="70"></line>
+<line stroke="currentColor" stroke-width="2" x1="60" x2="85" y1="30" y2="70"></line>
+<line stroke="currentColor" stroke-width="2" x1="35" x2="20" y1="70" y2="100"></line>
+<line stroke="currentColor" stroke-width="2" x1="35" x2="50" y1="70" y2="100"></line>
+<!-- Nodes -->
+<circle cx="60" cy="30" fill="currentColor" r="8"></circle>
+<circle cx="35" cy="70" fill="currentColor" r="8"></circle>
+<circle cx="85" cy="70" fill="currentColor" r="8"></circle>
+<circle cx="20" cy="100" fill="currentColor" r="8"></circle>
+<circle cx="50" cy="100" fill="currentColor" r="8"></circle>
+</svg>
+</div>
+<!-- Wordmark -->
+<h1 class="font-h1 text-h1 font-bold text-on-primary-container tracking-tighter uppercase mb-base">
+                AlgoQuest
+            </h1>
+<!-- Subtitle -->
+<span class="font-label-caps text-label-caps text-outline-variant opacity-60">
+                v2.0
+            </span>
+</div>
+<!-- Bottom Status: Initializing -->
+<div class="absolute bottom-[10%] flex flex-col items-center gap-sm animate-fade-in" style="animation-delay: 0.5s;">
+<!-- Pulsing Dots Animation -->
+<div class="flex gap-xs">
+<div class="w-2 h-2 rounded-full bg-primary-container dot-pulse"></div>
+<div class="w-2 h-2 rounded-full bg-primary-container dot-pulse dot-delay-1"></div>
+<div class="w-2 h-2 rounded-full bg-primary-container dot-pulse dot-delay-2"></div>
+</div>
+<!-- Loading Text -->
+<p class="font-label-caps text-[10px] tracking-widest text-outline-variant opacity-50 uppercase">
+                Initializing...
+            </p>
+</div>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        // Simulate a simple transition logic if this were a real prototype
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('AlgoQuest Splash Initialized');
+            
+            // Interaction: A subtle flicker or mouse parallax could be added here
+            const main = document.querySelector('main');
+            window.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2) / 100;
+                const moveY = (e.clientY - window.innerHeight / 2) / 100;
+                main.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - Code Editor</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#9a5c89",
+                    "tertiary-fixed": "#ffd7ef",
+                    "secondary-container": "#fdc34d",
+                    "tertiary": "#7e446f",
+                    "outline-variant": "#c4c8b9",
+                    "on-background": "#1a1c17",
+                    "surface-dim": "#dadbd2",
+                    "surface-container-high": "#e8e9e0",
+                    "on-secondary-fixed": "#271900",
+                    "surface-tint": "#486729",
+                    "on-primary-container": "#e5ffc6",
+                    "surface-container-low": "#f4f4eb",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#e3e3da",
+                    "on-surface-variant": "#44483d",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#ffdea6",
+                    "outline": "#74796b",
+                    "primary-fixed": "#c9eea1",
+                    "primary": "#426124",
+                    "surface-container-highest": "#e3e3da",
+                    "on-tertiary-fixed": "#37052f",
+                    "on-secondary-container": "#715000",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#aed288",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-primary-fixed-variant": "#314f13",
+                    "inverse-surface": "#2f312b",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "on-surface": "#1a1c17",
+                    "primary-container": "#5a7a3a",
+                    "inverse-on-surface": "#f1f1e8",
+                    "surface": "#fafaf1",
+                    "on-tertiary-container": "#fff3f7",
+                    "on-tertiary-fixed-variant": "#6a335d",
+                    "tertiary-fixed-dim": "#f9b0e2",
+                    "secondary": "#7b5800",
+                    "primary-fixed-dim": "#aed288",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#eeeee6",
+                    "surface-bright": "#fafaf1",
+                    "on-primary-fixed": "#0e2000",
+                    "background": "#fafaf1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "gutter": "16px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "sm": "12px",
+                    "margin": "20px",
+                    "xs": "8px",
+                    "lg": "24px",
+                    "tap_target": "44px"
+            },
+            "fontFamily": {
+                    "h2": ["Inter"],
+                    "h1": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "body": ["Inter"],
+                    "h3": ["Inter"],
+                    "stat-lg": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "label-caps": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .dot-grid {
+            background-image: radial-gradient(#1c1917 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-color: #f5f4ef;
+            opacity: 1;
+        }
+        .dot-grid::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: #f5f4ef;
+            opacity: 0.96;
+            z-index: -1;
+        }
+        .syntax-keyword { color: #fdc34d; } /* Amber */
+        .syntax-string { color: #aed288; }  /* Moss Green */
+        .syntax-comment { color: #74796b; }
+        .syntax-function { color: #inverse-primary; }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e1d14;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #44483d;
+            border-radius: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Background Layer -->
+<div class="fixed inset-0 dot-grid -z-10"></div>
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-40 bg-surface border-b border-outline-variant flex items-center w-full px-margin h-tap_target">
+<div class="flex items-center gap-3">
+<button class="transition-all duration-200 active:scale-95 hover:opacity-80">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="font-h3 text-h3 text-primary">Two Sum Problem</h1>
+</div>
+<div class="ml-auto flex gap-4">
+<button class="text-on-surface-variant font-label-caps text-label-caps transition-all duration-200 hover:opacity-80">PROMPT</button>
+<button class="text-primary border-b-2 border-primary font-label-caps text-label-caps transition-all duration-200">CODE</button>
+<button class="text-on-surface-variant font-label-caps text-label-caps transition-all duration-200 hover:opacity-80">SOLUTIONS</button>
+</div>
+</header>
+<!-- Main Layout -->
+<main class="flex flex-col min-h-[calc(100vh-100px)]">
+<!-- Language Selector Bar -->
+<div class="px-margin py-2 bg-surface-container-low border-b border-outline-variant flex items-center justify-between">
+<div class="relative inline-block text-left">
+<button class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm font-label-caps text-on-surface-variant hover:bg-surface-container-low transition-colors">
+                    Python 3
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- Code Editor Area -->
+<div class="flex-grow bg-[#1e1d14] relative overflow-hidden font-code text-[13px] leading-relaxed custom-scrollbar">
+<!-- Line Numbers -->
+<div class="absolute left-0 top-0 bottom-0 w-10 bg-[#1a1912] border-r border-[#2d2c25] flex flex-col items-center py-4 text-[#57534a] select-none">
+<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+</div>
+<!-- Code Canvas -->
+<div class="ml-10 p-4 overflow-y-auto h-full text-[#ebe8e0]">
+<pre class="whitespace-pre-wrap"><span class="syntax-keyword">class</span> <span class="syntax-function">Solution</span>:
+    <span class="syntax-keyword">def</span> <span class="syntax-function">twoSum</span>(self, nums: <span class="syntax-keyword">List</span>[int], target: int) -&gt; <span class="syntax-keyword">List</span>[int]:
+        <span class="syntax-comment"># Use a hash map to store indices</span>
+        prevMap = {} <span class="syntax-comment"># val : index</span>
+        
+        <span class="syntax-keyword">for</span> i, n <span class="syntax-keyword">in</span> <span class="syntax-function">enumerate</span>(nums):
+            diff = target - n
+            <span class="syntax-keyword">if</span> diff <span class="syntax-keyword">in</span> prevMap:
+                <span class="syntax-keyword">return</span> [prevMap[diff], i]
+            prevMap[n] = i
+        <span class="syntax-keyword">return</span><span class="cursor inline-block w-[2px] h-[15px] bg-primary animate-pulse align-middle ml-1"></span></pre>
+</div>
+</div>
+<!-- Keyboard Toolbar (Shortcut Row) -->
+<div class="bg-surface-container border-t border-outline-variant px-2 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar items-center">
+<button class="min-w-[40px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">Tab</button>
+<button class="min-w-[36px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">{</button>
+<button class="min-w-[36px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">}</button>
+<button class="min-w-[36px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">(</button>
+<button class="min-w-[36px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">)</button>
+<button class="min-w-[36px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">[</button>
+<button class="min-w-[36px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">]</button>
+<button class="min-w-[32px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">;</button>
+<button class="min-w-[32px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">=</button>
+<button class="min-w-[32px] h-9 flex items-center justify-center bg-surface-container-highest border border-outline-variant rounded-md font-code text-on-surface shadow-sm active:scale-95 transition-transform">+</button>
+</div>
+</main>
+<!-- Bottom Action Bar & Status -->
+<footer class="fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant z-40">
+<div class="px-margin py-3 flex items-center justify-between max-w-4xl mx-auto">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CURRENT PROGRESS</span>
+<div class="flex items-center gap-2">
+<span class="font-stat-lg text-stat-lg text-primary">3/5</span>
+<span class="text-body-sm text-outline">passed</span>
+<div class="w-12 h-1 bg-surface-container rounded-full ml-1 overflow-hidden">
+<div class="bg-primary h-full w-[60%]"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2 bg-surface-container-highest border border-outline-variant rounded-lg text-on-surface-variant font-label-caps text-label-caps transition-all active:scale-95 hover:bg-surface-container-low">RUN</button>
+<button class="px-6 py-2 bg-primary-container text-on-primary-container rounded-lg font-label-caps text-label-caps transition-all active:scale-95 hover:opacity-90 shadow-md">SUBMIT</button>
+</div>
+</div>
+</footer>
+<!-- AI FAB -->
+<button class="fixed bottom-24 right-margin w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center transition-transform duration-200 hover:scale-105 active:scale-90 z-50 group">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<div class="absolute right-full mr-4 bg-inverse-surface text-inverse-on-surface px-3 py-1.5 rounded-lg text-body-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            Get AI Hint
+        </div>
+</button>
+<script>
+        // Micro-interactions for keyboard shortcuts
+        document.querySelectorAll('.KeyboardToolbar button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Future implementation: Insert character at cursor
+            });
+        });
+
+        // Add visual feedback to run/submit
+        const runBtn = document.querySelector('button:contains("RUN")');
+        if(runBtn) {
+            runBtn.addEventListener('click', () => {
+                console.log('Running code...');
+            });
+        }
+    </script>
+</body></html>

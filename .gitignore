@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# supabase sql scripts (keep local only — contain seed data / credentials)
+/supabase/

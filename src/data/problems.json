@@ -1,0 +1,295 @@
+[
+  {
+    "id": "prob1",
+    "slug": "two-sum",
+    "title": "Two Sum",
+    "type": "coding",
+    "difficulty": "easy",
+    "topic_id": "t1",
+    "category": "dsa",
+    "xp_reward": 50,
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+    "examples": [
+      { "input": "nums = [2,7,11,15], target = 9", "output": "[0,1]", "explanation": "nums[0] + nums[1] == 9." },
+      { "input": "nums = [3,2,4], target = 6", "output": "[1,2]", "explanation": "" }
+    ],
+    "constraints": ["2 <= nums.length <= 10^4", "Only one valid answer exists."],
+    "hints": ["Use a hash map to store seen values.", "For each element, check if target − element exists in the map."],
+    "time_limit_ms": 500,
+    "memory_limit_mb": 256,
+    "solved": true
+  },
+  {
+    "id": "prob2",
+    "slug": "best-time-to-buy-sell-stock",
+    "title": "Best Time to Buy & Sell Stock",
+    "type": "coding",
+    "difficulty": "easy",
+    "topic_id": "t1",
+    "category": "dsa",
+    "xp_reward": 50,
+    "description": "You are given prices[i] — the price of a stock on day i. Maximize profit by buying once and selling on a later day.",
+    "examples": [
+      { "input": "prices = [7,1,5,3,6,4]", "output": "5", "explanation": "Buy day 2 (price=1), sell day 5 (price=6)." }
+    ],
+    "constraints": ["1 <= prices.length <= 10^5", "0 <= prices[i] <= 10^4"],
+    "hints": ["Track the minimum price seen so far.", "At each step, compute profit if sold today."],
+    "time_limit_ms": 500,
+    "memory_limit_mb": 256,
+    "solved": false
+  },
+  {
+    "id": "prob3",
+    "slug": "contains-duplicate",
+    "title": "Contains Duplicate",
+    "type": "coding",
+    "difficulty": "easy",
+    "topic_id": "t1",
+    "category": "dsa",
+    "xp_reward": 50,
+    "description": "Given an integer array nums, return true if any value appears at least twice.",
+    "examples": [
+      { "input": "nums = [1,2,3,1]", "output": "true", "explanation": "" }
+    ],
+    "constraints": ["1 <= nums.length <= 10^5"],
+    "hints": ["A set can detect duplicates in O(1) per lookup."],
+    "time_limit_ms": 500,
+    "memory_limit_mb": 256,
+    "solved": true
+  },
+  {
+    "id": "prob4",
+    "slug": "product-of-array-except-self",
+    "title": "Product of Array Except Self",
+    "type": "coding",
+    "difficulty": "medium",
+    "topic_id": "t1",
+    "category": "dsa",
+    "xp_reward": 75,
+    "description": "Return an array where answer[i] equals the product of all elements except nums[i]. Must run in O(n) without division.",
+    "examples": [
+      { "input": "nums = [1,2,3,4]", "output": "[24,12,8,6]", "explanation": "" }
+    ],
+    "constraints": ["2 <= nums.length <= 10^5"],
+    "hints": ["Use prefix and suffix product arrays."],
+    "time_limit_ms": 500,
+    "memory_limit_mb": 256,
+    "solved": false
+  },
+  {
+    "id": "prob5",
+    "slug": "dynamic-pathfinding",
+    "title": "Dynamic Pathfinding",
+    "type": "coding",
+    "difficulty": "medium",
+    "topic_id": "t8",
+    "category": "dsa",
+    "xp_reward": 75,
+    "description": "Find the minimum cost path from top-left to bottom-right of a grid. You may only move right or down.",
+    "examples": [
+      { "input": "grid = [[1,3,1],[1,5,1],[4,2,1]]", "output": "7", "explanation": "Path 1→3→1→1→1 = 7." }
+    ],
+    "constraints": ["1 <= grid.length, grid[0].length <= 200"],
+    "hints": ["dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1])"],
+    "time_limit_ms": 500,
+    "memory_limit_mb": 256,
+    "solved": false
+  },
+  {
+    "id": "prob6",
+    "slug": "longest-common-subsequence",
+    "title": "Longest Common Subsequence",
+    "type": "coding",
+    "difficulty": "hard",
+    "topic_id": "t8",
+    "category": "dsa",
+    "xp_reward": 100,
+    "description": "Given two strings text1 and text2, return the length of their longest common subsequence.",
+    "examples": [
+      { "input": "text1 = \"abcde\", text2 = \"ace\"", "output": "3", "explanation": "LCS is \"ace\"." }
+    ],
+    "constraints": ["1 <= text1.length, text2.length <= 1000"],
+    "hints": ["Use a 2D DP table.", "If characters match: dp[i][j] = dp[i-1][j-1] + 1."],
+    "time_limit_ms": 1000,
+    "memory_limit_mb": 256,
+    "solved": false
+  },
+  {
+    "id": "logic1",
+    "slug": "array-index-concept",
+    "title": "Why does array indexing start at 0?",
+    "type": "concept",
+    "difficulty": "easy",
+    "topic_id": "t1",
+    "category": "dsa",
+    "xp_reward": 20,
+    "question": "In most programming languages, arrays are 0-indexed. Which of the following best explains why?",
+    "options": [
+      "It's arbitrary — a historical convention with no technical reason.",
+      "An index represents an offset from the first element's memory address. The first element is 0 offsets away.",
+      "0 is easier to type than 1.",
+      "Loops are faster when they start at 0."
+    ],
+    "correct_option": 1,
+    "explanation": "Array indexing maps directly to memory offsets. If arr starts at memory address M, then arr[i] = M + (i × element_size). The first element is at M + 0 = M, so its index is 0. This is why 0-indexing is natural and efficient.",
+    "solved": true
+  },
+  {
+    "id": "logic2",
+    "slug": "sliding-window-when",
+    "title": "When to use a sliding window?",
+    "type": "concept",
+    "difficulty": "easy",
+    "topic_id": "t1",
+    "category": "dsa",
+    "xp_reward": 20,
+    "question": "Which of these problems is best solved with a sliding window technique?",
+    "options": [
+      "Find the maximum element in an unsorted array.",
+      "Find the longest substring with at most K distinct characters.",
+      "Check if two strings are anagrams of each other.",
+      "Reverse a linked list."
+    ],
+    "correct_option": 1,
+    "explanation": "Sliding window is ideal for contiguous subarray/substring problems where you're looking for an optimal range. 'Longest substring with K distinct chars' involves expanding and shrinking a window over contiguous elements — a perfect fit.",
+    "solved": false
+  },
+  {
+    "id": "logic3",
+    "slug": "recursion-base-case",
+    "title": "What happens without a base case?",
+    "type": "concept",
+    "difficulty": "easy",
+    "topic_id": "t3",
+    "category": "dsa",
+    "xp_reward": 20,
+    "question": "A recursive function without a valid base case will:",
+    "options": [
+      "Return undefined after one call.",
+      "Run indefinitely and eventually cause a stack overflow error.",
+      "Automatically detect the stopping point.",
+      "Return 0 as a default value."
+    ],
+    "correct_option": 1,
+    "explanation": "Each recursive call adds a new frame to the call stack. Without a base case, the function never stops calling itself. The stack grows until it exceeds its memory limit — causing a StackOverflow error.",
+    "solved": true
+  },
+  {
+    "id": "logic4",
+    "slug": "linked-list-vs-array",
+    "title": "Array vs Linked List: insertion at head",
+    "type": "concept",
+    "difficulty": "easy",
+    "topic_id": "t4",
+    "category": "dsa",
+    "xp_reward": 20,
+    "question": "Inserting an element at the beginning (head) of a data structure — which is faster?",
+    "options": [
+      "Array — it's contiguous in memory, so it's always faster.",
+      "Linked List — O(1) to update the head pointer.",
+      "They are equivalent — both O(n).",
+      "Depends on the language used."
+    ],
+    "correct_option": 1,
+    "explanation": "In an array, inserting at index 0 requires shifting all existing elements right — O(n). In a linked list, you simply create a new node and point it to the current head — O(1). This is one of the key trade-offs between the two structures.",
+    "solved": false
+  },
+  {
+    "id": "py1",
+    "slug": "python-list-comprehension",
+    "title": "List Comprehension",
+    "type": "coding",
+    "difficulty": "easy",
+    "topic_id": "p1",
+    "category": "python",
+    "xp_reward": 40,
+    "description": "Rewrite the given for-loop using a single list comprehension that filters even numbers and squares them.",
+    "examples": [
+      { "input": "nums = [1,2,3,4,5,6]", "output": "[4,16,36]", "explanation": "Even numbers squared." }
+    ],
+    "constraints": ["Use a single list comprehension expression."],
+    "hints": ["[expr for x in iterable if condition]"],
+    "time_limit_ms": 500,
+    "memory_limit_mb": 256,
+    "solved": true
+  },
+  {
+    "id": "py2",
+    "slug": "python-decorator-basics",
+    "title": "Write a Timer Decorator",
+    "type": "coding",
+    "difficulty": "medium",
+    "topic_id": "p1",
+    "category": "python",
+    "xp_reward": 75,
+    "description": "Implement a @timer decorator that prints how long a function takes to run in milliseconds.",
+    "examples": [
+      { "input": "@timer\ndef slow():\n    time.sleep(0.1)", "output": "slow took 100ms", "explanation": "" }
+    ],
+    "constraints": ["Use functools.wraps to preserve metadata."],
+    "hints": ["time.perf_counter() gives high-resolution timing."],
+    "time_limit_ms": 1000,
+    "memory_limit_mb": 256,
+    "solved": false
+  },
+  {
+    "id": "pylogic1",
+    "slug": "python-mutable-default-arg",
+    "title": "The mutable default argument trap",
+    "type": "concept",
+    "difficulty": "easy",
+    "topic_id": "p1",
+    "category": "python",
+    "xp_reward": 20,
+    "question": "What does this function print on the second call?\n\ndef append_to(x, lst=[]):\n    lst.append(x)\n    return lst\n\nappend_to(1)\nappend_to(2)",
+    "options": [
+      "[2]",
+      "[1, 2]",
+      "Error — default args can't be lists.",
+      "[1] then [2] on separate lines."
+    ],
+    "correct_option": 1,
+    "explanation": "Default argument values are evaluated once when the function is defined, not each time it's called. The list [] is created once and reused. After two calls, it contains [1, 2]. The fix: use None as default and create the list inside the function body.",
+    "solved": false
+  },
+  {
+    "id": "cs_bigo1",
+    "slug": "bigo-identify-complexity",
+    "title": "Identify the Time Complexity",
+    "type": "concept",
+    "difficulty": "easy",
+    "topic_id": "cs1",
+    "category": "cs-fundamentals",
+    "xp_reward": 20,
+    "question": "What is the time complexity of this code?\n\nfor i in range(n):\n    for j in range(n):\n        print(i, j)",
+    "options": [
+      "O(n)",
+      "O(n²)",
+      "O(log n)",
+      "O(2n)"
+    ],
+    "correct_option": 1,
+    "explanation": "Two nested loops, each running n times independently, result in n × n = n² total iterations. This is O(n²) — quadratic time complexity.",
+    "solved": true
+  },
+  {
+    "id": "cs_bigo2",
+    "slug": "bigo-binary-search",
+    "title": "Why is binary search O(log n)?",
+    "type": "concept",
+    "difficulty": "easy",
+    "topic_id": "cs1",
+    "category": "cs-fundamentals",
+    "xp_reward": 20,
+    "question": "Binary search on a sorted array of 1024 elements needs at most how many comparisons?",
+    "options": [
+      "1024",
+      "512",
+      "10",
+      "32"
+    ],
+    "correct_option": 2,
+    "explanation": "Binary search halves the search space with each comparison. Starting at 1024: 512 → 256 → 128 → 64 → 32 → 16 → 8 → 4 → 2 → 1. That's 10 steps. Since 2^10 = 1024, the complexity is O(log₂ n) — logarithmic time.",
+    "solved": false
+  }
+]

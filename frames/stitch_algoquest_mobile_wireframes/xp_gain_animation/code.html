@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - XP Gain</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Engineering Notebook Dot Grid Background */
+        .dot-grid {
+            background-color: #fafaf1;
+            background-image: radial-gradient(#1c1917 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: center;
+            opacity: 1; /* Parent controls visual opacity via child container if needed, but here we use the 4% rule */
+        }
+        .dot-grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(#1c1917 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Particle Animation */
+        @keyframes particle-burst {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(0); opacity: 0; }
+        }
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #7b5800; /* secondary color / gold */
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-burst 0.8s ease-out forwards;
+        }
+
+        /* Success Ring Animation */
+        @keyframes ring-expand {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .success-ring {
+            position: absolute;
+            border: 2px solid #7b5800;
+            border-radius: 50%;
+            animation: ring-expand 1s ease-out infinite;
+        }
+
+        /* XP Text Float */
+        @keyframes float-up {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .xp-float {
+            animation: float-up 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e8e9e0",
+                        "primary": "#426124",
+                        "on-surface": "#1a1c17",
+                        "on-secondary-fixed": "#271900",
+                        "surface-tint": "#486729",
+                        "surface": "#fafaf1",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f4f4eb",
+                        "secondary-fixed": "#ffdea6",
+                        "surface-variant": "#e3e3da",
+                        "on-primary-fixed-variant": "#314f13",
+                        "primary-fixed-dim": "#aed288",
+                        "secondary-container": "#fdc34d",
+                        "on-surface-variant": "#44483d",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#9a5c89",
+                        "on-tertiary-container": "#fff3f7",
+                        "inverse-on-surface": "#f1f1e8",
+                        "inverse-primary": "#aed288",
+                        "on-primary-fixed": "#0e2000",
+                        "surface-dim": "#dadbd2",
+                        "on-secondary-container": "#715000",
+                        "primary-container": "#5a7a3a",
+                        "surface-container": "#eeeee6",
+                        "outline-variant": "#c4c8b9",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#6a335d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e3e3da",
+                        "tertiary-fixed": "#ffd7ef",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#fafaf1",
+                        "on-tertiary-fixed": "#37052f",
+                        "inverse-surface": "#2f312b",
+                        "secondary": "#7b5800",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#7e446f",
+                        "error": "#ba1a1a",
+                        "background": "#fafaf1",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-primary-container": "#e5ffc6",
+                        "primary-fixed": "#c9eea1",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#f9b0e2",
+                        "outline": "#74796b",
+                        "on-background": "#1a1c17"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "gutter": "16px",
+                        "xs": "8px",
+                        "tap_target": "44px",
+                        "margin": "20px",
+                        "sm": "12px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "h3": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "code": ["JetBrains Mono"],
+                        "body": ["Inter"],
+                        "h2": ["Inter"],
+                        "h1": ["Inter"],
+                        "stat-lg": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface min-h-screen overflow-hidden">
+<!-- Underlying Content (Submission Result Screen) -->
+<div class="relative w-full min-h-screen flex flex-col pointer-events-none select-none">
+<div class="dot-grid-overlay"></div>
+<!-- TopAppBar (Simulated Background) -->
+<header class="w-full top-0 sticky bg-surface flex items-center px-margin h-tap_target border-b border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+<h1 class="ml-4 font-h2 text-h2 text-primary">AlgoQuest</h1>
+</header>
+<main class="flex-1 px-margin py-lg max-w-lg mx-auto w-full">
+<!-- Result Summary Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-[0_1px_3px_rgba(0,0,0,0.06)] mb-lg">
+<div class="flex items-center justify-center mb-md">
+<div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[32px]">check_circle</span>
+</div>
+</div>
+<h2 class="font-h1 text-h1 text-center text-primary mb-xs">Success!</h2>
+<p class="text-center text-on-surface-variant font-body">All test cases passed for the "Binary Search Tree" challenge.</p>
+</div>
+<!-- Bento Grid of Stats (Blurred) -->
+<div class="grid grid-cols-2 gap-md opacity-40">
+<div class="bg-surface-container border border-outline-variant rounded-lg p-md">
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">EXECUTION TIME</span>
+<span class="font-stat-lg text-stat-lg text-on-surface">124ms</span>
+</div>
+<div class="bg-surface-container border border-outline-variant rounded-lg p-md">
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">MEMORY USAGE</span>
+<span class="font-stat-lg text-stat-lg text-on-surface">18.4MB</span>
+</div>
+<div class="col-span-2 bg-surface-container border border-outline-variant rounded-lg p-md">
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">DIFFICULTY</span>
+<span class="font-body text-body font-semibold text-tertiary">Medium</span>
+</div>
+</div>
+<!-- Code Block (Raised Level 2) -->
+<div class="mt-lg bg-surface-container-high border border-outline-variant rounded-lg p-md opacity-20">
+<pre class="font-code text-code text-on-surface overflow-x-auto"><code>function searchBST(root, val) {
+    if (!root) return null;
+    if (root.val === val) return root;
+    return val < root.val 
+        ? searchBST(root.left, val) 
+        : searchBST(root.right, val);
+}</code></pre>
+</div>
+</main>
+</div>
+<!-- CELEBRATORY OVERLAY (The Request) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px] transition-opacity duration-500" id="xp-overlay">
+<div class="relative flex flex-col items-center">
+<!-- Animated Gold Particle Container -->
+<div class="absolute inset-0 flex items-center justify-center" id="particle-container">
+<!-- Particles will be injected by JS -->
+</div>
+<!-- Success Rings -->
+<div class="success-ring w-32 h-32 opacity-0"></div>
+<div class="success-ring w-48 h-48 opacity-0" style="animation-delay: 0.2s"></div>
+<!-- Central XP Message -->
+<div class="xp-float relative z-10 text-center">
+<div class="mb-xs flex items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-secondary" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<h3 class="font-code text-[48px] leading-tight font-bold text-secondary drop-shadow-sm">
+                    +75 XP
+                </h3>
+<p class="font-label-caps text-label-caps text-on-secondary-container bg-secondary-fixed px-3 py-1 rounded-full mt-2 inline-block">
+                    MASTERY INCREASED
+                </p>
+</div>
+</div>
+</div>
+<!-- BottomNavBar (Immutable Content & Mandatory Styling) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe bg-surface border-t border-outline-variant z-50 h-[64px]">
+<div class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:bg-surface-container-high transition-all active:scale-95 duration-150 cursor-pointer">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:bg-surface-container-high transition-all active:scale-95 duration-150 cursor-pointer">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-caps text-label-caps">Skills</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary border-t-2 border-primary pt-1 hover:bg-surface-container-high transition-all active:scale-95 duration-150 cursor-pointer">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-caps text-label-caps">Challenge</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:bg-surface-container-high transition-all active:scale-95 duration-150 cursor-pointer">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-caps text-label-caps">Ranks</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant pt-1 hover:bg-surface-container-high transition-all active:scale-95 duration-150 cursor-pointer">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</div>
+</nav>
+<script>
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const count = 20;
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random angle and distance
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 80 + Math.random() * 120;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity;
+                
+                particle.style.setProperty('--tw-translate-x', `${tx}px`);
+                particle.style.setProperty('--tw-translate-y', `${ty}px`);
+                
+                // Random delay for natural look
+                particle.style.animationDelay = `${Math.random() * 0.2}s`;
+                
+                container.appendChild(particle);
+                
+                // Cleanup
+                particle.addEventListener('animationend', () => {
+                    particle.remove();
+                });
+            }
+        }
+
+        // Trigger particles on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(createParticles, 300);
+        });
+
+        // Click to re-trigger for demo purposes
+        document.getElementById('xp-overlay').addEventListener('click', (e) => {
+            // In a real app, this would dismiss or move to next screen
+            // For this UI demo, we'll just re-trigger the celebration
+            createParticles();
+            
+            // Dismiss effect logic:
+            // const overlay = document.getElementById('xp-overlay');
+            // overlay.classList.add('opacity-0');
+            // setTimeout(() => overlay.remove(), 500);
+        });
+    </script>
+</body></html>

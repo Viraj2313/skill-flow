@@ -1,0 +1,502 @@
+[
+  {
+    "id": "lesson-hashmap-101",
+    "topic_id": "t1",
+    "slug": "what-is-a-hash-map",
+    "title": "Hash Maps: Your Secret Weapon",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "Before solving Two Sum, you need to understand hash maps. This lesson explains what they are and why they make everything faster.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Imagine a library. To find a book you either:\n\nA) Walk every aisle until you find it\nB) Look up a catalogue that tells you exactly which shelf it's on\n\nA hash map is which one?",
+        "options": [
+          "Option A — it searches everything",
+          "Option B — it goes straight to the answer",
+          "Neither, it sorts the books first",
+          "It depends on the book"
+        ],
+        "correct": 1,
+        "explanation": "A hash map works like the catalogue. You give it a key (book title), and it tells you exactly where the value is in memory — instantly. No searching needed. This is why hash map lookup is O(1)."
+      },
+      {
+        "id": "e2",
+        "type": "code_pick",
+        "question": "Which Python data structure is a hash map?",
+        "context": "You want to store and instantly retrieve values by a key.",
+        "options": [
+          "my_list = [1, 2, 3]",
+          "my_dict = {'a': 1, 'b': 2}",
+          "my_tuple = (1, 2, 3)",
+          "my_set = {1, 2, 3}"
+        ],
+        "correct": 1,
+        "explanation": "A Python dict (dictionary) is a hash map. It stores key-value pairs and lets you look up any value by its key in O(1) constant time — regardless of how many items are in it."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Store the value 42 at key 'score' in a dict:",
+        "code_lines": [
+          "stats = {}",
+          "stats[___] = 42",
+          "print(stats['score'])  # → 42"
+        ],
+        "blank_index": 1,
+        "blank_placeholder": "___",
+        "options": ["'score'", "score", "0", "42"],
+        "correct": 0,
+        "explanation": "stats['score'] = 42 creates a new key 'score' and stores 42 as its value. Keys in Python dicts are usually strings or numbers. The quotes matter — 'score' is the string key."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "You have a list of 1,000,000 names. How long does it take to check if 'Alice' is in:\n\n• A plain Python list\n• A Python dict",
+        "options": [
+          "Both are the same — Python optimizes both",
+          "List: O(n) — scans up to 1M names. Dict: O(1) — instant lookup",
+          "Dict: O(n). List: O(1)",
+          "Both are O(log n)"
+        ],
+        "correct": 1,
+        "explanation": "Checking if something is in a list requires scanning every item — O(n). With 1 million items, that could mean 1 million comparisons. A dict goes straight to the answer via its hash — O(1). This difference is enormous at scale."
+      },
+      {
+        "id": "e5",
+        "type": "code_pick",
+        "question": "Which line correctly checks if a key exists in a dict before accessing it?",
+        "context": "seen = {'apple': 3, 'banana': 7}",
+        "options": [
+          "if seen.contains('apple'):",
+          "if 'apple' in seen:",
+          "if seen.has('apple'):",
+          "if seen['apple'] != None:"
+        ],
+        "correct": 1,
+        "explanation": "'apple' in seen uses Python's 'in' operator, which checks the dict's keys in O(1). Never access seen['apple'] directly without checking first — if the key doesn't exist, Python raises a KeyError."
+      }
+    ]
+  },
+  {
+    "id": "lesson-twosum-approach",
+    "topic_id": "t1",
+    "slug": "two-sum-think-it-through",
+    "title": "Two Sum: Think It Through",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 30,
+    "description": "Now that you know hash maps, let's walk through Two Sum step by step — starting from brute force and arriving at the O(n) insight.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Two Sum asks:\n\nGiven [2, 7, 11, 15] and target = 9, return the indices of two numbers that add up to 9.\n\nWhich pair is the answer?",
+        "options": [
+          "2 and 11 (indices 0, 2)",
+          "2 and 7 (indices 0, 1)",
+          "7 and 11 (indices 1, 2)",
+          "No pair adds up to 9"
+        ],
+        "correct": 1,
+        "explanation": "2 + 7 = 9. Their positions (indices) in the array are 0 and 1. That's the answer: [0, 1]. The problem asks for indices, not the values themselves."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "The obvious approach: try every possible pair. For array [2, 7, 11, 15], how many pairs would you check?",
+        "options": [
+          "4 pairs (one per element)",
+          "6 pairs — every combination of 2 items from 4",
+          "16 pairs",
+          "2 pairs"
+        ],
+        "correct": 1,
+        "explanation": "For 4 elements: (2,7), (2,11), (2,15), (7,11), (7,15), (11,15) = 6 pairs. In general it's n*(n-1)/2 pairs — which is O(n²). For 10,000 elements that's 50 million comparisons. Too slow for interviews."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Here's the key insight:\n\nFor each number x in the array, instead of searching for its partner — we can ASK: 'does (target - x) already exist anywhere we've seen?'\n\nFor x = 7, target = 9: what are we looking for?",
+        "options": [
+          "9 - 9 = 0",
+          "9 - 7 = 2",
+          "9 + 7 = 16",
+          "7 - 9 = -2"
+        ],
+        "correct": 1,
+        "explanation": "We need the complement: target - x = 9 - 7 = 2. If 2 was seen earlier in the array, we found our pair! This is the insight that unlocks the O(n) solution — check for the complement instead of checking all pairs."
+      },
+      {
+        "id": "e4",
+        "type": "fill_blank",
+        "question": "Complete the complement calculation inside the loop:",
+        "code_lines": [
+          "for i, num in enumerate(nums):",
+          "    complement = ___ - num",
+          "    if complement in seen:",
+          "        return [seen[complement], i]",
+          "    seen[num] = i"
+        ],
+        "blank_index": 1,
+        "blank_placeholder": "___",
+        "options": ["target", "nums[i]", "i", "0"],
+        "correct": 0,
+        "explanation": "complement = target - num. We're asking: what number do I need to add to 'num' to reach the target? If that number is already in our 'seen' hash map, we've found the pair — and we know its index too."
+      },
+      {
+        "id": "e5",
+        "type": "mcq",
+        "question": "Walk through the algorithm on [2, 7, 11, 15], target = 9:\n\ni=0, num=2: complement=7. Is 7 in seen? seen={}. No. Add: seen={2:0}\ni=1, num=7: complement=2. Is 2 in seen? seen={2:0}. Yes!\n\nWhat do we return?",
+        "options": [
+          "[0, 0] — the value 2 appears twice",
+          "[seen[2], 1] = [0, 1] — index of 2, then current index",
+          "[2, 7] — the actual values",
+          "[1, 2] — the complement values"
+        ],
+        "correct": 1,
+        "explanation": "seen[complement] = seen[2] = 0 is the index where we stored 2. The current index i = 1. So we return [0, 1]. We return indices, not values. This is why we stored num:i in the dict, not just num."
+      }
+    ]
+  },
+  {
+    "id": "lesson-twosum-code",
+    "topic_id": "t1",
+    "slug": "two-sum-write-it",
+    "title": "Two Sum: Put It Together",
+    "category": "dsa",
+    "level": 3,
+    "xp_reward": 40,
+    "description": "You understand the approach. Now build the complete solution — step by step, one piece at a time.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "arrange",
+        "question": "Build the complete Two Sum solution. Order the lines:",
+        "blocks": [
+          "def two_sum(nums, target):",
+          "    seen = {}",
+          "    for i, num in enumerate(nums):",
+          "        complement = target - num",
+          "        if complement in seen:",
+          "            return [seen[complement], i]",
+          "        seen[num] = i",
+          "    return []"
+        ],
+        "correct_order": [0, 1, 2, 3, 4, 5, 6, 7],
+        "explanation": "The structure: initialize an empty hash map, loop through each element, calculate what we need (complement), check if we've seen it, and return immediately if yes. Otherwise record the current number and its index. O(n) time, O(n) space."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Why do we store seen[num] = i (the index) instead of seen[num] = True?",
+        "options": [
+          "Just a style choice — both work the same",
+          "Because the problem asks for indices. We need to know WHERE we saw the complement, not just IF we saw it.",
+          "True would cause a TypeError in Python",
+          "Indices take less memory"
+        ],
+        "correct": 1,
+        "explanation": "The problem asks to return the indices of the two numbers. When we find a complement, we need to return [index_of_complement, current_index]. By storing seen[num] = i, we can look up the complement's index immediately when we find a match."
+      },
+      {
+        "id": "e3",
+        "type": "code_pick",
+        "question": "What is the time complexity of the hash map solution?",
+        "context": "We loop through the array once. Each iteration does a dict lookup and possibly a dict insert — both O(1).",
+        "options": [
+          "O(n²) — same as brute force",
+          "O(n log n) — like sorting",
+          "O(n) — one pass through the array",
+          "O(1) — constant time"
+        ],
+        "correct": 2,
+        "explanation": "O(n) — we iterate through the array exactly once. Each step (lookup + insert) is O(1) thanks to the hash map. Total: n × O(1) = O(n). Compare this to brute force's O(n²). For 10,000 elements: O(n) = 10,000 ops vs O(n²) = 100,000,000 ops."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "Edge case: nums = [3, 3], target = 6. What does the algorithm return?",
+        "options": [
+          "[] — can't use the same element twice",
+          "[0, 1] — the two 3s are at different indices",
+          "Error — duplicate values break the hash map",
+          "[3, 3] — the values"
+        ],
+        "correct": 1,
+        "explanation": "i=0, num=3: complement=3. Not in seen={}. Add seen={3:0}.\ni=1, num=3: complement=3. Is 3 in seen? Yes! Return [seen[3], 1] = [0, 1].\n\nThe two 3s are at DIFFERENT indices (0 and 1), so it's valid. The constraint 'don't use the same element twice' means same index, not same value."
+      }
+    ]
+  },
+  {
+    "id": "lesson-arrays-sliding-window",
+    "topic_id": "t1",
+    "slug": "sliding-window-intro",
+    "title": "Sliding Window: The Pattern",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 30,
+    "description": "Many array problems can be solved without nested loops using a sliding window. Learn the pattern that appears in dozens of interview questions.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "You want to find the maximum sum of any 3 consecutive numbers in [1, 4, 2, 9, 7, 3, 8].\n\nBrute force: check every group of 3. How many groups are there?",
+        "options": [
+          "3 groups",
+          "5 groups: [1,4,2], [4,2,9], [2,9,7], [9,7,3], [7,3,8]",
+          "7 groups (one per element)",
+          "21 groups"
+        ],
+        "correct": 1,
+        "explanation": "For an array of length 7 with window size 3: there are 7-3+1 = 5 windows. For each window we'd sum 3 elements. Total: 5 × 3 = 15 operations. For large arrays this is still O(n×k) — we can do better."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Sliding window insight: when you move from window [1,4,2] to [4,2,9], you only need to:\n\n• Remove 1 (the element that left the window)\n• Add 9 (the element that entered)\n\nHow many operations is that instead of re-summing 3 elements?",
+        "options": [
+          "Still 3 operations",
+          "2 operations — one subtract, one add",
+          "1 operation",
+          "0 operations"
+        ],
+        "correct": 1,
+        "explanation": "Instead of recomputing sum([4,2,9]) from scratch, we do: new_sum = old_sum - 1 + 9. That's 2 operations instead of 3. For a window of size k, we go from O(k) per step to O(1) per step. Total becomes O(n) instead of O(n×k)."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Complete the sliding window to find max sum of size-k window:",
+        "code_lines": [
+          "window_sum = sum(nums[:k])",
+          "max_sum = window_sum",
+          "for i in range(k, len(nums)):",
+          "    window_sum += nums[i] - nums[___]",
+          "    max_sum = max(max_sum, window_sum)"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["i - k", "i - 1", "k", "0"],
+        "correct": 0,
+        "explanation": "nums[i - k] is the element that's leaving the window as nums[i] enters it. When i=k, we remove nums[0]. When i=k+1, we remove nums[1]. The pattern: the outgoing element is always k positions behind the incoming one."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "The sliding window technique is MOST useful when the problem involves:",
+        "options": [
+          "Finding an element in an unsorted array",
+          "A contiguous subarray or substring with some constraint (sum, length, distinct chars)",
+          "Sorting the array",
+          "Binary search on a sorted array"
+        ],
+        "correct": 1,
+        "explanation": "Sliding window is the pattern for contiguous subarray/substring problems: max/min sum of size-k window, longest substring without repeats, smallest subarray with sum ≥ target, etc. The key word is 'contiguous' — elements next to each other."
+      }
+    ]
+  },
+  {
+    "id": "lesson-recursion-concept",
+    "topic_id": "t3",
+    "slug": "recursion-the-idea",
+    "title": "Recursion: The Idea",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "Recursion sounds scary. It's not. It's just a function that calls a smaller version of itself — and this lesson builds the intuition from everyday examples.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "To eat a pizza with 8 slices, you could say:\n'Eating 8 slices = eating 1 slice + eating 7 slices'\n'Eating 7 slices = eating 1 slice + eating 6 slices'\n...\n'Eating 1 slice = eating 1 slice' ← STOP\n\nThis is recursion. What makes it stop?",
+        "options": [
+          "It never stops — you'd eat forever",
+          "A base case: a problem small enough to solve directly (1 slice)",
+          "A for loop inside the recursion",
+          "Python automatically stops it after 100 calls"
+        ],
+        "correct": 1,
+        "explanation": "Every recursive solution has two parts: a BASE CASE (the simplest version you can answer directly — 'eating 1 slice') and a RECURSIVE CASE (break the problem into a smaller version of itself). Without a base case, the function calls itself forever."
+      },
+      {
+        "id": "e2",
+        "type": "code_pick",
+        "question": "In this function, which line is the BASE CASE?",
+        "context": "def countdown(n):\n    if n == 0:\n        print('Done!')\n        return\n    print(n)\n    countdown(n - 1)",
+        "options": [
+          "countdown(n - 1)",
+          "print(n)",
+          "if n == 0: ... return",
+          "def countdown(n):"
+        ],
+        "correct": 2,
+        "explanation": "'if n == 0: return' is the base case — it's the condition where we stop recursing and return directly. Without it, countdown(5) would call countdown(4) → countdown(3) → ... → countdown(-1) → countdown(-2) → forever → RecursionError."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "factorial(4) = 4 × 3 × 2 × 1 = 24\n\nIn recursive terms: factorial(4) = ?",
+        "options": [
+          "4 × factorial(3)",
+          "factorial(3) + factorial(3)",
+          "factorial(4 - 4)",
+          "4 × 4"
+        ],
+        "correct": 0,
+        "explanation": "factorial(4) = 4 × factorial(3). Then factorial(3) = 3 × factorial(2). Then factorial(2) = 2 × factorial(1). Then factorial(1) = 1 × factorial(0). Then factorial(0) = 1 (base case). Python then unwinds: 1×1=1, 2×1=2, 3×2=6, 4×6=24."
+      },
+      {
+        "id": "e4",
+        "type": "fill_blank",
+        "question": "Complete the recursive factorial:",
+        "code_lines": [
+          "def factorial(n):",
+          "    if n == 0:",
+          "        return 1",
+          "    return n * factorial(___)"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["n - 1", "n", "n + 1", "1"],
+        "correct": 0,
+        "explanation": "factorial(n) = n × factorial(n-1). We call with n-1 to make the problem smaller. Each call reduces n by 1 until we hit n=0 (the base case). If we passed n instead of n-1, we'd never get smaller — infinite recursion."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bigo-concept",
+    "topic_id": "cs1",
+    "slug": "big-o-the-idea",
+    "title": "Big O: Why It Matters",
+    "category": "cs-fundamentals",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "Every interviewer will ask about time complexity. This lesson builds the intuition for Big O from everyday examples — before any math.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "You have a list of 1000 contacts on your phone. You're looking for 'Zara'.\n\nMethod A: Start from the top and scan one by one.\nMethod B: Jump to the 'Z' section directly.\n\nIf the list doubles to 2000 contacts, which method gets twice as slow?",
+        "options": [
+          "Both get twice as slow",
+          "Method A — it has to scan more names. Method B stays fast.",
+          "Method B — it has to scan more sections",
+          "Neither — phones are fast enough"
+        ],
+        "correct": 1,
+        "explanation": "Method A (linear scan) doubles in time when the list doubles. That's O(n) — time grows proportionally with input. Method B (jumping to the right section) stays roughly constant. This is what Big O measures: how does time SCALE as input grows?"
+      },
+      {
+        "id": "e2",
+        "type": "code_pick",
+        "question": "This code runs n times regardless of input size. What is its Big O?",
+        "context": "def print_first(items):\n    print(items[0])",
+        "options": [
+          "O(n)",
+          "O(n²)",
+          "O(1)",
+          "O(log n)"
+        ],
+        "correct": 2,
+        "explanation": "O(1) — constant time. No matter how large the list is, we always just access the first element. 10 items? One operation. 10 million items? Still one operation. The input size doesn't affect the runtime."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "A single for loop over n items does n operations. Two NESTED loops each over n items do... ?",
+        "options": [
+          "2n operations — just double",
+          "n + n = 2n operations",
+          "n × n = n² operations",
+          "n! operations"
+        ],
+        "correct": 2,
+        "explanation": "The outer loop runs n times. For each of those, the inner loop runs n times. Total: n × n = n². If n=100, that's 10,000 operations. If n=1000, that's 1,000,000. This is why nested loops are a red flag — they scale badly."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "Rank these from FASTEST to SLOWEST for a large input:",
+        "options": [
+          "O(1) → O(log n) → O(n) → O(n²)",
+          "O(n²) → O(n) → O(log n) → O(1)",
+          "O(n) → O(log n) → O(1) → O(n²)",
+          "They're all the same — just different notations"
+        ],
+        "correct": 0,
+        "explanation": "Fastest to slowest: O(1) constant → O(log n) logarithmic → O(n) linear → O(n²) quadratic. For n=1000: O(1)=1, O(log n)≈10, O(n)=1000, O(n²)=1,000,000. In interviews, O(n) or better is usually expected."
+      }
+    ]
+  },
+  {
+    "id": "lesson-python-lists-core",
+    "topic_id": "p1",
+    "slug": "python-lists-core",
+    "title": "Python Lists: What You Need",
+    "category": "python",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "Lists are the most common data structure in Python interviews. This covers the operations you'll actually use.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "code_pick",
+        "question": "Which creates a list with 5 zeros — the Pythonic way?",
+        "context": "You need to initialize a result array of size n.",
+        "options": [
+          "zeros = [0, 0, 0, 0, 0]",
+          "zeros = [0] * 5",
+          "zeros = list.fill(0, 5)",
+          "zeros = Array(5).fill(0)"
+        ],
+        "correct": 1,
+        "explanation": "[0] * 5 creates [0, 0, 0, 0, 0]. This pattern works with any value and any size n: [None] * n, [False] * n, etc. It's the standard way to pre-allocate a list in Python. JavaScript's Array(5).fill(0) is a different language."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "nums = [10, 20, 30, 40, 50]\n\nWhat does nums[-1] return?",
+        "options": [
+          "Error — negative indices don't exist",
+          "10 (first element)",
+          "50 (last element)",
+          "None"
+        ],
+        "correct": 2,
+        "explanation": "Negative indices count from the end. nums[-1] = 50 (last), nums[-2] = 40, nums[-3] = 30. This is Pythonic and very common in interviews. Much cleaner than nums[len(nums)-1]."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Append to the end, then remove the last element:",
+        "code_lines": [
+          "stack = []",
+          "stack.___(42)    # add 42",
+          "val = stack.___()  # remove and return last"
+        ],
+        "blank_index": 1,
+        "blank_placeholder": "___",
+        "options": ["append", "push", "add", "insert"],
+        "correct": 0,
+        "explanation": "stack.append(42) adds to the end. stack.pop() removes and returns the last element. These two operations (append + pop) give a list O(1) stack behavior. This pattern — use a list as a stack — appears constantly in DSA problems."
+      },
+      {
+        "id": "e4",
+        "type": "code_pick",
+        "question": "Which creates [1, 4, 9, 16, 25] in one line?",
+        "context": "You need squares of numbers 1 through 5.",
+        "options": [
+          "[x^2 for x in range(1, 6)]",
+          "[x**2 for x in range(1, 6)]",
+          "[x*x for x in range(5)]",
+          "[pow(x) for x in range(1, 6)]"
+        ],
+        "correct": 1,
+        "explanation": "[x**2 for x in range(1, 6)] → [1, 4, 9, 16, 25]. Note: ** is Python's power operator. ^ is bitwise XOR (a common mistake). range(1, 6) gives 1,2,3,4,5 — the upper bound is exclusive. range(5) would give 0,1,2,3,4."
+      }
+    ]
+  }
+]

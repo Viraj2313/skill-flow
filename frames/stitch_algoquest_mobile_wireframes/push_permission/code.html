@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AlgoQuest - Notifications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e3e3da",
+                    "on-tertiary-fixed-variant": "#6a335d",
+                    "primary-fixed": "#c9eea1",
+                    "on-secondary-fixed": "#271900",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#fdc34d",
+                    "on-surface-variant": "#44483d",
+                    "inverse-surface": "#2f312b",
+                    "surface": "#fafaf1",
+                    "surface-container-low": "#f4f4eb",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#314f13",
+                    "primary-container": "#5a7a3a",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-primary-fixed": "#0e2000",
+                    "on-secondary-container": "#715000",
+                    "on-surface": "#1a1c17",
+                    "surface-dim": "#dadbd2",
+                    "tertiary": "#7e446f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#fafaf1",
+                    "error-container": "#ffdad6",
+                    "primary-fixed-dim": "#aed288",
+                    "tertiary-fixed": "#ffd7ef",
+                    "outline-variant": "#c4c8b9",
+                    "primary": "#426124",
+                    "inverse-primary": "#aed288",
+                    "on-tertiary-fixed": "#37052f",
+                    "surface-container-high": "#e8e9e0",
+                    "surface-tint": "#486729",
+                    "secondary": "#7b5800",
+                    "surface-container": "#eeeee6",
+                    "tertiary-container": "#9a5c89",
+                    "inverse-on-surface": "#f1f1e8",
+                    "on-tertiary-container": "#fff3f7",
+                    "on-primary-container": "#e5ffc6",
+                    "secondary-fixed": "#ffdea6",
+                    "tertiary-fixed-dim": "#f9b0e2",
+                    "surface-container-highest": "#e3e3da",
+                    "on-background": "#1a1c17",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "background": "#fafaf1",
+                    "outline": "#74796b",
+                    "on-secondary-fixed-variant": "#5d4200"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "12px",
+                    "2xl": "24px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "12px",
+                    "lg": "24px",
+                    "tap_target": "44px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "margin": "20px"
+            },
+            "fontFamily": {
+                    "label-caps": ["JetBrains Mono"],
+                    "h2": ["Inter"],
+                    "stat-lg": ["JetBrains Mono"],
+                    "h3": ["Inter"],
+                    "code": ["JetBrains Mono"],
+                    "body": ["Inter"],
+                    "h1": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h2": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "stat-lg": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "h3": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "code": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "body": ["15px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "h1": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #1a1915;
+            background-image: radial-gradient(#ffffff0a 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        .ripple-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ripple {
+            position: absolute;
+            border: 2px solid #5a7a3a;
+            border-radius: 50%;
+            animation: ripple-effect 3s infinite cubic-bezier(0.2, 0.4, 0.6, 1);
+            opacity: 0;
+        }
+        .ripple:nth-child(2) { animation-delay: 1s; }
+        .ripple:nth-child(3) { animation-delay: 2s; }
+        
+        @keyframes ripple-effect {
+            0% { width: 44px; height: 44px; opacity: 0.6; }
+            100% { width: 120px; height: 120px; opacity: 0; }
+        }
+
+        .paper-layer {
+            border: 1px solid #ddd9cf;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex items-center justify-center min-h-screen p-margin font-body overflow-hidden">
+<!-- Push Notification Modal Container -->
+<main class="w-full max-w-md animate-[fadeIn_0.5s_ease-out]">
+<!-- Center Card -->
+<div class="bg-white rounded-2xl p-xl flex flex-col items-center text-center paper-layer">
+<!-- Icon Section with Ripple -->
+<div class="h-32 flex items-center justify-center mb-md">
+<div class="ripple-container">
+<div class="ripple"></div>
+<div class="ripple"></div>
+<div class="ripple"></div>
+<div class="bg-surface-container-low rounded-full p-md z-10">
+<span class="material-symbols-outlined text-[64px] text-primary-container fill-icon" data-icon="notifications">notifications</span>
+</div>
+</div>
+</div>
+<!-- Typography Header -->
+<h2 class="font-label-caps text-h2 text-on-surface mb-sm tracking-tight">STAY IN THE FIGHT</h2>
+<p class="font-body text-body text-on-surface-variant mb-xl leading-relaxed">
+                Get daily challenge alerts, streak reminders, and rank notifications so you never miss a day.
+            </p>
+<!-- Benefit Rows (Sunken Style) -->
+<div class="w-full space-y-base mb-xl text-left">
+<!-- Benefit 1 -->
+<div class="bg-surface-container-low rounded-xl p-md flex items-center gap-md border border-outline-variant/30">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="notifications_active">notifications_active</span>
+</div>
+<span class="font-body text-body-sm text-on-surface-variant">Daily challenge reminder at 8am</span>
+</div>
+<!-- Benefit 2 -->
+<div class="bg-surface-container-low rounded-xl p-md flex items-center gap-md border border-outline-variant/30">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-secondary fill-icon" data-icon="local_fire_department">local_fire_department</span>
+</div>
+<span class="font-body text-body-sm text-on-surface-variant">Streak alert before midnight</span>
+</div>
+<!-- Benefit 3 -->
+<div class="bg-surface-container-low rounded-xl p-md flex items-center gap-md border border-outline-variant/30">
+<div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-tertiary" data-icon="emoji_events">emoji_events</span>
+</div>
+<span class="font-body text-body-sm text-on-surface-variant">Rank change notifications</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="w-full space-y-md">
+<button class="w-full bg-primary-container hover:bg-primary text-white font-h3 text-h3 py-md rounded-xl transition-all duration-200 active:scale-95 shadow-sm">
+                    ALLOW NOTIFICATIONS
+                </button>
+<a class="block font-label-caps text-label-caps text-outline hover:text-on-surface-variant transition-colors py-base uppercase" href="#">
+                    Maybe Later
+                </a>
+</div>
+</div>
+<!-- Atmospheric Detail: Engineering Grid Reinforcement -->
+<div class="mt-xl text-center opacity-20">
+<span class="font-code text-[10px] text-white/50 tracking-widest">MODULE :: NOTIFICATION_HANDLING_V5.0</span>
+</div>
+</main>
+<!-- Optional micro-interaction script -->
+<script>
+        document.querySelector('button').addEventListener('click', function() {
+            // Simulated permission request feedback
+            this.innerHTML = '<span class="material-symbols-outlined animate-spin" data-icon="sync">sync</span>';
+            setTimeout(() => {
+                this.innerHTML = 'NOTIFICATIONS ENABLED';
+                this.classList.replace('bg-primary-container', 'bg-primary');
+            }, 800);
+        });
+    </script>
+</body></html>
