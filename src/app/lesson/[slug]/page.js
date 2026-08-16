@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import LESSONS from '@/data/lessons.json';
+import { getLessonBySlug } from '@/lib/db';
 
 const CAT_COLOR = {
   dsa: '#5a7a3a',
@@ -451,16 +451,43 @@ function CompletionScreen({ lesson, correct, total, color, onFinish }) {
 export default function LessonPage() {
   const router = useRouter();
   const params = useParams();
-  const lesson = LESSONS.find(l => l.slug === params.slug);
+
+  const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [done, setDone] = useState(false);
 
-  if (!lesson) {
+  useEffect(() => {
+    if (!params.slug) return;
+    setLoading(true);
+    getLessonBySlug(params.slug)
+      .then(setLesson)
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [params.slug]);
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-aq-bg flex items-center justify-center">
-        <p className="font-sans text-aq-text-muted">Lesson not found.</p>
+        <span className="material-symbols-outlined text-[32px] text-aq-text-muted animate-spin">progress_activity</span>
+      </div>
+    );
+  }
+
+  if (error || !lesson) {
+    return (
+      <div className="min-h-screen bg-aq-bg flex flex-col items-center justify-center gap-4 px-6">
+        <span className="material-symbols-outlined text-[40px] text-aq-error">error</span>
+        <p className="font-sans text-aq-text-muted text-center">{error || 'Lesson not found.'}</p>
+        <button
+          onClick={() => router.back()}
+          className="px-6 py-2.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase bg-aq-text-primary text-white"
+        >
+          GO BACK
+        </button>
       </div>
     );
   }
@@ -533,3 +560,4 @@ export default function LessonPage() {
     </div>
   );
 }
+

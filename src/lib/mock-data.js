@@ -1,14 +1,14 @@
-import TOPICS from '@/data/topics.json';
+
+import TOPICS_JSON from '@/data/topics.json';
 import PROBLEMS from '@/data/problems.json';
 import USER from '@/data/user.json';
 import LEADERBOARD from '@/data/leaderboard.json';
-import LESSONS_DATA from '@/data/lessons.json';
 
 export const MOCK_USER = USER;
-export const MOCK_TOPICS = TOPICS;
+export const MOCK_TOPICS = TOPICS_JSON;
 export const MOCK_PROBLEMS = PROBLEMS;
 export const MOCK_LEADERBOARD = LEADERBOARD;
-export const MOCK_LESSONS = LESSONS_DATA;
+
 
 export const MOCK_DAILY_CHALLENGE = {
   id: 'dc1',

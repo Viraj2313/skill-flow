@@ -39,7 +39,7 @@ const features = [
   {
     icon: 'layers',
     title: 'Structured Levels',
-    body: 'Each topic has 5 levels — from basic recognition to interview-grade fluency. You earn each level, you don't skip it.',
+    body: "Each topic has 5 levels - from basic recognition to interview-grade fluency. You earn each level, you don't skip it.",
   },
   {
     icon: 'bolt',
