@@ -6,6 +6,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { MOCK_PROBLEMS } from '@/lib/mock-data';
 import { DifficultyBadge } from '@/components/ui';
 import BottomSheet from '@/components/BottomSheet';
+import { runPython } from '@/lib/python-runner';
+import { saveAiReview, saveCodeSubmission } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
@@ -44,6 +47,33 @@ const BOILERPLATE = {
 
 const KEYBOARD_SHORTCUTS = ['Tab', '{', '}', '(', ')', '[', ']', ';', '//', '=', '+', '-', '*', '/'];
 
+const TEST_CASES = {
+  'two-sum': [
+    { args: [[2, 7, 11, 15], 9], expected: [0, 1] },
+    { args: [[3, 2, 4], 6], expected: [1, 2] },
+    { args: [[3, 3], 6], expected: [0, 1] },
+  ],
+  'best-time-to-buy-sell-stock': [
+    { args: [[7, 1, 5, 3, 6, 4]], expected: 5 },
+    { args: [[7, 6, 4, 3, 1]], expected: 0 },
+  ],
+  'contains-duplicate': [
+    { args: [[1, 2, 3, 1]], expected: true },
+    { args: [[1, 2, 3, 4]], expected: false },
+  ],
+  'product-of-array-except-self': [
+    { args: [[1, 2, 3, 4]], expected: [24, 12, 8, 6] },
+    { args: [[-1, 1, 0, -3, 3]], expected: [0, 0, 9, 0, 0] },
+  ],
+  'dynamic-pathfinding': [
+    { args: [[[1, 3, 1], [1, 5, 1], [4, 2, 1]]], expected: 7 },
+  ],
+  'longest-common-subsequence': [
+    { args: ['abcde', 'ace'], expected: 3 },
+    { args: ['abc', 'abc'], expected: 3 },
+  ],
+};
+
 export default function EditorPage() {
   const params = useParams();
   const router = useRouter();
@@ -64,28 +94,71 @@ export default function EditorPage() {
   const [aiReady, setAiReady] = useState(false);
   const [showXP, setShowXP] = useState(false);
   const [showRankUp, setShowRankUp] = useState(false);
+  const [execution, setExecution] = useState(null);
+  const [executionError, setExecutionError] = useState('');
+  const [aiReview, setAiReview] = useState(null);
+  const [aiError, setAiError] = useState('');
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
     setCode(BOILERPLATE[lang] || BOILERPLATE.python);
   };
 
-  const handleRun = () => {
-    setRunning(true);
-    setTimeout(() => setRunning(false), 1500);
+  const executeCode = async () => {
+    const tests = TEST_CASES[problem.slug];
+    if (!tests) throw new Error('This problem does not have browser test cases yet.');
+    if (language !== 'python') throw new Error('Browser execution currently supports Python only.');
+    const output = await runPython(code, tests, problem.time_limit_ms + 4500);
+    const testsPassed = output.results.filter((item) => item.passed).length;
+    const nextExecution = {
+      results: output.results,
+      testsPassed,
+      testsTotal: output.results.length,
+      executionMs: null,
+      accepted: testsPassed === output.results.length,
+    };
+    setExecution(nextExecution);
+    return nextExecution;
   };
 
-  const handleSubmit = () => {
+  const handleRun = async () => {
+    setRunning(true);
+    setExecutionError('');
+    try {
+      await executeCode();
+    } catch (error) {
+      setExecutionError(error.message || 'Execution failed.');
+      setExecution(null);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  const handleSubmit = async () => {
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      const accepted = Math.random() > 0.35;
-      setResult(accepted ? 'accepted' : 'failed');
-      if (accepted) {
+    setExecutionError('');
+    try {
+      const nextExecution = await executeCode();
+      await saveCodeSubmission({
+        problem_slug: problem.slug,
+        language,
+        source_code: code,
+        status: nextExecution.accepted ? 'accepted' : 'failed',
+        tests_passed: nextExecution.testsPassed,
+        tests_total: nextExecution.testsTotal,
+        execution_ms: nextExecution.executionMs,
+        output: JSON.stringify(nextExecution.results),
+      });
+      setResult(nextExecution.accepted ? 'accepted' : 'failed');
+      if (nextExecution.accepted) {
         setShowXP(true);
         setTimeout(() => setShowXP(false), 1600);
       }
-    }, 1800);
+    } catch (error) {
+      setExecutionError(error.message || 'Submission failed.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleHint = (idx) => {
@@ -95,11 +168,28 @@ export default function EditorPage() {
     setRevealedHint(idx);
   };
 
-  const openAIReview = () => {
+  const openAIReview = async () => {
     setShowAIReview(true);
     setAiLoading(true);
     setAiReady(false);
-    setTimeout(() => { setAiLoading(false); setAiReady(true); }, 2000);
+    setAiError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch('/api/ai/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token || ''}` },
+        body: JSON.stringify({ code, language, problem: { title: problem.title, description: problem.description } }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'AI review failed.');
+      setAiReview(data.review);
+      setAiReady(true);
+      await saveAiReview({ problem_slug: problem.slug, language, review: data.review });
+    } catch (error) {
+      setAiError(error.message || 'AI review failed.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   if (result) {
@@ -142,7 +232,7 @@ export default function EditorPage() {
               <>
                 <div className="bg-aq-surface border border-aq-border rounded-card p-3 text-center">
                   <p className="font-mono text-[10px] text-aq-text-muted uppercase tracking-widest mb-1">Runtime</p>
-                  <span className="font-mono font-bold text-[20px] text-aq-text-primary">124 ms</span>
+                  <span className="font-mono font-bold text-[20px] text-aq-text-primary">Browser</span>
                 </div>
                 <div className="bg-aq-surface border border-aq-border rounded-card p-3 text-center">
                   <p className="font-mono text-[10px] text-aq-text-muted uppercase tracking-widest mb-1">Memory</p>
@@ -150,7 +240,7 @@ export default function EditorPage() {
                 </div>
                 <div className="bg-aq-surface border border-aq-border rounded-card p-3 text-center">
                   <p className="font-mono text-[10px] text-aq-text-muted uppercase tracking-widest mb-1">Tests Passed</p>
-                  <span className="font-mono font-bold text-[20px] text-aq-success">12 / 12</span>
+                  <span className="font-mono font-bold text-[20px] text-aq-success">{execution?.testsPassed || 0} / {execution?.testsTotal || 0}</span>
                 </div>
                 <div className="bg-aq-surface border border-aq-border rounded-card p-3 text-center">
                   <p className="font-mono text-[10px] text-aq-text-muted uppercase tracking-widest mb-1">XP Earned</p>
@@ -160,9 +250,8 @@ export default function EditorPage() {
             ) : (
               <div className="col-span-2 bg-aq-surface-raised border-l-[3px] border-aq-error rounded-r-card p-4 font-mono text-[13px] text-aq-text-secondary">
                 <div className="flex flex-col gap-1">
-                  <span><span className="text-aq-text-muted">Input:    </span>[1, 2, 3]</span>
-                  <span><span className="text-aq-text-muted">Expected: </span>6</span>
-                  <span><span className="text-aq-text-muted">Got:      </span>5</span>
+                  <span><span className="text-aq-text-muted">Expected: </span>{JSON.stringify(execution?.results.find((item) => !item.passed)?.expected)}</span>
+                  <span><span className="text-aq-text-muted">Got:      </span>{execution?.results.find((item) => !item.passed)?.error || JSON.stringify(execution?.results.find((item) => !item.passed)?.actual)}</span>
                 </div>
               </div>
             )}
@@ -210,17 +299,17 @@ export default function EditorPage() {
             ) : aiReady ? (
               <div className="flex flex-col gap-5">
                 <p className="font-sans text-body text-aq-text-secondary leading-relaxed">
-                  Your solution uses a hash map approach which achieves O(n) time complexity — excellent choice. The code is clean and readable. Consider edge cases like empty arrays for production use.
+                  {aiReview?.summary || 'Your review is ready.'}
                 </p>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-aq-surface-raised border border-aq-border rounded-card p-3 text-center">
                     <p className="font-mono text-[9px] text-aq-text-muted uppercase tracking-widest mb-1">TIME COMPLEXITY</p>
-                    <span className="font-mono font-bold text-[16px] text-aq-primary">O(n)</span>
+                    <span className="font-mono font-bold text-[16px] text-aq-primary">{aiReview?.time_complexity || '—'}</span>
                   </div>
                   <div className="bg-aq-surface-raised border border-aq-border rounded-card p-3 text-center">
                     <p className="font-mono text-[9px] text-aq-text-muted uppercase tracking-widest mb-1">SPACE COMPLEXITY</p>
-                    <span className="font-mono font-bold text-[16px] text-aq-primary">O(n)</span>
+                    <span className="font-mono font-bold text-[16px] text-aq-primary">{aiReview?.space_complexity || '—'}</span>
                   </div>
                 </div>
 
@@ -230,11 +319,11 @@ export default function EditorPage() {
                     <span className="material-symbols-outlined text-[14px] text-aq-text-muted">lightbulb</span>
                   </div>
                   <div className="flex flex-col gap-3">
-                    {[
+                    {(aiReview?.suggestions || [
                       'Add input validation for null or empty arrays.',
                       'The variable name "seen" is intuitive — good naming.',
                       'Consider using enumerate() over range(len()) — more Pythonic.',
-                    ].map((sug, i) => (
+                    ]).map((sug, i) => (
                       <div key={i} className="flex gap-2.5">
                         <span className="w-5 h-5 rounded-full bg-aq-primary-dim text-aq-primary font-mono text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
                         <p className="font-sans text-[14px] text-aq-text-secondary">{sug}</p>
@@ -260,7 +349,7 @@ for i, num in enumerate(nums):
                   CLOSE
                 </button>
               </div>
-            ) : null}
+            ) : aiError ? <p role="alert" className="font-sans text-[14px] text-aq-error text-center py-6">{aiError}</p> : null}
           </div>
         </BottomSheet>
       </div>
@@ -405,7 +494,10 @@ for i, num in enumerate(nums):
           </div>
 
           <div className="flex items-center justify-between px-4 py-2 bg-aq-surface border-t border-aq-border flex-shrink-0">
-            <span className="font-mono text-[12px] text-aq-text-muted">3/5 passed</span>
+            <div className="min-w-0">
+              <span className="font-mono text-[12px] text-aq-text-muted">{execution ? `${execution.testsPassed}/${execution.testsTotal} passed` : 'Run visible tests'}</span>
+              {executionError && <p role="alert" className="font-sans text-[11px] text-aq-error truncate">{executionError}</p>}
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleRun}
@@ -445,16 +537,16 @@ for i, num in enumerate(nums):
           ) : aiReady ? (
             <div className="flex flex-col gap-5">
               <p className="font-sans text-body text-aq-text-secondary leading-relaxed">
-                Your solution uses a hash map approach which achieves O(n) time complexity — excellent choice. The code is clean and readable. A few suggestions to make it even more robust.
+                {aiReview?.summary || 'Your review is ready.'}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-aq-surface-raised border border-aq-border rounded-card p-3 text-center">
                   <p className="font-mono text-[9px] text-aq-text-muted uppercase tracking-widest mb-1">TIME</p>
-                  <span className="font-mono font-bold text-[18px] text-aq-primary">O(n)</span>
+                  <span className="font-mono font-bold text-[18px] text-aq-primary">{aiReview?.time_complexity || '—'}</span>
                 </div>
                 <div className="bg-aq-surface-raised border border-aq-border rounded-card p-3 text-center">
                   <p className="font-mono text-[9px] text-aq-text-muted uppercase tracking-widest mb-1">SPACE</p>
-                  <span className="font-mono font-bold text-[18px] text-aq-primary">O(n)</span>
+                  <span className="font-mono font-bold text-[18px] text-aq-primary">{aiReview?.space_complexity || '—'}</span>
                 </div>
               </div>
               <div>
@@ -462,7 +554,7 @@ for i, num in enumerate(nums):
                   <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted">SUGGESTIONS</span>
                   <span className="material-symbols-outlined text-[14px] text-aq-text-muted">lightbulb</span>
                 </div>
-                {['Add input validation.', 'Use enumerate() over range(len()).', 'Consider walrus operator for conciseness.'].map((s, i) => (
+                {(aiReview?.suggestions || ['Add input validation.', 'Use enumerate() over range(len()).', 'Consider walrus operator for conciseness.']).map((s, i) => (
                   <div key={i} className="flex gap-2.5 mb-2">
                     <span className="w-5 h-5 rounded-full bg-aq-primary-dim text-aq-primary font-mono text-[11px] font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
                     <p className="font-sans text-[14px] text-aq-text-secondary">{s}</p>
@@ -473,7 +565,7 @@ for i, num in enumerate(nums):
                 CLOSE
               </button>
             </div>
-          ) : null}
+          ) : aiError ? <p role="alert" className="font-sans text-[14px] text-aq-error text-center py-6">{aiError}</p> : null}
         </div>
       </BottomSheet>
     </div>

@@ -3,21 +3,27 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/dashboard');
-    }, 1200);
+    setError('');
+    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (loginError) {
+      setError(loginError.message);
+      return;
+    }
+    router.replace('/dashboard');
   };
 
   return (
@@ -84,6 +90,7 @@ export default function LoginPage() {
                 <>LOG IN <span className="material-symbols-outlined text-[18px]">login</span></>
               )}
             </button>
+            {error && <p role="alert" className="font-sans text-[13px] text-aq-error text-center">{error}</p>}
           </form>
         </div>
 

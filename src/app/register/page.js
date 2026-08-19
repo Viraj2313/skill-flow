@@ -3,22 +3,47 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ username: '', email: '', password: '', display_name: '' });
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const router = useRouter();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    if (!form.username.trim() || !form.email.trim() || !form.password) {
+      setError('Username, email, and password are required.');
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/onboarding/notifications');
-    }, 1200);
+    setError('');
+    setMessage('');
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        data: {
+          username: form.username.trim(),
+          display_name: form.display_name.trim() || form.username.trim(),
+        },
+      },
+    });
+    setLoading(false);
+    if (signUpError) {
+      setError(signUpError.message);
+      return;
+    }
+    if (!data.session) {
+      setMessage('Check your email to confirm your account, then log in.');
+      return;
+    }
+    router.replace('/onboarding/notifications');
   };
 
   return (
@@ -88,6 +113,8 @@ export default function RegisterPage() {
                 <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : 'CREATE ACCOUNT'}
             </button>
+            {error && <p role="alert" className="font-sans text-[13px] text-aq-error text-center">{error}</p>}
+            {message && <p role="status" className="font-sans text-[13px] text-aq-success text-center">{message}</p>}
           </form>
         </div>
 

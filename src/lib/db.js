@@ -36,16 +36,16 @@ export async function getLessonBySlug(slug) {
 
   if (lessonError) throw lessonError;
 
-  const { data: exercises, error: exError } = await supabase
-    .from('exercises')
-    .select('*')
-    .eq('lesson_id', lesson.id)
-    .order('sort_order', { ascending: true });
+  const [{ data: exercises, error: exError }, { data: cards }] = await Promise.all([
+    supabase.from('exercises').select('*').eq('lesson_id', lesson.id).order('sort_order', { ascending: true }),
+    supabase.from('concept_cards').select('*').eq('lesson_id', lesson.id).order('sort_order', { ascending: true }),
+  ]);
 
   if (exError) throw exError;
 
   return {
     ...lesson,
+    cards: cards || [],
     exercises: exercises.map(normaliseExercise),
   };
 }
@@ -174,20 +174,8 @@ export async function getUserLessonProgress(userId) {
 }
 
 export async function getLeaderboard(limit = 10) {
-  const { data, error } = await supabase
-    .from('leaderboard_view')
-    .select('*')
-    .limit(limit);
-
-  if (error) {
-    const { data: profiles, error: pErr } = await supabase
-      .from('user_profiles')
-      .select('id, username, display_name, xp, streak_current, avatar_url')
-      .order('xp', { ascending: false })
-      .limit(limit);
-    if (pErr) throw pErr;
-    return profiles;
-  }
+  const { data, error } = await supabase.rpc('get_leaderboard', { result_limit: limit });
+  if (error) throw error;
   return data;
 }
 
@@ -205,18 +193,38 @@ export async function getDailyChallenge() {
 
 export async function completeLesson(lessonId, correctCount, totalCount, xpEarned) {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!user) throw new Error('Sign in to save lesson progress.');
 
-  await supabase.from('user_lesson_progress').upsert({
-    user_id: user.id,
-    lesson_id: lessonId,
-    completed: true,
-    correct_count: correctCount,
-    total_count: totalCount,
-    xp_earned: xpEarned,
-    completed_at: new Date().toISOString(),
-  }, { onConflict: 'user_id,lesson_id' });
-  await supabase.rpc('increment_xp', { uid: user.id, amount: xpEarned });
+  const { error } = await supabase.rpc('complete_lesson', {
+    lesson_id_input: lessonId,
+    correct_count_input: correctCount,
+    total_count_input: totalCount,
+    xp_earned_input: xpEarned,
+  });
+  if (error) throw error;
+}
+
+export async function saveCodeSubmission(submission) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Sign in to save submissions.');
+
+  const { data, error } = await supabase
+    .from('code_submissions')
+    .insert({ user_id: user.id, ...submission })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function saveAiReview(review) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Sign in to save reviews.');
+
+  const { error } = await supabase
+    .from('ai_reviews')
+    .insert({ user_id: user.id, ...review });
+  if (error) throw error;
 }
 
 function normaliseExercise(ex) {

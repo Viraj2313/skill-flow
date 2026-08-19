@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getLessonBySlug } from '@/lib/db';
+import { completeLesson, getLessonBySlug } from '@/lib/db';
 
 const CAT_COLOR = {
   dsa: '#5a7a3a',
@@ -24,8 +24,35 @@ function ProgressBar({ current, total, color }) {
 
 function CodeBlock({ text }) {
   return (
-    <div className="bg-aq-surface-raised rounded-input px-4 py-3 font-mono text-[14px] text-aq-text-primary whitespace-pre leading-relaxed">
+    <div className="bg-aq-surface-raised rounded-input px-4 py-3 font-mono text-[13px] text-aq-text-primary whitespace-pre leading-relaxed overflow-x-auto">
       {text}
+    </div>
+  );
+}
+
+function ConceptCard({ card, index, total, color, onNext }) {
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4">
+        {card.heading && (
+          <h2 className="font-sans font-bold text-[22px] text-aq-text-primary leading-snug mb-4">
+            {card.heading}
+          </h2>
+        )}
+        <p className="font-sans text-[16px] text-aq-text-secondary leading-relaxed whitespace-pre-line mb-5">
+          {card.body}
+        </p>
+        {card.code && <CodeBlock text={card.code} />}
+      </div>
+      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
+        <button
+          onClick={onNext}
+          className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
+          style={{ backgroundColor: color }}
+        >
+          {index + 1 < total ? 'GOT IT →' : 'START EXERCISES →'}
+        </button>
+      </div>
     </div>
   );
 }
@@ -457,8 +484,10 @@ export default function LessonPage() {
   const [error, setError] = useState(null);
 
   const [exerciseIndex, setExerciseIndex] = useState(0);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [done, setDone] = useState(false);
+  const [correctCount, setCorrectCount]   = useState(0);
+  const [done, setDone]                   = useState(false);
+  const [saveError, setSaveError]         = useState(null);
+  const [cardIndex, setCardIndex]         = useState(0);
 
   useEffect(() => {
     if (!params.slug) return;
@@ -492,15 +521,29 @@ export default function LessonPage() {
     );
   }
 
-  const color = CAT_COLOR[lesson.category] || CAT_COLOR.dsa;
+  const color     = CAT_COLOR[lesson.category] || CAT_COLOR.dsa;
+  const cards     = lesson.cards || [];
   const exercises = lesson.exercises;
+  const showingCards = cardIndex < cards.length;
+  const currentCard  = cards[cardIndex];
   const currentExercise = exercises[exerciseIndex];
+  const totalSteps = cards.length + exercises.length;
 
-  function handleAnswer(isCorrect) {
+  async function handleAnswer(isCorrect) {
     const nextCorrect = isCorrect ? correctCount + 1 : correctCount;
     if (exerciseIndex + 1 >= exercises.length) {
       setCorrectCount(nextCorrect);
       setDone(true);
+      try {
+        await completeLesson(
+          lesson.id,
+          nextCorrect,
+          exercises.length,
+          Math.round((nextCorrect / exercises.length) * lesson.xp_reward)
+        );
+      } catch (err) {
+        setSaveError(err.message || 'Your lesson result could not be saved.');
+      }
     } else {
       setCorrectCount(nextCorrect);
       setExerciseIndex(exerciseIndex + 1);
@@ -528,13 +571,13 @@ export default function LessonPage() {
           </button>
           <div className="flex-1">
             <ProgressBar
-              current={done ? exercises.length : exerciseIndex}
-              total={exercises.length}
+              current={done ? totalSteps : cardIndex + exerciseIndex}
+              total={totalSteps}
               color={color}
             />
           </div>
           <span className="font-mono text-[11px] text-aq-text-muted flex-shrink-0">
-            {done ? exercises.length : exerciseIndex}/{exercises.length}
+            {done ? totalSteps : cardIndex + exerciseIndex}/{totalSteps}
           </span>
         </div>
         <h1 className="font-mono text-[12px] font-semibold tracking-widest uppercase" style={{ color }}>
@@ -552,7 +595,17 @@ export default function LessonPage() {
               color={color}
               onFinish={() => router.push('/skills')}
             />
+            {saveError && <p role="alert" className="px-5 pb-4 font-sans text-[13px] text-aq-error text-center">{saveError}</p>}
           </div>
+        ) : showingCards ? (
+          <ConceptCard
+            key={cardIndex}
+            card={currentCard}
+            index={cardIndex}
+            total={cards.length}
+            color={color}
+            onNext={() => setCardIndex(i => i + 1)}
+          />
         ) : (
           renderExercise(currentExercise)
         )}
@@ -560,4 +613,3 @@ export default function LessonPage() {
     </div>
   );
 }
-

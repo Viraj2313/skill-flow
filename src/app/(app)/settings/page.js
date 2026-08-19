@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Toggle } from '@/components/ui';
+import { supabase } from '@/lib/supabase';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -13,6 +14,11 @@ export default function SettingsPage() {
   });
 
   const toggle = (key) => setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace('/login');
+  };
 
   const Section = ({ label, children }) => (
     <div className="mb-2">
@@ -76,7 +82,7 @@ export default function SettingsPage() {
 
         <div className="px-5 pt-4">
           <button
-            onClick={() => router.push('/login')}
+            onClick={handleLogout}
             className="w-full py-3.5 border border-aq-error text-aq-error font-mono text-[13px] font-semibold tracking-widest uppercase rounded-input hover:bg-aq-error-bg transition-colors"
           >
             LOG OUT

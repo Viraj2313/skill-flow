@@ -1,17 +1,29 @@
 'use client';
 
-import { useState } from 'react';
-import { MOCK_LEADERBOARD, MOCK_USER } from '@/lib/mock-data';
+import { useEffect, useState } from 'react';
+import { getLeaderboard } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 import { FilterPills } from '@/components/ui';
 
 const FILTERS = ['GLOBAL', 'WEEKLY', 'FRIENDS'];
 
 export default function RanksPage() {
   const [filter, setFilter] = useState('GLOBAL');
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      setUserId(user.id);
+      const entries = await getLeaderboard(50);
+      setLeaderboard(entries);
+    });
+  }, []);
 
   const displayList = filter === 'FRIENDS'
-    ? MOCK_LEADERBOARD.filter((_, i) => [0, 2, 5, 8].includes(i) || _.isUser)
-    : MOCK_LEADERBOARD;
+    ? leaderboard.filter((entry) => entry.id === userId)
+    : leaderboard;
 
   return (
     <div className="min-h-screen bg-aq-bg">
@@ -45,11 +57,12 @@ export default function RanksPage() {
 
       <div className="max-w-2xl mx-auto">
         {displayList.map((entry, idx) => {
-          const isUser = entry.isUser;
+          const isUser = entry.id === userId;
+          const rank = entry.rank_position || idx + 1;
           const accentColors = ['bg-aq-gold', 'bg-gray-400', 'bg-amber-600'];
           return (
             <div
-              key={entry.rank}
+              key={entry.id}
               className={`flex items-center px-5 py-3 border-b border-aq-border ${
                 isUser ? 'bg-aq-primary-dim border-l-[3px] border-l-aq-primary' : 'hover:bg-aq-surface-raised'
               } transition-colors`}
@@ -57,23 +70,23 @@ export default function RanksPage() {
               <div className={`w-8 flex-shrink-0 relative`}>
                 {idx < 3 && <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-r ${accentColors[idx]}`} />}
                 <span className={`font-mono font-bold text-[14px] ml-2 ${
-                  entry.rank === 1 ? 'text-aq-gold' :
-                  entry.rank <= 3 ? 'text-aq-text-secondary' :
+                  rank === 1 ? 'text-aq-gold' :
+                  rank <= 3 ? 'text-aq-text-secondary' :
                   isUser ? 'text-aq-primary' : 'text-aq-text-muted'
-                }`}>{entry.rank}</span>
+                }`}>{rank}</span>
               </div>
 
               <div className="flex items-center gap-2.5 flex-1 min-w-0 ml-3">
                 <div className="w-9 h-9 rounded-full bg-aq-surface-raised border border-aq-border flex items-center justify-center flex-shrink-0">
                   <span className={`font-sans font-bold text-[14px] ${isUser ? 'text-aq-primary' : 'text-aq-text-secondary'}`}>
-                    {entry.username[0]}
+                    {(entry.display_name || entry.username || '?')[0]}
                   </span>
                 </div>
                 <div className="min-w-0">
                   <p className={`font-sans font-bold text-[14px] truncate ${isUser ? 'text-aq-primary' : 'text-aq-text-primary'}`}>
-                    {entry.username}{isUser && <span className="font-normal opacity-70"> (You)</span>}
+                    {entry.display_name || entry.username}{isUser && <span className="font-normal opacity-70"> (You)</span>}
                   </p>
-                  <p className="font-mono text-[10px] text-aq-text-muted">{entry.rank_title}</p>
+                  <p className="font-mono text-[10px] text-aq-text-muted">Problem Solver</p>
                 </div>
               </div>
 
