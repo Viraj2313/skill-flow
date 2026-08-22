@@ -11,19 +11,40 @@ import {
   getWeekActivity,
   getDailyChallenge,
   getLeaderboard,
+  getTopics,
+  getAllLessons,
+  getUserLessonProgress,
 } from '@/lib/db';
 import { Card, StatChip } from '@/components/ui';
 
-const CAT_COLOR = {
-  dsa: '#5a7a3a',
-  python: '#2563a8',
-  'cs-fundamentals': '#92400e',
-};
-
-const CAT_LABEL = {
-  dsa: 'DSA',
-  python: 'Python',
-  'cs-fundamentals': 'CS Fund.',
+const CAT_THEME = {
+  dsa: {
+    label: 'DSA',
+    name: 'Data Structures & Algorithms',
+    color: '#059669',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    text: 'text-emerald-800',
+    badge: 'bg-emerald-100/80 text-emerald-800 border-emerald-200',
+  },
+  python: {
+    label: 'Python',
+    name: 'Python',
+    color: '#2563eb',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    text: 'text-blue-800',
+    badge: 'bg-blue-100/80 text-blue-800 border-blue-200',
+  },
+  'cs-fundamentals': {
+    label: 'CS Fund.',
+    name: 'CS Fundamentals',
+    color: '#d97706',
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
+    text: 'text-amber-800',
+    badge: 'bg-amber-100/80 text-amber-800 border-amber-200',
+  },
 };
 
 const WEEK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -32,19 +53,9 @@ function timeAgo(dateStr) {
   if (!dateStr) return '';
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days === 0) return 'today';
-  if (days === 1) return '1d ago';
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
   return `${days}d ago`;
-}
-
-function Spinner() {
-  return (
-    <div className="flex justify-center py-8">
-      <span className="material-symbols-outlined text-[28px] text-aq-text-muted animate-spin">
-        progress_activity
-      </span>
-    </div>
-  );
 }
 
 export default function DashboardPage() {
@@ -57,6 +68,9 @@ export default function DashboardPage() {
   const [activity, setActivity]   = useState([]);
   const [challenge, setChallenge] = useState(null);
   const [leaderboard, setLB]      = useState([]);
+  const [trackStats, setTrackStats] = useState([]);
+  const [weakSpots, setWeakSpots] = useState([]);
+  const [reviewDue, setReviewDue] = useState([]);
   const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
@@ -64,14 +78,66 @@ export default function DashboardPage() {
       if (!u) { router.push('/login'); return; }
       setUser(u);
 
-      const [prof, week, next, act, ch, lb] = await Promise.all([
+      const [prof, week, next, act, ch, lb, topics, lessons, userProgress] = await Promise.all([
         getUserProfile(),
         getWeekActivity(u.id),
         getNextLesson(u.id),
         getRecentActivity(u.id, 5),
         getDailyChallenge(),
         getLeaderboard(5),
+        getTopics(),
+        getAllLessons(),
+        getUserLessonProgress(u.id),
       ]);
+
+      const completedSet = new Set((userProgress || []).filter(p => p.completed).map(p => p.lesson_id));
+      
+      const tracks = ['dsa', 'python', 'cs-fundamentals'].map((catId) => {
+        const catTopics = (topics || []).filter(t => t.category_id === catId);
+        const catLessons = (lessons || []).filter(l => catTopics.some(t => t.id === l.topic_id));
+        const done = catLessons.filter(l => completedSet.has(l.id)).length;
+        const total = catLessons.length;
+        return {
+          id: catId,
+          ...CAT_THEME[catId],
+          done,
+          total,
+          pct: total > 0 ? Math.round((done / total) * 100) : 0,
+        };
+      });
+
+      const spots = (userProgress || [])
+        .filter(p => p.total_count > 0 && p.correct_count / p.total_count < 0.6 && p.total_count >= 2)
+        .sort((a, b) => (a.correct_count / a.total_count) - (b.correct_count / b.total_count))
+        .slice(0, 3)
+        .map(p => ({
+          lessonId:  p.lesson_id,
+          title:     p.lessons?.title || 'Unknown Lesson',
+          slug:      p.lessons?.slug,
+          pct:       Math.round((p.correct_count / p.total_count) * 100),
+          catId:     p.lessons?.topics?.category_id || 'dsa',
+        }));
+
+      const now = Date.now();
+      const due = (userProgress || [])
+        .filter(p => p.completed && p.completed_at && p.lessons?.slug)
+        .map(p => {
+          const score = p.total_count > 0 ? p.correct_count / p.total_count : 0;
+          const intervalDays = score < 0.8 ? 1 : score < 1 ? 3 : 7;
+          const completedMs  = new Date(p.completed_at).getTime();
+          const dueMs        = completedMs + intervalDays * 86_400_000;
+          return { ...p, dueMs, intervalDays, score };
+        })
+        .filter(p => p.dueMs <= now)
+        .sort((a, b) => a.dueMs - b.dueMs)
+        .slice(0, 4)
+        .map(p => ({
+          title:    p.lessons?.title || 'Lesson',
+          slug:     p.lessons?.slug,
+          score:    Math.round(p.score * 100),
+          catId:    p.lessons?.topics?.category_id || 'dsa',
+          daysAgo:  Math.floor((now - new Date(p.completed_at).getTime()) / 86_400_000),
+        }));
 
       setProfile(prof);
       setWeekDone(week);
@@ -79,249 +145,426 @@ export default function DashboardPage() {
       setActivity(act);
       setChallenge(ch);
       setLB(lb);
+      setTrackStats(tracks);
+      setWeakSpots(spots);
+      setReviewDue(due);
       setLoading(false);
     });
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-aq-bg flex items-center justify-center">
-        <span className="material-symbols-outlined text-[36px] text-aq-text-muted animate-spin">
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <span className="material-symbols-outlined text-[32px] text-slate-400 animate-spin">
           progress_activity
         </span>
       </div>
     );
   }
 
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'there';
-  const xp           = profile?.xp ?? 0;
-  const streak       = profile?.streak_current ?? 0;
+  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Engineer';
+  const xp          = profile?.xp ?? 0;
+  const streak      = profile?.streak_current ?? 0;
+  const nextCatId   = nextLesson?.topics?.category_id || 'dsa';
+  const nextTheme   = CAT_THEME[nextCatId] || CAT_THEME.dsa;
 
   return (
-    <div className="min-h-screen bg-aq-bg">
-      <header className="bg-aq-surface border-b border-aq-border sticky top-0 z-40 px-5 h-14 flex items-center justify-between">
-        <span className="font-mono font-bold text-[19px] text-aq-primary tracking-tight">SkillFlow</span>
-        <div className="flex items-center gap-2">
-          <StatChip icon="local_fire_department" value={streak} gold />
-          <StatChip icon="workspace_premium" value={xp.toLocaleString()} gold />
-        </div>
-      </header>
-
-      <div className="px-5 pt-5 pb-28 space-y-4">
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
         <div>
-          <p className="font-sans font-semibold text-[20px] text-aq-text-primary">
-            Hey, {displayName} 👋
-          </p>
-          <p className="font-sans text-[14px] text-aq-text-muted mt-0.5">
-            {streak > 0 ? `${streak} day streak — keep it going!` : 'Start your streak today.'}
+          <h1 className="font-sans font-bold text-[24px] sm:text-[28px] text-slate-900 tracking-tight">
+            Welcome back, {displayName}
+          </h1>
+          <p className="font-sans text-[14px] text-slate-500 mt-1">
+            {streak > 0 ? `${streak} day streak. Keep building momentum.` : 'Start your streak with a quick lesson today.'}
           </p>
         </div>
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted">
-              THIS WEEK
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined filled text-aq-gold" style={{ fontSize: 16 }}>
-                local_fire_department
-              </span>
-              <span className="font-mono font-bold text-[14px] text-aq-text-primary">
-                {streak} day streak
-              </span>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            {WEEK_DAYS.map((day, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
-                <span className="font-mono text-[10px] text-aq-text-muted">{day}</span>
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                    weekDone[i] ? 'bg-aq-gold' : 'border border-aq-border'
-                  }`}
-                >
-                  {weekDone[i] && (
-                    <span className="material-symbols-outlined text-white filled" style={{ fontSize: 14 }}>
-                      check
+        <div className="flex items-center gap-2.5 shrink-0">
+          <StatChip icon="local_fire_department" value={`${streak} days`} gold />
+          <StatChip icon="workspace_premium" value={`${xp.toLocaleString()} XP`} gold />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-8 space-y-6">
+          {nextLesson && (
+            <Card className="overflow-hidden border-slate-200 bg-white">
+              <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: nextTheme.color }} />
+                  <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+                    Up Next
+                  </span>
+                </div>
+                <span className={`font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-md border ${nextTheme.badge}`}>
+                  {nextTheme.name}
+                </span>
+              </div>
+              <div className="p-6">
+                <h2 className="font-sans font-bold text-[20px] text-slate-900 mb-2">
+                  {nextLesson.title}
+                </h2>
+                <p className="font-sans text-[14px] text-slate-600 mb-6 leading-relaxed">
+                  {nextLesson.description}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100">
+                  <div className="flex items-center gap-3 font-mono text-[12px] text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[16px] text-emerald-600 filled">bolt</span>
+                      +{nextLesson.xp_reward || 25} XP
                     </span>
-                  )}
+                    <span>•</span>
+                    <span>{nextLesson.exercises?.length || 4} Exercises</span>
+                  </div>
+
+                  <Link
+                    href={`/lesson/${nextLesson.slug}`}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-sans text-[13px] font-semibold text-white transition-all shadow-sm hover:shadow-md"
+                    style={{ backgroundColor: nextTheme.color }}
+                  >
+                    <span>Start Lesson</span>
+                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  </Link>
                 </div>
               </div>
-            ))}
-          </div>
-        </Card>
-        {nextLesson && (
-          <Card className="overflow-hidden">
-            <div className="px-4 pt-4 pb-3 border-b border-aq-border flex items-center justify-between">
-              <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted">
-                CONTINUE LEARNING
-              </span>
-              <span
-                className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded-pill"
-                style={{
-                  color: CAT_COLOR[nextLesson.topics?.category_id] || CAT_COLOR.dsa,
-                  backgroundColor: (CAT_COLOR[nextLesson.topics?.category_id] || CAT_COLOR.dsa) + '20',
-                }}
-              >
-                {CAT_LABEL[nextLesson.topics?.category_id] || 'DSA'}
-              </span>
-            </div>
-            <div className="p-4">
-              <h3 className="font-sans font-bold text-[17px] text-aq-text-primary mb-1">
-                {nextLesson.title}
-              </h3>
-              <p className="font-sans text-[14px] text-aq-text-secondary mb-4 leading-relaxed">
-                {nextLesson.description}
-              </p>
-              <Link
-                href={`/lesson/${nextLesson.slug}`}
-                className="block w-full py-2.5 text-white text-center font-mono text-[12px] font-semibold tracking-widest uppercase rounded-input transition-colors"
-                style={{ backgroundColor: CAT_COLOR[nextLesson.topics?.category_id] || CAT_COLOR.dsa }}
-              >
-                START LESSON →
-              </Link>
-            </div>
-          </Card>
-        )}
-        {challenge && (
-          <Card className="overflow-hidden">
-            <div className="px-4 pt-4 pb-3 border-b border-aq-border flex items-center justify-between">
-              <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted">
-                TODAY'S CHALLENGE
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined filled text-aq-gold" style={{ fontSize: 14 }}>
-                  bolt
-                </span>
-                <span className="font-mono text-[10px] text-aq-gold font-semibold">
-                  +{challenge.bonus_xp} XP BONUS
-                </span>
+            </Card>
+          )}
+
+          {reviewDue.length > 0 && (
+            <Card className="overflow-hidden">
+              <div className="px-6 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-indigo-600 filled">replay</span>
+                  <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Due for Review</span>
+                </div>
+                <span className="font-sans text-[11px] text-slate-400">Spaced repetition</span>
               </div>
-            </div>
-            <div className="p-4">
-              <h3 className="font-sans font-bold text-[17px] text-aq-text-primary mb-1">
-                {challenge.lessons?.title}
-              </h3>
-              <p className="font-sans text-[14px] text-aq-text-secondary mb-4 leading-relaxed">
-                {challenge.lessons?.description}
-              </p>
-              <Link
-                href={`/lesson/${challenge.lessons?.slug}`}
-                className="block w-full py-2.5 bg-aq-gold text-white text-center font-mono text-[12px] font-semibold tracking-widest uppercase rounded-input"
-              >
-                DO CHALLENGE →
-              </Link>
-            </div>
-          </Card>
-        )}
-        <Card className="p-4">
-          <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted mb-3 block">
-            RECENT ACTIVITY
-          </span>
-          {activity.length === 0 ? (
-            <p className="font-sans text-[14px] text-aq-text-muted text-center py-4">
-              No lessons completed yet — start one!
-            </p>
-          ) : (
-            <div className="flex flex-col divide-y divide-aq-border">
-              {activity.map((item, i) => {
-                const catId = item.lessons?.topics?.category_id || 'dsa';
-                const color = CAT_COLOR[catId];
-                const perfect = item.correct_count === item.total_count;
-                return (
-                  <div key={i} className="flex items-center justify-between py-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                      <div>
-                        <p className="font-sans text-[14px] text-aq-text-primary font-medium">
-                          {item.lessons?.title}
-                        </p>
-                        <p className="font-mono text-[10px] text-aq-text-muted">
-                          {CAT_LABEL[catId]} · {timeAgo(item.completed_at)}
+              <div className="divide-y divide-slate-100">
+                {reviewDue.map((item, i) => {
+                  const theme = CAT_THEME[item.catId] || CAT_THEME.dsa;
+                  return (
+                    <Link
+                      key={i}
+                      href={`/lesson/${item.slug}`}
+                      className="flex items-center gap-4 px-6 py-3.5 hover:bg-slate-50 transition-colors group"
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: theme.color + '15' }}>
+                        <span className="material-symbols-outlined text-[16px]" style={{ color: theme.color }}>replay</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans text-[14px] font-semibold text-slate-800 group-hover:text-indigo-700 transition-colors truncate">{item.title}</p>
+                        <p className="font-mono text-[11px] text-slate-400 mt-0.5">
+                          {item.daysAgo === 0 ? 'Completed today' : `${item.daysAgo}d ago`}
+                          {' \u00b7 '}scored {item.score}%
                         </p>
                       </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-0.5">
-                      <span className={`font-mono text-[11px] font-semibold ${perfect ? 'text-aq-success' : 'text-aq-text-muted'}`}>
-                        {item.correct_count}/{item.total_count}
-                      </span>
-                      <span className="font-mono text-[10px] text-aq-primary">+{item.xp_earned} XP</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                      <span className="font-sans text-[12px] font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">Review</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </Card>
           )}
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted">
-              GLOBAL TOP
-            </span>
-            <Link href="/ranks" className="font-sans text-[13px] text-aq-primary">
-              View All
-            </Link>
-          </div>
-          {leaderboard.length === 0 ? (
-            <p className="font-sans text-[14px] text-aq-text-muted text-center py-4">No data yet.</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {leaderboard.map((entry, i) => {
-                const isMe = entry.id === user?.id;
-                return (
-                  <div
-                    key={entry.id}
-                    className={`flex items-center gap-3 p-2.5 rounded-input ${
-                      isMe
-                        ? 'bg-aq-primary-dim border-l-2 border-aq-primary'
-                        : 'bg-aq-surface-raised'
-                    }`}
-                  >
-                    <span
-                      className={`font-mono font-bold text-[13px] w-5 ${
-                        i === 0 ? 'text-aq-gold' : isMe ? 'text-aq-primary' : 'text-aq-text-muted'
-                      }`}
-                    >
-                      {i + 1}
-                    </span>
-                    <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border ${
-                        isMe ? 'border-aq-primary bg-aq-primary-dim' : 'border-aq-border bg-aq-surface'
-                      }`}
-                    >
-                      <span
-                        className={`font-sans font-bold text-[12px] ${
-                          isMe ? 'text-aq-primary' : 'text-aq-text-secondary'
-                        }`}
-                      >
-                        {(entry.display_name || entry.username || '?')[0].toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span
-                        className={`font-sans font-semibold text-[14px] truncate block ${
-                          isMe ? 'text-aq-primary' : 'text-aq-text-primary'
-                        }`}
-                      >
-                        {entry.display_name || entry.username}
-                        {isMe && (
-                          <span className="font-normal opacity-60 ml-1 text-[13px]">(You)</span>
-                        )}
-                      </span>
-                    </div>
-                    <span
-                      className={`font-mono font-bold text-[13px] ${
-                        isMe ? 'text-aq-primary' : 'text-aq-text-primary'
-                      }`}
-                    >
-                      {(entry.xp || 0).toLocaleString()}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Card>
 
+          {challenge && (
+            <Card className="overflow-hidden border-amber-200/80 bg-linear-to-r from-amber-50/30 via-white to-white">
+              <div className="px-6 py-3.5 border-b border-amber-100 bg-amber-50/50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-amber-600 filled">bolt</span>
+                  <span className="font-mono text-[11px] font-bold tracking-wider text-amber-900 uppercase">
+                    Daily Challenge
+                  </span>
+                </div>
+                <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
+                  +{challenge.bonus_xp} XP Bonus
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="font-sans font-bold text-[17px] text-slate-900 mb-1.5">
+                  {challenge.lessons?.title}
+                </h3>
+                <p className="font-sans text-[14px] text-slate-600 mb-4 leading-relaxed">
+                  {challenge.lessons?.description}
+                </p>
+                <div className="flex justify-end">
+                  <Link
+                    href={`/lesson/${challenge.lessons?.slug}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-sans text-[13px] font-semibold shadow-xs transition-colors"
+                  >
+                    <span>Solve Challenge</span>
+                    <span className="material-symbols-outlined text-[16px]">play_arrow</span>
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          <Link href="/interview" className="block">
+            <Card className="overflow-hidden border-violet-200/80 hover:border-violet-300 transition-all bg-gradient-to-r from-violet-50/40 via-white to-white cursor-pointer group">
+              <div className="px-6 py-3.5 border-b border-violet-100 bg-violet-50/50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-violet-600 filled">psychology</span>
+                  <span className="font-mono text-[11px] font-bold tracking-wider text-violet-900 uppercase">Interview Mode</span>
+                </div>
+                <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-violet-100 text-violet-800 border border-violet-200">AI Debrief</span>
+              </div>
+              <div className="p-6">
+                <h3 className="font-sans font-bold text-[17px] text-slate-900 mb-1.5 group-hover:text-violet-800 transition-colors">
+                  45-min Mock Technical Interview
+                </h3>
+                <p className="font-sans text-[14px] text-slate-600 mb-4 leading-relaxed">
+                  Timed questions from your chosen topic. Get a real interviewer-style debrief: verdict, strengths, weaknesses, and what to study next.
+                </p>
+                <div className="flex justify-end">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 text-white font-sans text-[13px] font-semibold shadow-sm group-hover:bg-violet-700 transition-colors">
+                    <span>Begin Interview</span>
+                    <span className="material-symbols-outlined text-[16px]">play_arrow</span>
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          <Link href="/evolutions" className="block">
+            <Card className="overflow-hidden border-orange-200/80 hover:border-orange-300 transition-all bg-gradient-to-r from-orange-50/40 via-white to-white cursor-pointer group">
+              <div className="px-6 py-3.5 border-b border-orange-100 bg-orange-50/50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-orange-600">trending_up</span>
+                  <span className="font-mono text-[11px] font-bold tracking-wider text-orange-900 uppercase">Code Evolution</span>
+                </div>
+                <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-orange-100 text-orange-800 border border-orange-200">5 Problems</span>
+              </div>
+              <div className="p-6">
+                <h3 className="font-sans font-bold text-[17px] text-slate-900 mb-1.5 group-hover:text-orange-800 transition-colors">
+                  Brute Force → Optimal: See the Journey
+                </h3>
+                <p className="font-sans text-[14px] text-slate-600 mb-4 leading-relaxed">
+                  Step through Two Sum, Sliding Window, Palindrome and more. Watch exactly how the naive O(n²) solution evolves into the elegant O(n) one — with the key insight explained at each step.
+                </p>
+                <div className="flex justify-end">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 text-white font-sans text-[13px] font-semibold shadow-sm group-hover:bg-orange-700 transition-colors">
+                    <span>Explore</span>
+                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          {weakSpots.length > 0 && (
+            <Card className="overflow-hidden">
+              <div className="px-6 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-red-500 filled">target</span>
+                  <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Weak Spots</span>
+                </div>
+                <span className="font-sans text-[11px] text-slate-400">Based on your answers</span>
+              </div>
+              <div className="divide-y divide-slate-100">
+                {weakSpots.map((spot, i) => {
+                  const theme = CAT_THEME[spot.catId] || CAT_THEME.dsa;
+                  return (
+                    <Link
+                      key={i}
+                      href={`/lesson/${spot.slug}`}
+                      className="flex items-center justify-between gap-4 px-6 py-3.5 hover:bg-slate-50 transition-colors group"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans text-[14px] font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors truncate">{spot.title}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="h-1.5 w-24 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className="h-full rounded-full"
+                              style={{ width: `${spot.pct}%`, backgroundColor: spot.pct < 40 ? '#ef4444' : '#f59e0b' }}
+                            />
+                          </div>
+                          <span className="font-mono text-[11px] text-slate-400">{spot.pct}% correct</span>
+                        </div>
+                      </div>
+                      <span className="font-sans text-[12px] font-semibold px-2.5 py-1 rounded-lg bg-red-50 text-red-700 border border-red-200 shrink-0">Retry</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          <div>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="font-mono text-[11px] font-semibold tracking-wider uppercase text-slate-400">
+                Curriculum Tracks
+              </span>
+              <Link href="/skills" className="font-sans text-[13px] font-medium text-emerald-700 hover:underline">
+                View all topics →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {trackStats.map((track) => (
+                <Link
+                  key={track.id}
+                  href="/skills"
+                  className="p-4 bg-white border border-slate-200 rounded-xl card-shadow hover:border-slate-300 transition-all block group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className="w-7 h-7 rounded-lg flex items-center justify-center font-mono text-[12px] font-bold"
+                      style={{ backgroundColor: track.color + '15', color: track.color }}
+                    >
+                      {track.label[0]}
+                    </span>
+                    <span className="font-mono text-[11px] font-bold text-slate-700">
+                      {track.pct}%
+                    </span>
+                  </div>
+                  <h4 className="font-sans font-semibold text-[14px] text-slate-900 group-hover:text-emerald-700 transition-colors mb-1 truncate">
+                    {track.name}
+                  </h4>
+                  <p className="font-mono text-[11px] text-slate-400 mb-3">
+                    {track.done}/{track.total} completed
+                  </p>
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{ width: `${track.pct}%`, backgroundColor: track.color }}
+                    />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-4 space-y-6">
+          <Card className="p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-mono text-[11px] font-semibold tracking-wider uppercase text-slate-400">
+                This Week
+              </span>
+              <div className="flex items-center gap-1 text-amber-600 font-mono text-[12px] font-bold">
+                <span className="material-symbols-outlined text-[16px] filled">local_fire_department</span>
+                <span>{streak}d</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-7 gap-1.5">
+              {WEEK_DAYS.map((day, i) => {
+                const isDone = weekDone[i];
+                return (
+                  <div key={i} className="flex flex-col items-center gap-1.5">
+                    <span className="font-mono text-[10px] text-slate-400 font-medium">{day}</span>
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-mono transition-colors ${
+                        isDone
+                          ? 'bg-amber-500 text-white font-bold shadow-xs'
+                          : 'bg-slate-100 text-slate-400 border border-slate-200/60'
+                      }`}
+                    >
+                      {isDone ? (
+                        <span className="material-symbols-outlined text-[16px] text-white filled">check</span>
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          <Card className="p-5">
+            <div className="flex items-center justify-between mb-3.5">
+              <span className="font-mono text-[11px] font-semibold tracking-wider uppercase text-slate-400">
+                Recent Activity
+              </span>
+            </div>
+            {activity.length === 0 ? (
+              <div className="py-6 text-center">
+                <span className="material-symbols-outlined text-[28px] text-slate-300 mb-1 block">history</span>
+                <p className="font-sans text-[13px] text-slate-400">No lessons completed yet.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {activity.map((item, i) => {
+                  const catId = item.lessons?.topics?.category_id || 'dsa';
+                  const theme = CAT_THEME[catId] || CAT_THEME.dsa;
+                  const perfect = item.correct_count === item.total_count;
+                  return (
+                    <div key={i} className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex items-center gap-2.5">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: theme.color }} />
+                        <div className="min-w-0">
+                          <p className="font-sans font-medium text-[13px] text-slate-800 truncate">
+                            {item.lessons?.title}
+                          </p>
+                          <p className="font-mono text-[10px] text-slate-400">
+                            {theme.label} • {timeAgo(item.completed_at)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className={`font-mono text-[11px] font-semibold ${perfect ? 'text-emerald-700' : 'text-slate-600'}`}>
+                          {item.correct_count}/{item.total_count}
+                        </span>
+                        <p className="font-mono text-[10px] text-slate-400">+{item.xp_earned} XP</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+
+          <Card className="p-5">
+            <div className="flex items-center justify-between mb-3.5">
+              <span className="font-mono text-[11px] font-semibold tracking-wider uppercase text-slate-400">
+                Leaderboard
+              </span>
+              <Link href="/ranks" className="font-sans text-[12px] font-medium text-emerald-700 hover:underline">
+                View all
+              </Link>
+            </div>
+            {leaderboard.length === 0 ? (
+              <p className="font-sans text-[13px] text-slate-400 py-4 text-center">No rankings yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {leaderboard.map((entry, i) => {
+                  const isMe = entry.id === user?.id;
+                  const rankColors = [
+                    'text-amber-600 font-bold',
+                    'text-slate-500 font-semibold',
+                    'text-amber-800 font-semibold',
+                  ];
+                  return (
+                    <div
+                      key={entry.id}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                        isMe
+                          ? 'bg-emerald-50/80 border border-emerald-200 text-emerald-950 font-medium'
+                          : 'bg-slate-50/60 border border-slate-100 text-slate-700'
+                      }`}
+                    >
+                      <span className={`font-mono text-[12px] w-4 text-center ${rankColors[i] || 'text-slate-400'}`}>
+                        {i + 1}
+                      </span>
+                      <div className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0 text-[11px] font-bold text-slate-600">
+                        {(entry.display_name || entry.username || '?')[0].toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-sans text-[13px] truncate block">
+                          {entry.display_name || entry.username}
+                          {isMe && <span className="text-[11px] text-emerald-700 ml-1 font-normal">(You)</span>}
+                        </span>
+                      </div>
+                      <span className="font-mono text-[12px] font-semibold text-slate-800">
+                        {(entry.xp || 0).toLocaleString()}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
     </div>
   );

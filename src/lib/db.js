@@ -166,12 +166,13 @@ export async function getWeekActivity(userId) {
 export async function getUserLessonProgress(userId) {
   const { data, error } = await supabase
     .from('user_lesson_progress')
-    .select('*')
+    .select('*, lessons(id, title, slug, topics(category_id))')
     .eq('user_id', userId);
 
   if (error) throw error;
   return data;
 }
+
 
 export async function getLeaderboard(limit = 10) {
   const { data, error } = await supabase.rpc('get_leaderboard', { result_limit: limit });

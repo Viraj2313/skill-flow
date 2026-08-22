@@ -29,8 +29,8 @@ export default function AppLayout({ children }) {
     <div className="min-h-screen bg-aq-bg flex">
       <DesktopSidebar />
       <div className="flex-1 min-w-0 flex flex-col">
-        <main className="flex-1 pb-20 md:pb-0">
-          <div className="max-w-3xl mx-auto w-full">
+        <main className="flex-1 pb-20 md:pb-8">
+          <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
             {children}
           </div>
         </main>

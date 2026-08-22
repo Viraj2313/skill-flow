@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { completeLesson, getLessonBySlug } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
+import { EVOLUTIONS } from '@/data/evolutions';
 
 const CAT_COLOR = {
-  dsa: '#5a7a3a',
-  python: '#2563a8',
-  'cs-fundamentals': '#92400e',
+  dsa: '#059669',
+  python: '#2563eb',
+  'cs-fundamentals': '#d97706',
 };
 
 function ProgressBar({ current, total, color }) {
@@ -30,7 +33,31 @@ function CodeBlock({ text }) {
   );
 }
 
-function ConceptCard({ card, index, total, color, onNext }) {
+function ConceptCard({ card, index, total, color, onNext, token }) {
+  const [altText, setAltText] = useState(null);
+  const [explaining, setExplaining] = useState(false);
+  const [explainErr, setExplainErr] = useState(null);
+
+  async function handleExplain() {
+    setExplaining(true);
+    setExplainErr(null);
+    setAltText(null);
+    try {
+      const res = await fetch('/api/ai/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ heading: card.heading, body: card.body }),
+      });
+      const data = await res.json();
+      if (data.error) setExplainErr(data.error);
+      else setAltText(data.alternative);
+    } catch {
+      setExplainErr('Could not reach AI. Please try again.');
+    } finally {
+      setExplaining(false);
+    }
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4">
@@ -39,12 +66,52 @@ function ConceptCard({ card, index, total, color, onNext }) {
             {card.heading}
           </h2>
         )}
-        <p className="font-sans text-[16px] text-aq-text-secondary leading-relaxed whitespace-pre-line mb-5">
-          {card.body}
-        </p>
+        {altText ? (
+          <div className="mb-5">
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="material-symbols-outlined text-[15px] text-purple-600 filled">auto_awesome</span>
+              <span className="font-mono text-[10px] font-bold tracking-widest uppercase text-purple-600">AI Explanation</span>
+            </div>
+            <p className="font-sans text-[16px] text-aq-text-secondary leading-relaxed whitespace-pre-line bg-purple-50 border border-purple-200 rounded-card p-4">
+              {altText}
+            </p>
+            <button
+              onClick={() => setAltText(null)}
+              className="mt-2 font-mono text-[10px] text-aq-text-muted tracking-wide hover:text-aq-text-primary"
+            >
+              ← Back to original
+            </button>
+          </div>
+        ) : (
+          <p className="font-sans text-[16px] text-aq-text-secondary leading-relaxed whitespace-pre-line mb-5">
+            {card.body}
+          </p>
+        )}
         {card.code && <CodeBlock text={card.code} />}
+        {explainErr && (
+          <p className="mt-3 font-sans text-[12px] text-aq-error">{explainErr}</p>
+        )}
       </div>
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
+      <div className="px-5 pb-6 pt-3 border-t border-aq-border space-y-2.5">
+        <button
+          onClick={onNext}
+          className="w-full py-2 rounded-input font-mono text-[11px] font-semibold tracking-widest uppercase border border-slate-200 text-slate-500 bg-white hover:bg-slate-50 transition-colors"
+        >
+          I already know this — skip
+        </button>
+        {!altText && (
+          <button
+            onClick={handleExplain}
+            disabled={explaining}
+            className="w-full py-2.5 rounded-input font-mono text-[12px] font-semibold tracking-widest uppercase border border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {explaining ? (
+              <><span className="w-3.5 h-3.5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" /> Thinking...</>
+            ) : (
+              <><span className="material-symbols-outlined text-[16px]">auto_awesome</span> Explain it differently</>
+            )}
+          </button>
+        )}
         <button
           onClick={onNext}
           className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
@@ -57,13 +124,127 @@ function ConceptCard({ card, index, total, color, onNext }) {
   );
 }
 
-function MCQExercise({ exercise, onAnswer }) {
-  const [selected, setSelected] = useState(null);
-  const answered = selected !== null;
+function AIReviewPanel({ exercise, selected, lessonTitle, token }) {
+  const [review, setReview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
+  const [shown, setShown] = useState(false);
+
+  async function handleAskAI() {
+    setShown(true);
+    if (review) return;
+    setLoading(true);
+    setErr(null);
+    try {
+      const res = await fetch('/api/ai/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          question: exercise.question,
+          selectedAnswer: exercise.options[selected],
+          correctAnswer: exercise.options[exercise.correct],
+          isCorrect: selected === exercise.correct,
+          lessonTitle,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) setErr(data.error);
+      else setReview(data.review);
+    } catch {
+      setErr('Could not reach AI. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!shown) {
+    return (
+      <button
+        onClick={handleAskAI}
+        className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 rounded-input font-mono text-[11px] font-semibold tracking-widest uppercase border border-slate-300 text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors"
+      >
+        <span className="material-symbols-outlined text-[16px] text-slate-500">psychology</span>
+        Ask the interviewer
+      </button>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="mt-3 p-4 rounded-card border border-slate-200 bg-slate-50 flex items-center gap-3">
+        <span className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin shrink-0" />
+        <span className="font-sans text-[13px] text-slate-500">Interviewer is thinking...</span>
+      </div>
+    );
+  }
+
+  if (err) {
+    return (
+      <p className="mt-3 font-sans text-[12px] text-aq-error px-1">{err}</p>
+    );
+  }
+
+  if (!review) return null;
+
+  const verdictConfig = {
+    correct:  { icon: 'check_circle',  color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', label: 'Good answer' },
+    wrong:    { icon: 'cancel',        color: 'text-red-700',     bg: 'bg-red-50 border-red-200',         label: 'Not quite' },
+    partial:  { icon: 'warning',       color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',     label: 'Partially right' },
+  };
+  const vc = verdictConfig[review.verdict] || verdictConfig.partial;
+
+  return (
+    <div className={`mt-3 p-4 rounded-card border ${vc.bg}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="material-symbols-outlined text-[16px] filled" style={{ color: vc.color.replace('text-', '') }}>{vc.icon}</span>
+        <span className={`font-mono text-[10px] font-bold tracking-widest uppercase ${vc.color}`}>
+          Interviewer says: {vc.label}
+        </span>
+      </div>
+      <p className="font-sans text-[14px] text-slate-800 leading-relaxed mb-3">{review.feedback}</p>
+      {review.follow_up && (
+        <div className="pt-2.5 border-t border-slate-200">
+          <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-slate-400 block mb-1">Follow-up question</span>
+          <p className="font-sans text-[13px] text-slate-700 italic">"{review.follow_up}"</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const HINTS = [
+  null,
+  'Not quite. Re-read the question — focus on the key term.',
+  'Still wrong. Think about what happens step by step. The correct answer relates to the core concept of this question.',
+];
+
+function MCQExercise({ exercise, onAnswer, lessonTitle, token }) {
+  const [selected, setSelected]     = useState(null);
+  const [attempts, setAttempts]     = useState(0);
+  const [wrongPicks, setWrongPicks] = useState(new Set());
+  const [confirmed, setConfirmed]   = useState(false);
+
+  const isCorrect = selected === exercise.correct;
+  const answered  = confirmed;
+  const hint      = HINTS[Math.min(attempts, HINTS.length - 1)];
 
   function handleSelect(i) {
     if (answered) return;
     setSelected(i);
+  }
+
+  function handleCheck() {
+    if (selected === null || answered) return;
+    if (selected === exercise.correct) {
+      setConfirmed(true);
+    } else {
+      const next = attempts + 1;
+      setAttempts(next);
+      setWrongPicks(prev => new Set([...prev, selected]));
+      if (next >= 3) {
+        setConfirmed(true);
+      }
+    }
   }
 
   return (
@@ -86,13 +267,17 @@ function MCQExercise({ exercise, onAnswer }) {
                 border = 'border-aq-success';
                 bg = 'bg-aq-success-bg';
                 text = 'text-aq-success';
-              } else if (i === selected) {
+              } else if (wrongPicks.has(i)) {
                 border = 'border-aq-error';
                 bg = 'bg-aq-error-bg';
                 text = 'text-aq-error';
               } else {
                 text = 'text-aq-text-muted';
               }
+            } else if (wrongPicks.has(i)) {
+              border = 'border-aq-error';
+              bg = 'bg-aq-error-bg';
+              text = 'text-aq-error opacity-60';
             } else if (selected === i) {
               border = 'border-aq-primary';
               bg = 'bg-aq-primary-dim';
@@ -102,7 +287,8 @@ function MCQExercise({ exercise, onAnswer }) {
               <button
                 key={i}
                 onClick={() => handleSelect(i)}
-                className={`w-full text-left px-4 py-3.5 border rounded-card transition-colors ${border} ${bg}`}
+                disabled={wrongPicks.has(i) && !answered}
+                className={`w-full text-left px-4 py-3.5 border rounded-card transition-colors ${border} ${bg} disabled:cursor-default`}
               >
                 <span className={`font-sans text-[15px] font-medium ${text}`}>{opt}</span>
               </button>
@@ -110,17 +296,35 @@ function MCQExercise({ exercise, onAnswer }) {
           })}
         </div>
 
+        {!answered && attempts > 0 && hint && (
+          <div className="mt-4 flex items-start gap-2 p-3 rounded-card bg-amber-50 border border-amber-200">
+            <span className="material-symbols-outlined text-[16px] text-amber-600 shrink-0 mt-0.5">lightbulb</span>
+            <p className="font-sans text-[13px] text-amber-800 leading-snug">{hint}</p>
+          </div>
+        )}
+
         {answered && (
           <div className="mt-5 p-4 rounded-card border border-aq-border bg-aq-surface">
             <div className="flex items-center gap-2 mb-2">
-              <span className={`material-symbols-outlined filled text-[18px] ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
-                {selected === exercise.correct ? 'check_circle' : 'cancel'}
+              <span className={`material-symbols-outlined filled text-[18px] ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
+                {isCorrect ? 'check_circle' : 'cancel'}
               </span>
-              <span className={`font-mono text-[11px] font-bold tracking-widest ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
-                {selected === exercise.correct ? 'CORRECT' : 'NOT QUITE'}
+              <span className={`font-mono text-[11px] font-bold tracking-widest ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
+                {isCorrect ? 'CORRECT' : 'ANSWER REVEALED'}
               </span>
+              {attempts > 0 && (
+                <span className="ml-auto font-mono text-[10px] text-aq-text-muted">{attempts} attempt{attempts > 1 ? 's' : ''}</span>
+              )}
             </div>
             <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
+            {token && (
+              <AIReviewPanel
+                exercise={exercise}
+                selected={selected}
+                lessonTitle={lessonTitle}
+                token={token}
+              />
+            )}
           </div>
         )}
       </div>
@@ -128,17 +332,17 @@ function MCQExercise({ exercise, onAnswer }) {
       <div className="px-5 pb-6 pt-3 border-t border-aq-border">
         {!answered ? (
           <button
-            onClick={() => selected !== null && handleSelect(selected)}
-            disabled={selected === null}
+            onClick={handleCheck}
+            disabled={selected === null || wrongPicks.has(selected)}
             className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase transition-colors disabled:opacity-30 disabled:cursor-default bg-aq-text-primary text-white"
           >
             CHECK
           </button>
         ) : (
           <button
-            onClick={() => onAnswer(selected === exercise.correct)}
+            onClick={() => onAnswer(isCorrect)}
             className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
-            style={{ backgroundColor: selected === exercise.correct ? '#5a7a3a' : '#9b3c3c' }}
+            style={{ backgroundColor: isCorrect ? '#059669' : '#dc2626' }}
           >
             CONTINUE →
           </button>
@@ -432,6 +636,7 @@ function ArrangeExercise({ exercise, onAnswer }) {
 function CompletionScreen({ lesson, correct, total, color, onFinish }) {
   const xpEarned = Math.round((correct / total) * lesson.xp_reward);
   const perfect = correct === total;
+  const hasEvolution = !!(lesson.slug && EVOLUTIONS[lesson.slug]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 text-center">
@@ -464,6 +669,16 @@ function CompletionScreen({ lesson, correct, total, color, onFinish }) {
         </div>
       </div>
 
+      {hasEvolution && (
+        <Link
+          href="/evolutions"
+          className="w-full mb-3 py-3 rounded-input font-mono text-[12px] font-semibold tracking-widest uppercase flex items-center justify-center gap-2 border-2 border-orange-400 text-orange-700 bg-orange-50 hover:bg-orange-100 transition-colors"
+        >
+          <span className="material-symbols-outlined text-[16px]">trending_up</span>
+          See Brute Force → Optimal
+        </Link>
+      )}
+
       <button
         onClick={onFinish}
         className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white"
@@ -488,6 +703,13 @@ export default function LessonPage() {
   const [done, setDone]                   = useState(false);
   const [saveError, setSaveError]         = useState(null);
   const [cardIndex, setCardIndex]         = useState(0);
+  const [sessionToken, setSessionToken]   = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSessionToken(data?.session?.access_token || null);
+    });
+  }, []);
 
   useEffect(() => {
     if (!params.slug) return;
@@ -552,7 +774,7 @@ export default function LessonPage() {
 
   function renderExercise(exercise) {
     const key = `${lesson.id}-${exercise.id}`;
-    if (exercise.type === 'mcq') return <MCQExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
+    if (exercise.type === 'mcq') return <MCQExercise key={key} exercise={exercise} onAnswer={handleAnswer} lessonTitle={lesson.title} token={sessionToken} />;
     if (exercise.type === 'code_pick') return <CodePickExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
     if (exercise.type === 'fill_blank') return <FillBlankExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
     if (exercise.type === 'arrange') return <ArrangeExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
@@ -605,6 +827,7 @@ export default function LessonPage() {
             total={cards.length}
             color={color}
             onNext={() => setCardIndex(i => i + 1)}
+            token={sessionToken}
           />
         ) : (
           renderExercise(currentExercise)

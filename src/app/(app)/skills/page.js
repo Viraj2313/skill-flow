@@ -2,8 +2,34 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { getTopics, getAllLessons, getUserLessonProgress } from '@/lib/db';
+
+const CAREER_CONTEXT = {
+  t1:  { freq: 'Very High', companies: ['Google', 'Meta', 'Amazon'], pct: 72 },
+  t2:  { freq: 'High',      companies: ['Amazon', 'Microsoft', 'Apple'], pct: 58 },
+  t3:  { freq: 'High',      companies: ['Google', 'Meta', 'Stripe'], pct: 55 },
+  t4:  { freq: 'High',      companies: ['Amazon', 'Apple', 'Uber'], pct: 51 },
+  t5:  { freq: 'Medium',    companies: ['Google', 'Salesforce', 'Lyft'], pct: 44 },
+  t6:  { freq: 'High',      companies: ['Google', 'Meta', 'Twitter'], pct: 60 },
+  t7:  { freq: 'Medium',    companies: ['Google', 'LinkedIn', 'Stripe'], pct: 42 },
+  t8:  { freq: 'Medium',    companies: ['Google', 'Amazon', 'Airbnb'], pct: 38 },
+  p1:  { freq: 'High',      companies: ['Meta', 'Dropbox', 'Spotify'], pct: 50 },
+  p2:  { freq: 'High',      companies: ['Meta', 'Amazon', 'Netflix'], pct: 55 },
+  p3:  { freq: 'Medium',    companies: ['Airbnb', 'Stripe', 'Lyft'], pct: 40 },
+  cs1: { freq: 'Very High', companies: ['Google', 'Meta', 'Amazon'], pct: 80 },
+  cs2: { freq: 'Medium',    companies: ['Microsoft', 'Amazon', 'SAP'], pct: 45 },
+  cs3: { freq: 'Medium',    companies: ['Apple', 'Cloudflare', 'Uber'], pct: 38 },
+  cs4: { freq: 'Very High', companies: ['Google', 'Meta', 'Amazon'], pct: 75 },
+};
+
+const FREQ_COLOR = {
+  'Very High': { bg: 'bg-red-100',    text: 'text-red-700',    dot: 'bg-red-500' },
+  'High':      { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
+  'Medium':    { bg: 'bg-amber-100',  text: 'text-amber-700',  dot: 'bg-amber-500' },
+  'Low':       { bg: 'bg-slate-100',  text: 'text-slate-500',  dot: 'bg-slate-400' },
+};
 
 const CATEGORIES = [
   {
@@ -11,24 +37,24 @@ const CATEGORIES = [
     label: 'Data Structures & Algorithms',
     short: 'DSA',
     icon:  'account_tree',
-    color: '#5a7a3a',
-    dim:   '#eaf2e3',
+    color: '#059669',
+    dim:   '#ecfdf5',
   },
   {
     id:    'python',
     label: 'Python',
     short: 'Python',
     icon:  'code',
-    color: '#2563a8',
-    dim:   '#dbeafe',
+    color: '#2563eb',
+    dim:   '#eff6ff',
   },
   {
     id:    'cs-fundamentals',
     label: 'CS Fundamentals',
     short: 'CS Fund.',
     icon:  'school',
-    color: '#92400e',
-    dim:   '#fef3c7',
+    color: '#d97706',
+    dim:   '#fffbeb',
   },
 ];
 
@@ -38,6 +64,8 @@ function TopicRow({ topic, lessons, completedLessonIds, color, onSelect }) {
   const pct         = total > 0 ? done / total : 0;
   const isLocked    = total === 0;
   const isCompleted = !isLocked && done === total;
+  const career      = CAREER_CONTEXT[topic.id];
+  const freqCls     = career ? (FREQ_COLOR[career.freq] || FREQ_COLOR.Low) : null;
 
   const r    = 18;
   const circ = 2 * Math.PI * r;
@@ -46,62 +74,79 @@ function TopicRow({ topic, lessons, completedLessonIds, color, onSelect }) {
     <button
       onClick={() => !isLocked && onSelect(topic)}
       disabled={isLocked}
-      className={`w-full flex items-center gap-4 px-4 py-3.5 border-b border-aq-border last:border-b-0 text-left transition-colors ${
+      className={`w-full flex flex-col gap-2.5 px-4 py-4 border-b border-aq-border last:border-b-0 text-left transition-colors ${
         isLocked ? 'opacity-50 cursor-default' : 'hover:bg-aq-surface-raised active:bg-aq-surface-raised'
       }`}
     >
-      <div className="relative flex-shrink-0" style={{ width: 40, height: 40 }}>
-        <svg width="40" height="40" viewBox="0 0 40 40">
-          <circle cx="20" cy="20" r={r} fill={isLocked ? '#f0ede6' : color + '18'} />
-          {!isLocked && (
-            <circle
-              cx="20" cy="20" r={r}
-              fill="none"
-              stroke={color}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeDasharray={circ}
-              strokeDashoffset={circ * (1 - pct)}
-              transform="rotate(-90 20 20)"
-              opacity={0.85}
-            />
-          )}
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          {isLocked ? (
-            <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#c8c3b8' }}>lock</span>
-          ) : isCompleted ? (
-            <span className="material-symbols-outlined filled" style={{ fontSize: 18, color }}>check_circle</span>
-          ) : (
-            <span className="material-symbols-outlined filled" style={{ fontSize: 16, color }}>{topic.icon}</span>
-          )}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-shrink-0" style={{ width: 40, height: 40 }}>
+          <svg width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r={r} fill={isLocked ? '#f0ede6' : color + '18'} />
+            {!isLocked && (
+              <circle
+                cx="20" cy="20" r={r}
+                fill="none"
+                stroke={color}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeDasharray={circ}
+                strokeDashoffset={circ * (1 - pct)}
+                transform="rotate(-90 20 20)"
+                opacity={0.85}
+              />
+            )}
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            {isLocked ? (
+              <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#c8c3b8' }}>lock</span>
+            ) : isCompleted ? (
+              <span className="material-symbols-outlined filled" style={{ fontSize: 18, color }}>check_circle</span>
+            ) : (
+              <span className="material-symbols-outlined filled" style={{ fontSize: 16, color }}>{topic.icon}</span>
+            )}
+          </div>
         </div>
+
+        <div className="flex-1 min-w-0">
+          <p className={`font-sans font-semibold text-[15px] ${isLocked ? 'text-aq-text-muted' : 'text-aq-text-primary'}`}>
+            {topic.name}
+          </p>
+          <p className="font-sans text-[12px] text-aq-text-muted mt-0.5">
+            {isLocked
+              ? 'No lessons yet'
+              : isCompleted
+                ? `All ${total} done ✓`
+                : done > 0
+                  ? `${done} of ${total} done`
+                  : `${total} lesson${total !== 1 ? 's' : ''}`}
+          </p>
+        </div>
+
+        {!isLocked && (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span
+              className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-pill"
+              style={{ color, backgroundColor: color + '18' }}
+            >
+              {done}/{total}
+            </span>
+            <span className="material-symbols-outlined text-[20px] text-aq-text-muted">chevron_right</span>
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 min-w-0">
-        <p className={`font-sans font-semibold text-[15px] ${isLocked ? 'text-aq-text-muted' : 'text-aq-text-primary'}`}>
-          {topic.name}
-        </p>
-        <p className="font-sans text-[12px] text-aq-text-muted mt-0.5">
-          {isLocked
-            ? 'No lessons yet'
-            : isCompleted
-              ? `All ${total} done ✓`
-              : done > 0
-                ? `${done} of ${total} done`
-                : `${total} lesson${total !== 1 ? 's' : ''}`}
-        </p>
-      </div>
-
-      {!isLocked && (
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span
-            className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-pill"
-            style={{ color, backgroundColor: color + '18' }}
-          >
-            {done}/{total}
-          </span>
-          <span className="material-symbols-outlined text-[20px] text-aq-text-muted">chevron_right</span>
+      {!isLocked && career && (
+        <div className="flex items-center gap-2 flex-wrap pl-14">
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${freqCls.bg} ${freqCls.text}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${freqCls.dot}`} />
+            {career.freq} in interviews
+          </div>
+          <span className="font-mono text-[10px] text-aq-text-muted">~{career.pct}% of SWE screens</span>
+          <div className="flex items-center gap-1 ml-auto">
+            {career.companies.slice(0, 3).map(c => (
+              <span key={c} className="px-1.5 py-0.5 text-[10px] font-sans font-medium bg-slate-100 text-slate-600 rounded border border-slate-200">{c}</span>
+            ))}
+          </div>
         </div>
       )}
     </button>
@@ -310,19 +355,20 @@ export default function SkillsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-aq-bg">
-      <div className="sticky top-0 z-40 bg-aq-surface border-b border-aq-border">
-        <div className="px-5 h-14 flex items-center">
-          <h1 className="font-sans font-bold text-[18px] text-aq-text-primary">Topics</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+        <div>
+          <h1 className="font-sans font-bold text-[24px] sm:text-[28px] text-slate-900 tracking-tight">Curriculum & Topics</h1>
+          <p className="font-sans text-[14px] text-slate-500 mt-1">Master core data structures and Python concepts at your own pace.</p>
         </div>
 
-        <div className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1">
           <button
             onClick={() => setActiveCategory('all')}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-pill font-mono text-[10px] font-semibold tracking-widest uppercase transition-colors ${
+            className={`shrink-0 px-3.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold tracking-wider uppercase transition-all duration-150 ${
               activeCategory === 'all'
-                ? 'bg-aq-text-primary text-white'
-                : 'border border-aq-border text-aq-text-muted'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'border border-slate-200 text-slate-600 bg-white hover:bg-slate-50'
             }`}
           >
             ALL
@@ -331,25 +377,25 @@ export default function SkillsPage() {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-pill font-mono text-[10px] font-semibold tracking-widest uppercase transition-colors ${
+              className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-mono text-[11px] font-semibold tracking-wider uppercase transition-all duration-150 ${
                 activeCategory === cat.id
-                  ? 'text-white'
-                  : 'border text-aq-text-muted'
+                  ? 'text-white shadow-xs'
+                  : 'border border-slate-200 bg-white hover:bg-slate-50'
               }`}
               style={
                 activeCategory === cat.id
                   ? { backgroundColor: cat.color, borderColor: cat.color }
-                  : { borderColor: cat.color + '50', color: cat.color }
+                  : { color: cat.color }
               }
             >
-              <span className="material-symbols-outlined filled" style={{ fontSize: 12 }}>{cat.icon}</span>
+              <span className="material-symbols-outlined filled text-[14px]">{cat.icon}</span>
               {cat.short}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="px-4 py-5">
+      <div>
         {loading ? (
           <div className="flex justify-center py-20">
             <span className="material-symbols-outlined text-[32px] text-aq-text-muted animate-spin">

@@ -1,105 +1,311 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { MOCK_USER, MOCK_TOPICS, MOCK_RECENT_ACTIVITY } from '@/lib/mock-data';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+import { getUserProfile, getUserLessonProgress, getTopics, getAllLessons } from '@/lib/db';
 import { Card } from '@/components/ui';
 
-const SKILL_BARS = [
-  { topic: 'Arrays', icon: 'grid_view', level: 5, max: 5 },
-  { topic: 'Strings', icon: 'text_fields', level: 3, max: 5 },
-  { topic: 'Recursion', icon: 'repeat', level: 2, max: 5 },
-  { topic: 'Linked Lists', icon: 'link', level: 1, max: 5 },
-  { topic: 'Stack', icon: 'layers', level: 0, max: 5 },
-  { topic: 'Trees', icon: 'account_tree', level: 0, max: 5 },
-];
-
-const statusStyle = {
-  Accepted: 'bg-aq-success-bg text-aq-success',
-  'Wrong Answer': 'bg-aq-error-bg text-aq-error',
-  TLE: 'bg-aq-gold-bg text-aq-gold',
+const CAT_COLOR = {
+  dsa:              '#059669',
+  python:           '#2563eb',
+  'cs-fundamentals':'#d97706',
 };
 
+function ActivityHeatmap({ progress }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const WEEKS = 26;
+  const dayMs = 86_400_000;
+
+  const activityMap = new Map();
+  for (const p of progress) {
+    if (!p.completed_at) continue;
+    const d = new Date(p.completed_at);
+    d.setHours(0, 0, 0, 0);
+    const key = d.getTime();
+    activityMap.set(key, (activityMap.get(key) || 0) + 1);
+  }
+
+  const startDay = new Date(today);
+  startDay.setDate(today.getDate() - (WEEKS * 7 - 1));
+  const startDayOfWeek = startDay.getDay();
+  startDay.setDate(startDay.getDate() - startDayOfWeek);
+
+  const cells = [];
+  for (let w = 0; w < WEEKS; w++) {
+    for (let d = 0; d < 7; d++) {
+      const cellDate = new Date(startDay.getTime() + (w * 7 + d) * dayMs);
+      cellDate.setHours(0, 0, 0, 0);
+      if (cellDate > today) { cells.push(null); continue; }
+      const count = activityMap.get(cellDate.getTime()) || 0;
+      cells.push({ date: cellDate, count });
+    }
+  }
+
+  function cellColor(count) {
+    if (count === 0) return '#f1f5f9';
+    if (count === 1) return '#a7f3d0';
+    if (count === 2) return '#34d399';
+    if (count === 3) return '#10b981';
+    return '#059669';
+  }
+
+  const totalActive = [...activityMap.values()].filter(v => v > 0).length;
+  const totalLessons = progress.filter(p => p.completed).length;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-slate-400">Activity</span>
+        <span className="font-sans text-[12px] text-slate-400">{totalLessons} lessons · {totalActive} active days</span>
+      </div>
+      <div className="overflow-x-auto">
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${WEEKS}, 1fr)`, gap: '3px', minWidth: `${WEEKS * 14}px` }}>
+          {Array.from({ length: WEEKS }, (_, w) =>
+            Array.from({ length: 7 }, (_, d) => {
+              const cell = cells[w * 7 + d];
+              if (cell === null) return (
+                <div key={`${w}-${d}`} style={{ width: 11, height: 11, borderRadius: 2 }} />
+              );
+              return (
+                <div
+                  key={`${w}-${d}`}
+                  title={`${cell.date.toDateString()}: ${cell.count} lesson${cell.count !== 1 ? 's' : ''}`}
+                  style={{
+                    width: 11,
+                    height: 11,
+                    borderRadius: 2,
+                    backgroundColor: cellColor(cell.count),
+                    cursor: 'default',
+                  }}
+                />
+              );
+            })
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-1.5 mt-2 justify-end">
+        <span className="font-mono text-[10px] text-slate-400">Less</span>
+        {[0, 1, 2, 3, 4].map(n => (
+          <div key={n} style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: cellColor(n) }} />
+        ))}
+        <span className="font-mono text-[10px] text-slate-400">More</span>
+      </div>
+    </div>
+  );
+}
+
+function MistakeBreakdown({ progress, topics, lessons }) {
+  const topicMap = Object.fromEntries(topics.map(t => [t.id, t]));
+  const lessonMap = Object.fromEntries(lessons.map(l => [l.id, l]));
+
+  const byTopic = {};
+  for (const p of progress) {
+    if (!p.completed || !p.lesson_id) continue;
+    const lesson = lessonMap[p.lesson_id] || p.lessons;
+    if (!lesson) continue;
+    const topicId = lesson.topic_id;
+    if (!topicId) continue;
+    if (!byTopic[topicId]) byTopic[topicId] = { correct: 0, total: 0, topicId };
+    byTopic[topicId].correct += p.correct_count || 0;
+    byTopic[topicId].total   += p.total_count  || 0;
+  }
+
+  const rows = Object.values(byTopic)
+    .filter(r => r.total > 0)
+    .map(r => {
+      const topic = topicMap[r.topicId];
+      return {
+        name: topic?.name || r.topicId,
+        catId: topic?.category_id || 'dsa',
+        pct: Math.round((r.correct / r.total) * 100),
+        correct: r.correct,
+        total: r.total,
+      };
+    })
+    .sort((a, b) => a.pct - b.pct);
+
+  if (!rows.length) return null;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {rows.map((row, i) => {
+        const color = CAT_COLOR[row.catId] || '#059669';
+        const bad   = row.pct < 60;
+        return (
+          <div key={i} className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: bad ? '#ef4444' : color }} />
+            <span className="font-sans text-[13px] text-slate-700 w-32 truncate shrink-0">{row.name}</span>
+            <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${row.pct}%`, backgroundColor: bad ? '#ef4444' : color }}
+              />
+            </div>
+            <span className="font-mono text-[11px] text-slate-400 w-10 text-right shrink-0">{row.pct}%</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ProfilePage() {
-  const user = MOCK_USER;
   const router = useRouter();
+  const [profile, setProfile]   = useState(null);
+  const [progress, setProgress] = useState([]);
+  const [topics, setTopics]     = useState([]);
+  const [lessons, setLessons]   = useState([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { router.push('/login'); return; }
+      const [prof, prog, t, l] = await Promise.all([
+        getUserProfile(),
+        getUserLessonProgress(user.id),
+        getTopics(),
+        getAllLessons(),
+      ]);
+      setProfile(prof);
+      setProgress(prog || []);
+      setTopics(t || []);
+      setLessons(l || []);
+      setLoading(false);
+    });
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <span className="material-symbols-outlined text-[32px] text-slate-400 animate-spin">progress_activity</span>
+      </div>
+    );
+  }
+
+  const completed  = progress.filter(p => p.completed);
+  const xp         = profile?.xp ?? 0;
+  const streak     = profile?.streak_current ?? 0;
+  const bestStreak = profile?.streak_best ?? 0;
+  const name       = profile?.display_name || 'Engineer';
+  const initials   = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+  const memberSince = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+    : '—';
+
+  const avgScore = completed.length > 0
+    ? Math.round(completed.reduce((s, p) => s + (p.total_count > 0 ? p.correct_count / p.total_count : 0), 0) / completed.length * 100)
+    : 0;
 
   const stats = [
-    { label: 'Total XP', value: user.xp.toLocaleString(), color: 'text-aq-primary', mono: true },
-    { label: 'Problems Solved', value: '47', color: 'text-aq-text-primary', mono: true },
-    { label: 'Current Streak 🔥', value: `${user.streak_current} days`, color: 'text-aq-gold', mono: true },
-    { label: 'Longest Streak', value: `${user.streak_best} days`, color: 'text-aq-text-primary', mono: true },
-    { label: 'Weekly Rank', value: `#${user.weekly_rank}`, color: 'text-aq-primary', mono: true },
-    { label: 'Member Since', value: user.member_since, color: 'text-aq-text-muted', mono: false },
+    { label: 'Total XP',       value: xp.toLocaleString(),   mono: true,  color: 'text-emerald-700' },
+    { label: 'Lessons Done',   value: completed.length,       mono: true,  color: 'text-slate-900' },
+    { label: 'Avg Score',      value: `${avgScore}%`,         mono: true,  color: avgScore >= 80 ? 'text-emerald-700' : 'text-amber-600' },
+    { label: 'Current Streak', value: `${streak}d`,           mono: true,  color: 'text-amber-600' },
+    { label: 'Best Streak',    value: `${bestStreak}d`,       mono: true,  color: 'text-slate-900' },
+    { label: 'Member Since',   value: memberSince,            mono: false, color: 'text-slate-500' },
   ];
 
   return (
-    <div className="min-h-screen bg-aq-bg">
-      <div className="relative px-5 pt-12 pb-5 flex flex-col items-center gap-2">
-        <button onClick={() => router.push('/settings')} className="absolute top-12 right-5 w-11 h-11 flex items-center justify-center text-aq-text-muted">
-          <span className="material-symbols-outlined text-[24px]">settings</span>
-        </button>
-
-        <div className="w-20 h-20 rounded-full bg-aq-surface border-2 border-aq-border flex items-center justify-center paper-shadow">
-          <span className="font-sans font-bold text-[32px] text-aq-text-secondary">{user.display_name[0]}</span>
+    <div className="max-w-2xl mx-auto space-y-6 pb-12">
+      <div className="flex flex-col items-center gap-3 py-8">
+        <div className="w-20 h-20 rounded-full bg-emerald-100 border-2 border-emerald-300 flex items-center justify-center">
+          <span className="font-sans font-bold text-[28px] text-emerald-700">{initials}</span>
         </div>
-        <h2 className="font-mono font-bold text-[22px] text-aq-text-primary">{user.username}</h2>
-        <p className="font-sans text-[14px] text-aq-text-secondary">{user.display_name}</p>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-aq-surface border border-aq-border rounded-pill paper-shadow">
-          <span className="material-symbols-outlined text-[16px] text-aq-gold filled">military_tech</span>
-          <span className="font-mono text-[11px] font-semibold text-aq-text-secondary">{user.rank}</span>
+        <div className="text-center">
+          <h1 className="font-sans font-bold text-[22px] text-slate-900">{name}</h1>
+          <p className="font-sans text-[13px] text-slate-400 mt-0.5">Member since {memberSince}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-full">
+            <span className="material-symbols-outlined text-[14px] text-amber-600 filled">local_fire_department</span>
+            <span className="font-mono text-[12px] font-bold text-amber-700">{streak} day streak</span>
+          </div>
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full">
+            <span className="material-symbols-outlined text-[14px] text-emerald-600 filled">workspace_premium</span>
+            <span className="font-mono text-[12px] font-bold text-emerald-700">{xp.toLocaleString()} XP</span>
+          </div>
         </div>
       </div>
 
-      <div className="px-5 pb-8 space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          {stats.map(({ label, value, color, mono }) => (
-            <Card key={label} className="p-4 flex flex-col gap-1">
-              <p className="font-sans text-[12px] text-aq-text-muted">{label}</p>
-              <span className={`${mono ? 'font-mono' : 'font-sans'} font-bold text-[20px] ${color}`}>{value}</span>
-            </Card>
-          ))}
-        </div>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-1.5 mb-4">
-            <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted">SKILL BREAKDOWN</span>
-          </div>
-          <div className="flex flex-col gap-3">
-            {SKILL_BARS.map(({ topic, icon, level, max }) => (
-              <div key={topic} className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[16px] text-aq-text-secondary w-4">{icon}</span>
-                <span className="font-sans text-[14px] text-aq-text-primary w-24 flex-shrink-0">{topic}</span>
-                <div className="flex-1 h-2 bg-aq-surface-raised rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-aq-primary rounded-full transition-all duration-500"
-                    style={{ width: `${(level / max) * 100}%` }}
-                  />
-                </div>
-                <span className="font-mono text-[11px] text-aq-text-muted w-10 text-right flex-shrink-0">Lv {level}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center gap-1.5 mb-4">
-            <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-aq-text-muted">RECENT ACTIVITY</span>
-          </div>
-          <div className="flex flex-col gap-2">
-            {MOCK_RECENT_ACTIVITY.map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-aq-surface border border-aq-border rounded-card">
-                <div className="flex-1 min-w-0">
-                  <p className="font-sans font-semibold text-[14px] text-aq-text-primary truncate">{item.title}</p>
-                  <p className="font-mono text-[11px] text-aq-text-muted mt-0.5">{item.runtime} · {item.date}</p>
-                </div>
-                <span className={`ml-3 flex-shrink-0 px-2 py-0.5 rounded-pill font-mono text-[10px] font-semibold ${statusStyle[item.status] || 'bg-aq-surface-raised text-aq-text-muted'}`}>
-                  {item.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
+      <div className="grid grid-cols-3 gap-3">
+        {stats.map(({ label, value, mono, color }) => (
+          <Card key={label} className="p-4 flex flex-col gap-1">
+            <p className="font-sans text-[11px] text-slate-400">{label}</p>
+            <span className={`${mono ? 'font-mono' : 'font-sans'} font-bold text-[20px] ${color}`}>{value}</span>
+          </Card>
+        ))}
       </div>
+
+      <Card className="p-5">
+        <ActivityHeatmap progress={progress} />
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center justify-between mb-4">
+          <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-slate-400">Performance by Topic</span>
+          <span className="font-sans text-[11px] text-slate-400">lower = needs work</span>
+        </div>
+        <MistakeBreakdown progress={progress} topics={topics} lessons={lessons} />
+        {progress.filter(p => p.completed).length === 0 && (
+          <p className="font-sans text-[13px] text-slate-400 text-center py-4">Complete some lessons to see your breakdown.</p>
+        )}
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="material-symbols-outlined text-[16px] text-violet-600">verified</span>
+          <span className="font-mono text-[10px] font-semibold tracking-widest uppercase text-slate-400">Certificates</span>
+        </div>
+        {(() => {
+          const topicLessonCount = {};
+          for (const l of lessons) {
+            if (!l.topic_id) continue;
+            topicLessonCount[l.topic_id] = (topicLessonCount[l.topic_id] || 0) + 1;
+          }
+          const completedSet = new Set(progress.filter(p => p.completed).map(p => p.lesson_id));
+          const earned = topics.filter(t => {
+            const total = topicLessonCount[t.id] || 0;
+            if (total === 0) return false;
+            const done  = lessons.filter(l => l.topic_id === t.id && completedSet.has(l.id)).length;
+            return done === total;
+          });
+
+          if (!earned.length) {
+            return (
+              <div className="flex flex-col items-center py-6 gap-3">
+                <span className="material-symbols-outlined text-[36px] text-slate-300">verified</span>
+                <p className="font-sans text-[13px] text-slate-400 text-center">Complete all lessons in a topic to earn its certificate.</p>
+                <Link href="/skills" className="font-mono text-[11px] text-emerald-700 hover:underline tracking-wide">View topics →</Link>
+              </div>
+            );
+          }
+
+          return (
+            <div className="flex flex-col gap-3">
+              {earned.map(t => {
+                const color = CAT_COLOR[t.category_id] || '#059669';
+                return (
+                  <Link key={t.id} href={`/certificate/${t.id}`} className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-violet-300 transition-colors group">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: color + '15' }}>
+                      <span className="material-symbols-outlined text-[22px] filled" style={{ color }}>verified</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans font-semibold text-[14px] text-slate-800 group-hover:text-violet-700 transition-colors">{t.name}</p>
+                      <p className="font-mono text-[11px] text-slate-400">Interview Ready</p>
+                    </div>
+                    <span className="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-violet-500 transition-colors">open_in_new</span>
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </Card>
     </div>
   );
 }

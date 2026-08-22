@@ -26,36 +26,31 @@ export default function RanksPage() {
     : leaderboard;
 
   return (
-    <div className="min-h-screen bg-aq-bg">
-      <div className="bg-aq-surface border-b border-aq-border sticky top-0 z-40">
-        <div className="px-5 pt-5 pb-3">
-          <h1 className="font-sans font-bold text-h1 text-aq-text-primary mb-0.5">Global Rankings</h1>
-          <p className="font-mono text-[11px] text-aq-text-muted tracking-wide">Season 4 · 3 days remaining</p>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+        <div>
+          <h1 className="font-sans font-bold text-[24px] sm:text-[28px] text-slate-900 tracking-tight">Global Rankings</h1>
+          <p className="font-sans text-[14px] text-slate-500 mt-1">Compete with engineers worldwide • Season 4</p>
         </div>
-
-        <div className="px-5 pb-3">
-          <div className="flex items-center p-3 bg-aq-surface border border-aq-border rounded-card">
-            <div className="flex items-center gap-2 flex-1">
-              <span className="material-symbols-outlined text-[20px] text-aq-gold filled">diamond</span>
-              <div>
-                <span className="font-sans font-semibold text-h3 text-aq-text-primary">Problem Solver</span>
-                <p className="font-sans text-[12px] text-aq-text-muted">Division</p>
-              </div>
-            </div>
-            <div className="w-px h-10 bg-aq-border mx-3" />
-            <div className="flex-1">
-              <p className="font-sans text-[12px] text-aq-text-muted">Season Ends In:</p>
-              <span className="font-mono font-bold text-[14px] text-aq-primary">03d : 14h : 22m</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="pb-1">
-          <FilterPills options={FILTERS} active={filter} onChange={setFilter} />
-        </div>
+        <FilterPills options={FILTERS} active={filter} onChange={setFilter} />
       </div>
 
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl">
+        <div className="mb-6 p-4 bg-white border border-slate-200 rounded-xl card-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+              <span className="material-symbols-outlined text-[22px] filled">diamond</span>
+            </div>
+            <div>
+              <span className="font-sans font-bold text-[16px] text-slate-900">Problem Solver</span>
+              <p className="font-sans text-[12px] text-slate-500">Current Division</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 font-mono text-[13px] text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+            <span className="text-slate-400">Ends in:</span>
+            <span className="font-bold text-emerald-700">03d : 14h : 22m</span>
+          </div>
+        </div>
         {displayList.map((entry, idx) => {
           const isUser = entry.id === userId;
           const rank = entry.rank_position || idx + 1;
