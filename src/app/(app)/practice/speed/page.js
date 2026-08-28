@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { getTopics, getExercisesByTopic, saveSpeedScore, getSpeedLeaderboard } from '@/lib/db';
@@ -38,6 +38,7 @@ export default function SpeedRoundPage() {
   const [userId, setUserId]         = useState(null);
   const [loadingQ, setLoadingQ]     = useState(false);
   const [noQ, setNoQ]               = useState(false);
+  const roundStartTime              = useRef(null);
 
   useEffect(() => {
     getTopics().then(setTopics);
@@ -47,26 +48,28 @@ export default function SpeedRoundPage() {
   const advanceQuestion = useCallback((sel, wasTimeout) => {
     const q         = questions[qIdx];
     const isCorrect = sel === q.correct && !wasTimeout;
-    const elapsed   = Date.now() - startMs;
 
-    setResults(prev => [...prev, { question: q.question, options: q.options, correct: q.correct, selected: sel, isCorrect }]);
+    setResults(prev => {
+      const updated = [...prev, { question: q.question, options: q.options, correct: q.correct, selected: sel, isCorrect }];
+      if (qIdx + 1 >= questions.length) {
+        const newCorrect = updated.filter(r => r.isCorrect).length;
+        const elapsed    = roundStartTime.current ? Date.now() - roundStartTime.current : 0;
+        setTotalMs(elapsed);
+        setPhase('results');
+        saveSpeedScore(topic.id, newCorrect, questions.length, elapsed).catch(() => {});
+        getSpeedLeaderboard(topic.id).then(setLB);
+      }
+      return updated;
+    });
 
-    if (qIdx + 1 >= questions.length) {
-      const newCorrect = results.filter(r => r.isCorrect).length + (isCorrect ? 1 : 0);
-      const ms         = elapsed + results.reduce((s, _, i) => s + (TIME_PER_Q * 1000), 0);
-      const realMs     = Date.now() - (startMs - qIdx * TIME_PER_Q * 1000);
-      setTotalMs(realMs);
-      setPhase('results');
-      saveSpeedScore(topic.id, newCorrect, questions.length, realMs).catch(() => {});
-      getSpeedLeaderboard(topic.id).then(setLB);
-    } else {
+    if (qIdx + 1 < questions.length) {
       setQIdx(i => i + 1);
       setSelected(null);
       setConfirmed(false);
       setTimeLeft(TIME_PER_Q);
       setStartMs(Date.now());
     }
-  }, [questions, qIdx, results, startMs, topic]);
+  }, [questions, qIdx, topic]);
 
   useEffect(() => {
     if (phase !== 'playing' || confirmed) return;
@@ -96,6 +99,7 @@ export default function SpeedRoundPage() {
     setResults([]);
     setTimeLeft(TIME_PER_Q);
     setStartMs(Date.now());
+    roundStartTime.current = Date.now();
     setPhase('playing');
     setLoadingQ(false);
   }

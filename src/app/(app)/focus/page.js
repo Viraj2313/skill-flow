@@ -98,7 +98,13 @@ export default function FocusPage() {
         };
       });
 
-      topicItems.sort((a, b) => PRIORITY[a.status].order - PRIORITY[b.status].order || a.accuracy - b.accuracy);
+      topicItems.sort((a, b) => {
+        const po = PRIORITY[a.status].order - PRIORITY[b.status].order;
+        if (po !== 0) return po;
+        const aa = a.accuracy ?? 100;
+        const ba = b.accuracy ?? 100;
+        return aa - ba;
+      });
       setItems(topicItems);
       setLoading(false);
     });

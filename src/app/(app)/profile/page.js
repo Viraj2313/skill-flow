@@ -63,7 +63,7 @@ function ActivityHeatmap({ progress }) {
         <span className="font-sans text-[12px] text-slate-400">{totalLessons} lessons · {totalActive} active days</span>
       </div>
       <div className="overflow-x-auto">
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${WEEKS}, 1fr)`, gap: '3px', minWidth: `${WEEKS * 14}px` }}>
+        <div style={{ display: 'grid', gridTemplateRows: `repeat(7, 11px)`, gridAutoFlow: 'column', gridAutoColumns: '11px', gap: '3px' }}>
           {Array.from({ length: WEEKS }, (_, w) =>
             Array.from({ length: 7 }, (_, d) => {
               const cell = cells[w * 7 + d];
@@ -74,13 +74,7 @@ function ActivityHeatmap({ progress }) {
                 <div
                   key={`${w}-${d}`}
                   title={`${cell.date.toDateString()}: ${cell.count} lesson${cell.count !== 1 ? 's' : ''}`}
-                  style={{
-                    width: 11,
-                    height: 11,
-                    borderRadius: 2,
-                    backgroundColor: cellColor(cell.count),
-                    cursor: 'default',
-                  }}
+                  style={{ width: 11, height: 11, borderRadius: 2, backgroundColor: cellColor(cell.count), cursor: 'default' }}
                 />
               );
             })
