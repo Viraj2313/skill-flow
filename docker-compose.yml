@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  skillflow:
+    image: viraj231/skillflow:latest
+    container_name: skillflow_app
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - gateway_net
+
+networks:
+  gateway_net:
+    external: true
