@@ -173,6 +173,50 @@ export async function getUserLessonProgress(userId) {
   return data;
 }
 
+export async function getExercisesByTopic(topicId, limit = 20) {
+  const { data: lessons } = await supabase
+    .from('lessons')
+    .select('id')
+    .eq('topic_id', topicId);
+
+  const lessonIds = (lessons || []).map(l => l.id);
+  if (!lessonIds.length) return [];
+
+  const { data, error } = await supabase
+    .from('exercises')
+    .select('*')
+    .in('lesson_id', lessonIds)
+    .eq('type', 'mcq')
+    .limit(limit);
+
+  if (error) return [];
+  return (data || []).map(normaliseExercise);
+}
+
+export async function saveSpeedScore(topicId, correct, total, timeMs) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Sign in to save scores.');
+
+  const { error } = await supabase
+    .from('speed_round_scores')
+    .insert({ user_id: user.id, topic_id: topicId, correct, total, time_ms: timeMs });
+
+  if (error) throw error;
+}
+
+export async function getSpeedLeaderboard(topicId, limit = 10) {
+  const { data, error } = await supabase
+    .from('speed_round_scores')
+    .select('correct, total, time_ms, created_at, user_id, user_profiles(display_name)')
+    .eq('topic_id', topicId)
+    .order('correct', { ascending: false })
+    .order('time_ms', { ascending: true })
+    .limit(limit);
+
+  if (error) return [];
+  return data || [];
+}
+
 
 export async function getLeaderboard(limit = 10) {
   const { data, error } = await supabase.rpc('get_leaderboard', { result_limit: limit });

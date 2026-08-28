@@ -5,6 +5,17 @@ import { Card } from '@/components/ui';
 
 const MODES = [
   {
+    href: '/practice/speed',
+    icon: 'timer',
+    color: '#d97706',
+    bg: '#fffbeb',
+    border: '#fde68a',
+    label: 'Speed Round',
+    tagline: '10 questions · 30 seconds each · no hints',
+    description: 'Race against the clock on MCQ questions from your chosen topic. Lock in your answer fast — no hints, no explanations until after. Score by accuracy, broken by speed.',
+    pills: ['10 questions', 'Timed', 'Leaderboard'],
+  },
+  {
     href: '/practice/patterns',
     icon: 'pattern',
     color: '#7c3aed',
