@@ -176,10 +176,11 @@ export async function getUserLessonProgress(userId) {
 export async function getExercisesByTopic(topicId, limit = 20) {
   const { data: lessons } = await supabase
     .from('lessons')
-    .select('id')
+    .select('id, slug')
     .eq('topic_id', topicId);
 
-  const lessonIds = (lessons || []).map(l => l.id);
+  const lessonMap = Object.fromEntries((lessons || []).map(l => [l.id, l.slug]));
+  const lessonIds = Object.keys(lessonMap);
   if (!lessonIds.length) return [];
 
   const { data, error } = await supabase
@@ -190,7 +191,7 @@ export async function getExercisesByTopic(topicId, limit = 20) {
     .limit(limit);
 
   if (error) return [];
-  return (data || []).map(normaliseExercise);
+  return (data || []).map(e => ({ ...normaliseExercise(e), lessonSlug: lessonMap[e.lesson_id] || null }));
 }
 
 export async function saveSpeedScore(topicId, correct, total, timeMs) {

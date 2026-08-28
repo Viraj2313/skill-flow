@@ -218,7 +218,7 @@ const HINTS = [
   'Still wrong. Think about what happens step by step. The correct answer relates to the core concept of this question.',
 ];
 
-function MCQExercise({ exercise, onAnswer, lessonTitle, token }) {
+function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) {
   const [selected, setSelected]     = useState(null);
   const [attempts, setAttempts]     = useState(0);
   const [wrongPicks, setWrongPicks] = useState(new Set());
@@ -339,13 +339,24 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token }) {
             CHECK
           </button>
         ) : (
-          <button
-            onClick={() => onAnswer(isCorrect)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
-            style={{ backgroundColor: isCorrect ? '#059669' : '#dc2626' }}
-          >
-            CONTINUE →
-          </button>
+          <div className="flex flex-col gap-2">
+            {!isCorrect && onReviewCards && (
+              <button
+                onClick={onReviewCards}
+                className="w-full py-2.5 rounded-input font-mono text-[11px] font-semibold tracking-widest uppercase border border-aq-border text-aq-text-muted bg-aq-surface hover:bg-aq-surface-raised transition-colors flex items-center justify-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+                Re-read concept cards
+              </button>
+            )}
+            <button
+              onClick={() => onAnswer(isCorrect)}
+              className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
+              style={{ backgroundColor: isCorrect ? '#059669' : '#dc2626' }}
+            >
+              CONTINUE →
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -789,7 +800,7 @@ export default function LessonPage() {
 
   function renderExercise(exercise) {
     const key = `${lesson.id}-${exercise.id}`;
-    if (exercise.type === 'mcq') return <MCQExercise key={key} exercise={exercise} onAnswer={handleAnswer} lessonTitle={lesson.title} token={sessionToken} />;
+    if (exercise.type === 'mcq') return <MCQExercise key={key} exercise={exercise} onAnswer={handleAnswer} lessonTitle={lesson.title} token={sessionToken} onReviewCards={cards.length > 0 ? () => setCardIndex(0) : null} />;
     if (exercise.type === 'code_pick') return <CodePickExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
     if (exercise.type === 'fill_blank') return <FillBlankExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
     if (exercise.type === 'arrange') return <ArrangeExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
