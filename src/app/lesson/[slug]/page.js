@@ -686,6 +686,21 @@ function CompletionScreen({ lesson, correct, total, color, onFinish }) {
       >
         BACK TO TOPICS
       </button>
+
+      <div className="mt-5 pt-4 border-t border-aq-border w-full">
+        <p className="font-mono text-[10px] text-aq-text-muted tracking-widest uppercase text-center mb-3">Go deeper when you have time</p>
+        <div className="flex gap-2">
+          <Link href="/practice/patterns" className="flex-1 py-2 rounded-lg border border-slate-200 text-center font-mono text-[10px] font-semibold text-slate-500 hover:border-violet-300 hover:text-violet-700 hover:bg-violet-50 transition-colors">
+            Patterns
+          </Link>
+          <Link href="/practice/teach" className="flex-1 py-2 rounded-lg border border-slate-200 text-center font-mono text-[10px] font-semibold text-slate-500 hover:border-emerald-300 hover:text-emerald-700 hover:bg-emerald-50 transition-colors">
+            Teach It
+          </Link>
+          <Link href="/practice/debug" className="flex-1 py-2 rounded-lg border border-slate-200 text-center font-mono text-[10px] font-semibold text-slate-500 hover:border-red-300 hover:text-red-700 hover:bg-red-50 transition-colors">
+            Debug
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

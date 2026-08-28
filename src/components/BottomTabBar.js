@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const tabs = [
-  { href: '/dashboard', icon: 'home', label: 'Home' },
-  { href: '/skills', icon: 'account_tree', label: 'Skills' },
-  { href: '/challenge', icon: 'bolt', label: 'Challenge' },
-  { href: '/ranks', icon: 'emoji_events', label: 'Ranks' },
-  { href: '/profile', icon: 'person', label: 'Profile' },
+  { href: '/dashboard', icon: 'home',         label: 'Home' },
+  { href: '/skills',    icon: 'account_tree',  label: 'Skills' },
+  { href: '/practice',  icon: 'exercise',      label: 'Practice' },
+  { href: '/ranks',     icon: 'emoji_events',  label: 'Ranks' },
+  { href: '/profile',   icon: 'person',        label: 'Profile' },
 ];
 
 function isActive(pathname, href) {
@@ -57,6 +57,7 @@ export function DesktopSidebar() {
         {[
           { href: '/evolutions', icon: 'trending_up',  label: 'Code Evolution', color: 'text-orange-600', activeBg: 'bg-orange-50 text-orange-800' },
           { href: '/interview',  icon: 'psychology',   label: 'Interview Mode', color: 'text-violet-600', activeBg: 'bg-violet-50 text-violet-800' },
+          { href: '/practice',   icon: 'exercise',     label: 'Practice Modes', color: 'text-emerald-600', activeBg: 'bg-emerald-50 text-emerald-800' },
         ].map(tool => {
           const active = isActive(pathname, tool.href);
           return (
