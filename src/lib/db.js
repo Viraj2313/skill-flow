@@ -289,3 +289,32 @@ function normaliseExercise(ex) {
     correct_order: ex.correct_order ?? null,
   };
 }
+
+export async function saveGoal({ company, interviewDate, topicPlan }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not signed in');
+  const { error } = await supabase.from('user_goals').upsert({
+    user_id:        user.id,
+    company,
+    interview_date: interviewDate,
+    topic_plan:     topicPlan,
+  }, { onConflict: 'user_id' });
+  if (error) throw error;
+}
+
+export async function getGoal() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from('user_goals')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  return data;
+}
+
+export async function deleteGoal() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from('user_goals').delete().eq('user_id', user.id);
+}

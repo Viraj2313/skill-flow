@@ -59,6 +59,28 @@ const MODES = [
     description: 'Pick a concept you just learned and explain it out loud (in text). The AI plays a junior developer who asks follow-up questions until your explanation is airtight.',
     pills: ['AI-powered', 'Feynman technique', 'Scored'],
   },
+  {
+    href: '/practice/complexity',
+    icon: 'speed',
+    color: '#0891b2',
+    bg: '#ecfeff',
+    border: '#a5f3fc',
+    label: 'Complexity Predictor',
+    tagline: 'Click the bottleneck line · pick the Big O',
+    description: 'Read real code, click the line that dominates time complexity, then select the Big O. Two-step challenge that mirrors how interviewers actually ask complexity questions.',
+    pills: ['12 problems', 'O(1) to O(2^n)', 'Line-level analysis'],
+  },
+  {
+    href: '/practice/visualizer',
+    icon: 'animation',
+    color: '#7c3aed',
+    bg: '#faf5ff',
+    border: '#e9d5ff',
+    label: 'Algorithm Visualizer',
+    tagline: 'Watch algorithms animate step by step',
+    description: 'Step through Binary Search, Two Pointer, Sliding Window, Linked List Reversal, Tree DFS, and Graph BFS. See exactly what each variable holds at every step.',
+    pills: ['6 algorithms', 'Step-by-step', 'Auto-play mode'],
+  },
 ];
 
 export default function PracticePage() {
