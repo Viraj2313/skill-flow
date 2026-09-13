@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { COMPLEXITY_PROBLEMS, COMPLEXITY_OPTIONS } from '@/data/complexityProblems';
+import { savePracticeResult } from '@/lib/db';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -46,7 +47,12 @@ export default function ComplexityPage() {
   }
 
   function handleNext() {
-    if (idx + 1 >= problems.length) { setDone(true); return; }
+    const isLast = idx + 1 >= problems.length;
+    if (isLast) {
+      savePracticeResult({ mode: 'complexity', correct: score, total: problems.length }).catch(() => {});
+      setDone(true);
+      return;
+    }
     setIdx(i => i + 1);
     setPhase('line');
     setLineSelected(null);

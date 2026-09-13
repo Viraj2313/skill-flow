@@ -318,3 +318,112 @@ export async function deleteGoal() {
   if (!user) return;
   await supabase.from('user_goals').delete().eq('user_id', user.id);
 }
+
+export async function saveExerciseAttempt({ exerciseId, lessonId, isCorrect, attemptsTaken = 1 }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from('user_exercise_attempts').insert({
+    user_id:        user.id,
+    exercise_id:    exerciseId,
+    lesson_id:      lessonId,
+    is_correct:     isCorrect,
+    attempts_taken: attemptsTaken,
+  });
+}
+
+export async function getWeakExercises(limit = 10) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data } = await supabase
+    .from('user_exercise_attempts')
+    .select('exercise_id, lesson_id, is_correct, attempts_taken, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (!data) return [];
+  const map = {};
+  for (const row of data) {
+    if (!map[row.exercise_id]) map[row.exercise_id] = { exerciseId: row.exercise_id, lessonId: row.lesson_id, total: 0, wrong: 0, maxAttempts: 0 };
+    map[row.exercise_id].total++;
+    if (!row.is_correct) map[row.exercise_id].wrong++;
+    map[row.exercise_id].maxAttempts = Math.max(map[row.exercise_id].maxAttempts, row.attempts_taken);
+  }
+  return Object.values(map)
+    .filter(e => e.total >= 2 && e.wrong > 0)
+    .sort((a, b) => (b.wrong / b.total) - (a.wrong / a.total))
+    .slice(0, limit);
+}
+
+export async function saveAhaJournal({ lessonId, lessonTitle, note }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  const { error } = await supabase.from('aha_journal').upsert({
+    user_id:      user.id,
+    lesson_id:    lessonId,
+    lesson_title: lessonTitle,
+    note,
+    reviewed:     false,
+  }, { onConflict: 'user_id,lesson_id' });
+  if (error) throw error;
+}
+
+export async function getAhaJournal({ limit = 50, unreviewedOnly = false } = {}) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  let query = supabase
+    .from('aha_journal')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (unreviewedOnly) query = query.eq('reviewed', false);
+  const { data } = await query;
+  return data || [];
+}
+
+export async function savePracticeResult({ mode, correct, total, metadata = {} }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from('practice_results').insert({
+    user_id:  user.id,
+    mode,
+    correct,
+    total,
+    metadata,
+  });
+}
+
+export async function getPracticeHistory(mode = null, limit = 20) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  let query = supabase
+    .from('practice_results')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (mode) query = query.eq('mode', mode);
+  const { data } = await query;
+  return data || [];
+}
+
+export async function getPracticeStats() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return {};
+  const { data } = await supabase
+    .from('practice_results')
+    .select('mode, correct, total')
+    .eq('user_id', user.id);
+  if (!data) return {};
+  const stats = {};
+  for (const row of data) {
+    if (!stats[row.mode]) stats[row.mode] = { sessions: 0, correct: 0, total: 0 };
+    stats[row.mode].sessions++;
+    stats[row.mode].correct += row.correct;
+    stats[row.mode].total   += row.total;
+  }
+  for (const m of Object.values(stats)) {
+    m.accuracy = m.total > 0 ? Math.round((m.correct / m.total) * 100) : 0;
+  }
+  return stats;
+}

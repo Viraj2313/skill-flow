@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { completeLesson, getLessonBySlug } from '@/lib/db';
+import { completeLesson, getLessonBySlug, saveExerciseAttempt, saveAhaJournal } from '@/lib/db';
 import { supabase } from '@/lib/supabase';
 import { EVOLUTIONS } from '@/data/evolutions';
 import { getChecklist } from '@/data/topicChecklists';
@@ -732,7 +732,7 @@ function ArrangeExercise({ exercise, onAnswer }) {
   );
 }
 
-function CompletionScreen({ lesson, correct, total, color, onFinish }) {
+function CompletionScreen({ lesson, correct, total, color, onFinish, ahaNote, setAhaNote, onSaveAha, ahaSaved, ahaSaving }) {
   const xpEarned = Math.round((correct / total) * lesson.xp_reward);
   const perfect = correct === total;
   const hasEvolution = !!(lesson.slug && EVOLUTIONS[lesson.slug]);
@@ -754,7 +754,7 @@ function CompletionScreen({ lesson, correct, total, color, onFinish }) {
         {correct}/{total} correct
       </p>
 
-      <div className="flex gap-6 mb-10">
+      <div className="flex gap-6 mb-8">
         <div className="flex flex-col items-center gap-1">
           <span className="font-mono font-bold text-[28px]" style={{ color }}>+{xpEarned}</span>
           <span className="font-mono text-[10px] tracking-widest uppercase text-aq-text-muted">XP EARNED</span>
@@ -766,6 +766,28 @@ function CompletionScreen({ lesson, correct, total, color, onFinish }) {
           </span>
           <span className="font-mono text-[10px] tracking-widest uppercase text-aq-text-muted">STREAK +1</span>
         </div>
+      </div>
+
+      <div className="w-full mb-6 text-left">
+        <label className="font-mono text-[10px] font-bold tracking-widest uppercase text-slate-400 block mb-2">
+          What was the ONE thing that clicked? (your aha moment)
+        </label>
+        <textarea
+          value={ahaNote}
+          onChange={e => setAhaNote(e.target.value)}
+          disabled={ahaSaved}
+          rows={2}
+          placeholder="e.g. Binary search works because sorted arrays let you eliminate half the search space each step..."
+          className="w-full font-sans text-[13px] text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:border-emerald-300 transition-colors placeholder:text-slate-300 disabled:opacity-60"
+        />
+        <button
+          onClick={onSaveAha}
+          disabled={!ahaNote.trim() || ahaSaved || ahaSaving}
+          className="mt-2 w-full py-2 rounded-xl font-mono text-[10px] font-bold tracking-widest uppercase transition-colors disabled:opacity-40"
+          style={{ background: ahaSaved ? '#dcfce7' : '#f1f5f9', color: ahaSaved ? '#15803d' : '#64748b' }}
+        >
+          {ahaSaved ? '✓ Saved to your journal' : ahaSaving ? 'Saving…' : 'Save to journal'}
+        </button>
       </div>
 
       {hasEvolution && (
@@ -818,6 +840,9 @@ export default function LessonPage() {
   const [saveError, setSaveError]         = useState(null);
   const [cardIndex, setCardIndex]         = useState(0);
   const [sessionToken, setSessionToken]   = useState(null);
+  const [ahaNote, setAhaNote]             = useState('');
+  const [ahaSaved, setAhaSaved]           = useState(false);
+  const [ahaSaving, setAhaSaving]         = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -865,7 +890,15 @@ export default function LessonPage() {
   const currentExercise = exercises[exerciseIndex];
   const totalSteps = cards.length + exercises.length;
 
-  async function handleAnswer(isCorrect) {
+  async function handleAnswer(isCorrect, exercise) {
+    if (exercise?.id) {
+      saveExerciseAttempt({
+        exerciseId:    String(exercise.id),
+        lessonId:      String(lesson.id),
+        isCorrect,
+        attemptsTaken: 1,
+      }).catch(() => {});
+    }
     const nextCorrect = isCorrect ? correctCount + 1 : correctCount;
     if (exerciseIndex + 1 >= exercises.length) {
       setCorrectCount(nextCorrect);
@@ -886,12 +919,25 @@ export default function LessonPage() {
     }
   }
 
+  async function handleSaveAha() {
+    if (!ahaNote.trim() || ahaSaved) return;
+    setAhaSaving(true);
+    try {
+      await saveAhaJournal({ lessonId: String(lesson.id), lessonTitle: lesson.title, note: ahaNote.trim() });
+      setAhaSaved(true);
+    } catch {
+    } finally {
+      setAhaSaving(false);
+    }
+  }
+
   function renderExercise(exercise) {
     const key = `${lesson.id}-${exercise.id}`;
-    if (exercise.type === 'mcq') return <MCQExercise key={key} exercise={exercise} onAnswer={handleAnswer} lessonTitle={lesson.title} token={sessionToken} onReviewCards={cards.length > 0 ? () => setCardIndex(0) : null} />;
-    if (exercise.type === 'code_pick') return <CodePickExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
-    if (exercise.type === 'fill_blank') return <FillBlankExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
-    if (exercise.type === 'arrange') return <ArrangeExercise key={key} exercise={exercise} onAnswer={handleAnswer} />;
+    const onAns = (ok) => handleAnswer(ok, exercise);
+    if (exercise.type === 'mcq')        return <MCQExercise key={key} exercise={exercise} onAnswer={onAns} lessonTitle={lesson.title} token={sessionToken} onReviewCards={cards.length > 0 ? () => setCardIndex(0) : null} />;
+    if (exercise.type === 'code_pick') return <CodePickExercise key={key} exercise={exercise} onAnswer={onAns} />;
+    if (exercise.type === 'fill_blank') return <FillBlankExercise key={key} exercise={exercise} onAnswer={onAns} />;
+    if (exercise.type === 'arrange')   return <ArrangeExercise key={key} exercise={exercise} onAnswer={onAns} />;
     return null;
   }
 
@@ -971,13 +1017,18 @@ export default function LessonPage() {
 
       <div className="flex-1 overflow-hidden">
         {done ? (
-          <div className="h-full px-5 py-6">
+          <div className="h-full overflow-y-auto px-5 py-6">
             <CompletionScreen
               lesson={lesson}
               correct={correctCount}
               total={exercises.length}
               color={color}
               onFinish={() => router.push('/skills')}
+              ahaNote={ahaNote}
+              setAhaNote={setAhaNote}
+              onSaveAha={handleSaveAha}
+              ahaSaved={ahaSaved}
+              ahaSaving={ahaSaving}
             />
             {saveError && <p role="alert" className="px-5 pb-4 font-sans text-[13px] text-aq-error text-center">{saveError}</p>}
           </div>
