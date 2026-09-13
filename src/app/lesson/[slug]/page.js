@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { completeLesson, getLessonBySlug } from '@/lib/db';
 import { supabase } from '@/lib/supabase';
 import { EVOLUTIONS } from '@/data/evolutions';
+import { getChecklist } from '@/data/topicChecklists';
 
 const CAT_COLOR = {
   dsa: '#059669',
@@ -33,15 +34,27 @@ function CodeBlock({ text }) {
   );
 }
 
+const ANGLES = [
+  { id: 'analogy',   label: 'Analogy',   icon: 'compare',    color: '#7c3aed' },
+  { id: 'visual',    label: 'Visualise', icon: 'draw',       color: '#0891b2' },
+  { id: 'derive',    label: 'Derive It', icon: 'functions',  color: '#059669' },
+  { id: 'interview', label: 'Interview', icon: 'psychology', color: '#d97706' },
+];
+
 function ConceptCard({ card, index, total, color, onNext, token }) {
-  const [altText, setAltText] = useState(null);
-  const [explaining, setExplaining] = useState(false);
-  const [explainErr, setExplainErr] = useState(null);
+  const [altText, setAltText]           = useState(null);
+  const [explaining, setExplaining]     = useState(false);
+  const [explainErr, setExplainErr]     = useState(null);
+  const [angleText, setAngleText]       = useState(null);
+  const [activeAngle, setActiveAngle]   = useState(null);
+  const [angleLoading, setAngleLoading] = useState(false);
 
   async function handleExplain() {
     setExplaining(true);
     setExplainErr(null);
     setAltText(null);
+    setAngleText(null);
+    setActiveAngle(null);
     try {
       const res = await fetch('/api/ai/explain', {
         method: 'POST',
@@ -55,6 +68,28 @@ function ConceptCard({ card, index, total, color, onNext, token }) {
       setExplainErr('Could not reach AI. Please try again.');
     } finally {
       setExplaining(false);
+    }
+  }
+
+  async function handleAngle(angleId) {
+    if (activeAngle === angleId) { setAngleText(null); setActiveAngle(null); return; }
+    setAngleLoading(true);
+    setAltText(null);
+    setActiveAngle(angleId);
+    setAngleText(null);
+    try {
+      const res = await fetch('/api/ai/angles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ heading: card.heading, body: card.body, angle: angleId }),
+      });
+      const data = await res.json();
+      if (data.error) setExplainErr(data.error);
+      else setAngleText(data.text);
+    } catch {
+      setExplainErr('Could not reach AI.');
+    } finally {
+      setAngleLoading(false);
     }
   }
 
@@ -99,7 +134,41 @@ function ConceptCard({ card, index, total, color, onNext, token }) {
         >
           I already know this — skip
         </button>
-        {!altText && (
+
+        <div className="flex gap-1.5">
+          {ANGLES.map(a => (
+            <button
+              key={a.id}
+              onClick={() => handleAngle(a.id)}
+              disabled={angleLoading}
+              className="flex-1 flex flex-col items-center gap-0.5 py-2 rounded-lg border transition-all"
+              style={{
+                borderColor: activeAngle === a.id ? a.color : '#e2e8f0',
+                background:  activeAngle === a.id ? a.color + '12' : '#f8fafc',
+              }}
+            >
+              <span className="material-symbols-outlined text-[15px]" style={{ color: activeAngle === a.id ? a.color : '#94a3b8' }}>{a.icon}</span>
+              <span className="font-mono text-[8px] font-bold tracking-wider" style={{ color: activeAngle === a.id ? a.color : '#94a3b8' }}>{a.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {angleLoading && (
+          <div className="flex items-center gap-2 py-1">
+            <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+            <span className="font-mono text-[11px] text-slate-400">Generating {ANGLES.find(a=>a.id===activeAngle)?.label} view…</span>
+          </div>
+        )}
+        {angleText && (
+          <div className="p-3.5 rounded-xl border bg-indigo-50 border-indigo-200">
+            <p className="font-mono text-[9px] font-bold tracking-widest uppercase text-indigo-500 mb-1.5">
+              {ANGLES.find(a => a.id === activeAngle)?.label} view
+            </p>
+            <p className="font-sans text-[14px] text-slate-700 leading-relaxed whitespace-pre-line">{angleText}</p>
+          </div>
+        )}
+
+        {!altText && !angleText && (
           <button
             onClick={handleExplain}
             disabled={explaining}
@@ -223,27 +292,30 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
   const [attempts, setAttempts]     = useState(0);
   const [wrongPicks, setWrongPicks] = useState(new Set());
   const [confirmed, setConfirmed]   = useState(false);
+  const [checklistDismissed, setChecklistDismissed] = useState(false);
 
-  const isCorrect = selected === exercise.correct;
-  const answered  = confirmed;
-  const hint      = HINTS[Math.min(attempts, HINTS.length - 1)];
+  const isCorrect     = selected === exercise.correct;
+  const answered      = confirmed;
+  const hint          = HINTS[Math.min(attempts, HINTS.length - 1)];
+  const checklist     = getChecklist(lessonTitle);
+  const showChecklist = selected !== null && !answered && attempts === 0 && !checklistDismissed;
 
   function handleSelect(i) {
     if (answered) return;
     setSelected(i);
+    setChecklistDismissed(false);
   }
 
   function handleCheck() {
     if (selected === null || answered) return;
+    setChecklistDismissed(true);
     if (selected === exercise.correct) {
       setConfirmed(true);
     } else {
       const next = attempts + 1;
       setAttempts(next);
       setWrongPicks(prev => new Set([...prev, selected]));
-      if (next >= 3) {
-        setConfirmed(true);
-      }
+      if (next >= 3) setConfirmed(true);
     }
   }
 
@@ -330,6 +402,22 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
       </div>
 
       <div className="px-5 pb-6 pt-3 border-t border-aq-border">
+        {showChecklist && (
+          <div className="mb-3 p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50">
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-mono text-[9px] font-bold tracking-widest uppercase text-amber-700">Before you lock in…</p>
+              <button onClick={() => setChecklistDismissed(true)} className="font-mono text-[9px] text-amber-500 hover:text-amber-700">dismiss</button>
+            </div>
+            <div className="space-y-1.5">
+              {checklist.map((item, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-[13px] text-amber-600 shrink-0 mt-0.5">{item.icon}</span>
+                  <p className="font-sans text-[12px] text-amber-900 leading-snug">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {!answered ? (
           <button
             onClick={handleCheck}
@@ -807,8 +895,56 @@ export default function LessonPage() {
     return null;
   }
 
+  const [unstuckOpen, setUnstuckOpen] = useState(false);
+  const UNSTUCK_STEPS = [
+    { n: 1, label: 'Restate the problem in one sentence.' },
+    { n: 2, label: 'Write a concrete example (3–4 elements).' },
+    { n: 3, label: 'State the brute force — even if it\'s O(n²).' },
+    { n: 4, label: 'What\'s the bottleneck? Can you eliminate it?' },
+    { n: 5, label: 'Which pattern fits? (Two Pointer, BFS, DP, Hash Map…)' },
+  ];
+
   return (
     <div className="min-h-screen bg-aq-surface flex flex-col" style={{ maxHeight: '100dvh', overflow: 'hidden' }}>
+      {unstuckOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={e => e.target === e.currentTarget && setUnstuckOpen(false)}>
+          <div className="w-full max-w-sm mx-4 mb-4 sm:mb-0 bg-white rounded-2xl overflow-hidden shadow-2xl">
+            <div className="px-5 py-4 border-b border-indigo-900 flex items-center justify-between" style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+              <div>
+                <p className="font-mono text-[9px] font-bold tracking-widest uppercase text-indigo-300">Mind went blank?</p>
+                <p className="font-sans font-bold text-[17px] text-white">The Unstuck Protocol</p>
+              </div>
+              <button onClick={() => setUnstuckOpen(false)} className="text-indigo-300 hover:text-white">
+                <span className="material-symbols-outlined text-[22px]">close</span>
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              {UNSTUCK_STEPS.map(s => (
+                <div key={s.n} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                    <span className="font-mono text-[11px] font-bold text-indigo-700">{s.n}</span>
+                  </div>
+                  <p className="font-sans text-[14px] text-slate-700 leading-snug pt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="px-5 pb-5">
+              <p className="font-mono text-[10px] text-slate-400 text-center mb-3">Say each step out loud. Silence is the enemy.</p>
+              <Link href="/unstuck" onClick={() => setUnstuckOpen(false)} className="block w-full py-3 rounded-xl font-mono text-[11px] font-bold tracking-widest uppercase text-center text-white" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                Practice the Protocol →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!showingCards && !done && (
+        <button onClick={() => setUnstuckOpen(true)} className="fixed bottom-6 left-4 z-40 flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-lg border border-slate-200 bg-white hover:bg-slate-50 transition-all" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+          <span className="text-[16px]">🆘</span>
+          <span className="font-mono text-[9px] font-bold tracking-widest uppercase text-slate-500">Stuck?</span>
+        </button>
+      )}
+
       <div className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-aq-border bg-aq-surface">
         <div className="flex items-center gap-3 mb-3">
           <button

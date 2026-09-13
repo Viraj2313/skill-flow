@@ -60,6 +60,7 @@ export function DesktopSidebar() {
           { href: '/practice',   icon: 'exercise',     label: 'Practice Modes', color: 'text-emerald-600', activeBg: 'bg-emerald-50 text-emerald-800' },
           { href: '/focus',      icon: 'my_location',  label: 'Where to Focus', color: 'text-red-600',     activeBg: 'bg-red-50 text-red-800' },
           { href: '/goal',       icon: 'flag',         label: 'Interview Goal', color: 'text-indigo-600',  activeBg: 'bg-indigo-50 text-indigo-800' },
+          { href: '/unstuck',    icon: 'psychology_alt', label: 'Unstuck Protocol', color: 'text-violet-600', activeBg: 'bg-violet-50 text-violet-800' },
         ].map(tool => {
           const active = isActive(pathname, tool.href);
           return (

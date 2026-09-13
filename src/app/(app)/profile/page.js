@@ -204,6 +204,69 @@ export default function ProfilePage() {
     { label: 'Member Since',   value: memberSince,            mono: false, color: 'text-slate-500' },
   ];
 
+  const totalExercisesSeen    = progress.reduce((s, p) => s + (p.exercises_seen    || p.total_count   || 0), 0);
+  const totalExercisesCorrect = progress.reduce((s, p) => s + (p.exercises_correct || p.correct_count || 0), 0);
+  const overallAccuracy       = totalExercisesSeen > 0 ? Math.round((totalExercisesCorrect / totalExercisesSeen) * 100) : 0;
+
+  const lessonMap2 = {};
+  lessons.forEach(l => { lessonMap2[l.id] = l; });
+  const topicMap2 = {};
+  topics.forEach(t => { topicMap2[t.id] = t; });
+
+  const topicBuckets = {};
+  progress.forEach(p => {
+    const lesson = lessonMap2[p.lesson_id];
+    if (!lesson) return;
+    const tid = lesson.topic_id;
+    if (!topicBuckets[tid]) topicBuckets[tid] = { correct: 0, total: 0 };
+    topicBuckets[tid].correct += p.exercises_correct || p.correct_count || 0;
+    topicBuckets[tid].total   += p.exercises_seen    || p.total_count   || 0;
+  });
+
+  const topicScores = Object.entries(topicBuckets)
+    .filter(([, v]) => v.total >= 3)
+    .map(([tid, v]) => ({ name: topicMap2[tid]?.name || tid, pct: Math.round((v.correct / v.total) * 100) }))
+    .sort((a, b) => b.pct - a.pct);
+
+  const strongestTopic = topicScores[0] || null;
+  const weakestTopic   = topicScores[topicScores.length - 1] || null;
+
+  const completionRate = progress.length > 0
+    ? Math.round((completed.length / progress.length) * 100)
+    : 100;
+
+  const daysOnPlatform = profile?.created_at
+    ? Math.max(1, Math.floor((Date.now() - new Date(profile.created_at)) / 86400000))
+    : 1;
+
+  const storyItems = [
+    totalExercisesSeen > 0 && {
+      icon: 'quiz', color: '#6366f1',
+      headline: `${totalExercisesSeen.toLocaleString()} exercises answered`,
+      sub: overallAccuracy > 0 ? `${overallAccuracy}% overall accuracy` : 'Keep going to see your accuracy',
+    },
+    strongestTopic && {
+      icon: 'star', color: '#059669',
+      headline: `Strongest: ${strongestTopic.name}`,
+      sub: `${strongestTopic.pct}% accuracy — you know this well`,
+    },
+    completed.length > 0 && {
+      icon: 'check_circle', color: '#0891b2',
+      headline: `${completed.length} lesson${completed.length !== 1 ? 's' : ''} completed`,
+      sub: completionRate >= 80 ? `${completionRate}% completion rate — you finish what you start` : `${completionRate}% of started lessons completed`,
+    },
+    daysOnPlatform >= 3 && {
+      icon: 'calendar_month', color: '#d97706',
+      headline: `${daysOnPlatform} day${daysOnPlatform !== 1 ? 's' : ''} of prep`,
+      sub: `Member since ${memberSince}`,
+    },
+    weakestTopic && weakestTopic !== strongestTopic && {
+      icon: 'trending_up', color: '#dc2626',
+      headline: `Next frontier: ${weakestTopic.name}`,
+      sub: `${weakestTopic.pct}% accuracy — this is where the growth is`,
+    },
+  ].filter(Boolean);
+
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
       <div className="flex flex-col items-center gap-3 py-8">
@@ -234,6 +297,25 @@ export default function ProfilePage() {
           </Card>
         ))}
       </div>
+
+      {storyItems.length > 0 && (
+        <Card className="p-5">
+          <p className="font-mono text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-4">Your Story</p>
+          <div className="space-y-3">
+            {storyItems.map((item, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: item.color + '08', border: `1px solid ${item.color}20` }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: item.color + '15' }}>
+                  <span className="material-symbols-outlined text-[18px] filled" style={{ color: item.color }}>{item.icon}</span>
+                </div>
+                <div>
+                  <p className="font-sans font-semibold text-[14px] text-slate-900">{item.headline}</p>
+                  <p className="font-sans text-[12px] text-slate-500">{item.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <Card className="p-5">
         <ActivityHeatmap progress={progress} />
