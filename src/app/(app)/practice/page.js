@@ -81,6 +81,17 @@ const MODES = [
     description: 'Step through Binary Search, Two Pointer, Sliding Window, Linked List Reversal, Tree DFS, and Graph BFS. See exactly what each variable holds at every step.',
     pills: ['6 algorithms', 'Step-by-step', 'Auto-play mode'],
   },
+  {
+    href: '/practice/deconstruct',
+    icon: 'code_blocks',
+    color: '#0f172a',
+    bg: '#f8fafc',
+    border: '#cbd5e1',
+    label: 'Problem Deconstruction',
+    tagline: 'WHY does this solution work?',
+    description: 'Read a complete working solution, then answer 3 deep questions: the key insight, the loop invariant, and what input would break it. AI evaluates your reasoning — not just correctness.',
+    pills: ['6 problems', 'Key Insight · Invariant · Break It', 'AI graded'],
+  },
 ];
 
 export default function PracticePage() {

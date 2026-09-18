@@ -381,6 +381,12 @@ export async function getAhaJournal({ limit = 50, unreviewedOnly = false } = {})
   return data || [];
 }
 
+export async function markAhaReviewed(id) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from('aha_journal').update({ reviewed: true }).eq('id', id).eq('user_id', user.id);
+}
+
 export async function savePracticeResult({ mode, correct, total, metadata = {} }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
