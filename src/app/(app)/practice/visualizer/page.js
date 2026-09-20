@@ -383,6 +383,7 @@ function QueueRenderer({ frame }) {
 function Legend({ renderType }) {
   const DEFS = {
     array:      [['Active','#3b82f6'],['Comparing','#f59e0b'],['Window','#7c3aed'],['Found/Sorted','#10b981'],['Eliminated','#334155']],
+    hashmap:    [['Empty','#334155'],['Highlighted','#3b82f6'],['Collision','#f59e0b'],['Found','#10b981'],['Miss','#f87171']],
     sliding:    [['Active','#3b82f6'],['Window','#7c3aed'],['Found','#10b981']],
     linkedlist: [['Node','#3b82f6'],['Current','#f59e0b'],['Reversed','#10b981']],
     tree:       [['Unvisited','#334155'],['Active','#f59e0b'],['Visited','#10b981']],
@@ -410,6 +411,48 @@ const SPEEDS = [
   { label: '3×',   ms: 320  },
 ];
 
+function HashMapRenderer({ frame }) {
+  const { buckets = [], highlight, operation } = frame;
+  const opColor = { insert: '#10b981', collision: '#f59e0b', lookup: '#3b82f6', miss: '#f87171', delete: '#ef4444' };
+  const oc = opColor[operation] || '#475569';
+  return (
+    <div className="flex flex-col gap-1.5 w-full" style={{ maxWidth: 340 }}>
+      {buckets.map((bucket, i) => {
+        const isHL = highlight === i;
+        return (
+          <div key={i} className="flex items-center gap-2">
+            <div className="font-mono text-right shrink-0" style={{ fontSize: 10, color: '#475569', width: 18 }}>{i}</div>
+            <div
+              style={{
+                flex: 1, minHeight: 38, borderRadius: 8,
+                background: isHL ? `${oc}14` : '#1e293b',
+                border: `1.5px solid ${isHL ? oc : '#334155'}`,
+                display: 'flex', alignItems: 'center', gap: 6, padding: '0 10px',
+                transition: `background 250ms ease, border-color 250ms ease`,
+              }}
+            >
+              {!bucket ? (
+                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#334155' }}>—</span>
+              ) : bucket.map((entry, j) => (
+                <div key={j} className="flex items-center gap-1 px-2 py-0.5 rounded-md" style={{ background: '#0f172a', border: `1px solid ${isHL ? `${oc}50` : '#1e293b'}` }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#60a5fa', fontWeight: 600 }}>{entry.k}</span>
+                  <span style={{ color: '#334155', fontSize: 10 }}>:</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#34d399', fontWeight: 600 }}>{entry.v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+      {operation && (
+        <div className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: '#0f172a', border: '1px solid #1e293b' }}>
+          <span className="font-mono text-[10px] font-semibold uppercase" style={{ color: oc, letterSpacing: 1 }}>{operation}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const CAT_COLORS = {
   'Arrays':            '#3b82f6',
   'Sorting':           '#f59e0b',
@@ -417,6 +460,7 @@ const CAT_COLORS = {
   'Trees':             '#10b981',
   'Graphs':            '#ef4444',
   'Linear Structures': '#06b6d4',
+  'Data Structures':   '#a855f7',
 };
 
 export default function VisualizerPage() {
@@ -532,6 +576,7 @@ export default function VisualizerPage() {
                 {algo.renderType === 'graph'      && <GraphRenderer algo={algo} frame={frame} />}
                 {algo.renderType === 'stack'      && <StackRenderer frame={frame} />}
                 {algo.renderType === 'queue'      && <QueueRenderer frame={frame} />}
+                {algo.renderType === 'hashmap'    && <HashMapRenderer frame={frame} />}
               </div>
 
               <div className="px-4 pb-4">
