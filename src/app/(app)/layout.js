@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import BottomTabBar, { DesktopSidebar } from '@/components/BottomTabBar';
+import Companion from '@/components/Companion';
 import { supabase } from '@/lib/supabase';
 
 export default function AppLayout({ children }) {
@@ -36,6 +37,7 @@ export default function AppLayout({ children }) {
         </main>
         <BottomTabBar />
       </div>
+      <Companion />
     </div>
   );
 }
