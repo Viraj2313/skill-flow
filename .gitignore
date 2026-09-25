@@ -43,5 +43,3 @@ next-env.d.ts
 # supabase sql scripts (keep local only — contain seed data / credentials)
 /supabase/
 
-# Legacy JSON data
-src/data/

@@ -1,0 +1,17 @@
+{
+  "id": "user-1",
+  "username": "AlexCodes",
+  "display_name": "Alex",
+  "xp": 2450,
+  "streak_current": 7,
+  "streak_best": 21,
+  "rank": "Problem Solver",
+  "weekly_rank": 23,
+  "member_since": "Jan 2025",
+  "avatar_url": null,
+  "category_xp": {
+    "dsa": 1600,
+    "python": 620,
+    "cs-fundamentals": 230
+  }
+}

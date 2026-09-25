@@ -1,0 +1,1732 @@
+[
+  {
+    "id": "lesson-arrays-intro",
+    "topic_id": "t1",
+    "slug": "arrays-what-and-why",
+    "title": "Arrays: What They Are",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 20,
+    "description": "Start from zero. What is an array, how does it live in memory, and why does indexing start at 0?",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "You have 5 boxes in a row on a shelf, each numbered 0 to 4. Each box holds one item.\n\nThis is exactly how an array works. What is the key property of an array?",
+        "options": [
+          "Items are stored in random locations in memory",
+          "Items are stored side by side in contiguous memory — like boxes in a row",
+          "Items are stored in a tree shape",
+          "You can only store numbers in an array"
+        ],
+        "correct": 1,
+        "explanation": "An array stores items in contiguous (side-by-side) memory locations. This is the defining property. It means you can jump to any item instantly — just like knowing box number 3 on the shelf takes you straight there."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Why does array indexing start at 0, not 1?\n\nnums = [10, 20, 30, 40, 50]\nnums[0] → 10\nnums[1] → 20",
+        "options": [
+          "It's just a historical mistake that stuck",
+          "An index is an OFFSET from the start. The first item is 0 steps away from the beginning.",
+          "Because computers are binary and can't use 1 first",
+          "It makes the math harder on purpose"
+        ],
+        "correct": 1,
+        "explanation": "An index is an offset (distance from the start). The first element is 0 steps from the beginning, so its index is 0. The computer calculates: address = start + (index × size). For index 0: start + 0 = start. This is why 0-indexing is natural and fast."
+      },
+      {
+        "id": "e3",
+        "type": "code_pick",
+        "question": "Which line correctly accesses the LAST element of this array?",
+        "context": "nums = [10, 20, 30, 40, 50]  # 5 elements",
+        "options": [
+          "nums[5]",
+          "nums[4]",
+          "nums.last()",
+          "nums[-0]"
+        ],
+        "correct": 1,
+        "explanation": "An array with 5 elements has indices 0, 1, 2, 3, 4. The last element is at index 4 (which is length - 1 = 5 - 1 = 4). nums[5] would be out of bounds — there is no index 5 in a 5-element array. In Python, nums[-1] also works as a shortcut."
+      },
+      {
+        "id": "e4",
+        "type": "fill_blank",
+        "question": "What is the time complexity of accessing any element by index?",
+        "code_lines": [
+          "nums = [10, 20, 30, ..., 1000000]  # 1 million items",
+          "val = nums[999999]  # accessing the last item",
+          "# Time complexity: O(___)"
+        ],
+        "blank_index": 2,
+        "blank_placeholder": "___",
+        "options": ["1", "n", "n²", "log n"],
+        "correct": 0,
+        "explanation": "O(1) — constant time. No matter how large the array, accessing any element by index takes the same amount of time. The computer calculates the exact memory address instantly using the index formula. It doesn't need to scan anything."
+      },
+      {
+        "id": "e5",
+        "type": "mcq",
+        "question": "What happens when you add an element to a FULL array?",
+        "options": [
+          "It adds directly — arrays grow automatically with no cost",
+          "The array must be resized: a new larger array is created and all items are copied over — O(n)",
+          "It raises an error — arrays can never grow",
+          "It overwrites the last element"
+        ],
+        "correct": 1,
+        "explanation": "Arrays have a fixed size in memory. When full, the language must allocate a new larger block and copy all existing items. Python's list handles this automatically, but it's O(n) internally. This is why append() is amortized O(1) — most appends are fast, occasional ones trigger a resize."
+      }
+    ]
+  },
+  {
+    "id": "lesson-hashmap-101",
+    "topic_id": "t1",
+    "slug": "what-is-a-hash-map",
+    "title": "Hash Maps: Your Secret Weapon",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 25,
+    "description": "Before solving Two Sum, you need to understand hash maps. This lesson explains what they are and why they make everything faster.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Imagine a library. To find a book you either:\n\nA) Walk every aisle until you find it\nB) Look up a catalogue that tells you exactly which shelf it's on\n\nA hash map is which one?",
+        "options": [
+          "Option A — it searches everything",
+          "Option B — it goes straight to the answer",
+          "Neither, it sorts the books first",
+          "It depends on the book"
+        ],
+        "correct": 1,
+        "explanation": "A hash map works like the catalogue. You give it a key (book title), and it tells you exactly where the value is in memory — instantly. No searching needed. This is why hash map lookup is O(1)."
+      },
+      {
+        "id": "e2",
+        "type": "code_pick",
+        "question": "Which Python data structure is a hash map?",
+        "context": "You want to store and instantly retrieve values by a key.",
+        "options": [
+          "my_list = [1, 2, 3]",
+          "my_dict = {'a': 1, 'b': 2}",
+          "my_tuple = (1, 2, 3)",
+          "my_set = {1, 2, 3}"
+        ],
+        "correct": 1,
+        "explanation": "A Python dict (dictionary) is a hash map. It stores key-value pairs and lets you look up any value by its key in O(1) constant time — regardless of how many items are in it."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Store the value 42 at key 'score' in a dict:",
+        "code_lines": [
+          "stats = {}",
+          "stats[___] = 42",
+          "print(stats['score'])  # → 42"
+        ],
+        "blank_index": 1,
+        "blank_placeholder": "___",
+        "options": ["'score'", "score", "0", "42"],
+        "correct": 0,
+        "explanation": "stats['score'] = 42 creates a new key 'score' and stores 42 as its value. Keys in Python dicts are usually strings or numbers. The quotes matter — 'score' is the string key."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "You have a list of 1,000,000 names. How long does it take to check if 'Alice' is in:\n\n• A plain Python list\n• A Python dict",
+        "options": [
+          "Both are the same — Python optimizes both",
+          "List: O(n) — scans up to 1M names. Dict: O(1) — instant lookup",
+          "Dict: O(n). List: O(1)",
+          "Both are O(log n)"
+        ],
+        "correct": 1,
+        "explanation": "Checking if something is in a list requires scanning every item — O(n). With 1 million items, that could mean 1 million comparisons. A dict goes straight to the answer via its hash — O(1). This difference is enormous at scale."
+      },
+      {
+        "id": "e5",
+        "type": "code_pick",
+        "question": "Which line correctly checks if a key exists in a dict before accessing it?",
+        "context": "seen = {'apple': 3, 'banana': 7}",
+        "options": [
+          "if seen.contains('apple'):",
+          "if 'apple' in seen:",
+          "if seen.has('apple'):",
+          "if seen['apple'] != None:"
+        ],
+        "correct": 1,
+        "explanation": "'apple' in seen uses Python's 'in' operator, which checks the dict's keys in O(1). Never access seen['apple'] directly without checking first — if the key doesn't exist, Python raises a KeyError."
+      }
+    ]
+  },
+  {
+    "id": "lesson-twosum-approach",
+    "topic_id": "t1",
+    "slug": "two-sum-think-it-through",
+    "title": "Two Sum: Think It Through",
+    "category": "dsa",
+    "level": 3,
+    "xp_reward": 30,
+    "description": "Now that you know hash maps, let's walk through Two Sum step by step — from brute force to the O(n) insight.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Two Sum:\nGiven [2, 7, 11, 15] and target = 9, return the indices of two numbers that add up to 9.\n\nWhich pair is the answer?",
+        "options": [
+          "2 and 11 (indices 0, 2)",
+          "2 and 7 (indices 0, 1)",
+          "7 and 11 (indices 1, 2)",
+          "No pair adds up to 9"
+        ],
+        "correct": 1,
+        "explanation": "2 + 7 = 9. Their positions (indices) in the array are 0 and 1. That's the answer: [0, 1]. The problem asks for indices, not the values themselves."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "The obvious approach: try every possible pair. For array [2, 7, 11, 15], how many pairs would you check?",
+        "options": [
+          "4 pairs (one per element)",
+          "6 pairs — every combination of 2 items from 4",
+          "16 pairs",
+          "2 pairs"
+        ],
+        "correct": 1,
+        "explanation": "For 4 elements: (2,7), (2,11), (2,15), (7,11), (7,15), (11,15) = 6 pairs. In general it's n*(n-1)/2 pairs — which is O(n²). For 10,000 elements that's 50 million comparisons. Too slow for interviews."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Here's the key insight:\n\nFor each number x in the array, instead of searching for its partner — we can ASK: 'does (target - x) already exist anywhere we've seen?'\n\nFor x = 7, target = 9: what are we looking for?",
+        "options": [
+          "9 - 9 = 0",
+          "9 - 7 = 2",
+          "9 + 7 = 16",
+          "7 - 9 = -2"
+        ],
+        "correct": 1,
+        "explanation": "We need the complement: target - x = 9 - 7 = 2. If 2 was seen earlier in the array, we found our pair! This is the insight that unlocks the O(n) solution — check for the complement instead of checking all pairs."
+      },
+      {
+        "id": "e4",
+        "type": "fill_blank",
+        "question": "Complete the complement calculation inside the loop:",
+        "code_lines": [
+          "for i, num in enumerate(nums):",
+          "    complement = ___ - num",
+          "    if complement in seen:",
+          "        return [seen[complement], i]",
+          "    seen[num] = i"
+        ],
+        "blank_index": 1,
+        "blank_placeholder": "___",
+        "options": ["target", "nums[i]", "i", "0"],
+        "correct": 0,
+        "explanation": "complement = target - num. We're asking: what number do I need to add to 'num' to reach the target? If that number is already in our 'seen' hash map, we've found the pair."
+      },
+      {
+        "id": "e5",
+        "type": "arrange",
+        "question": "Order the complete Two Sum solution:",
+        "blocks": [
+          "def two_sum(nums, target):",
+          "    seen = {}",
+          "    for i, num in enumerate(nums):",
+          "        complement = target - num",
+          "        if complement in seen:",
+          "            return [seen[complement], i]",
+          "        seen[num] = i",
+          "    return []"
+        ],
+        "correct_order": [0, 1, 2, 3, 4, 5, 6, 7],
+        "explanation": "Initialize an empty hash map, loop through each element, check if the complement exists, return if yes — otherwise record the current number and its index. O(n) time, O(n) space."
+      }
+    ]
+  },
+  {
+    "id": "lesson-arrays-sliding",
+    "topic_id": "t1",
+    "slug": "sliding-window-intro",
+    "title": "Sliding Window: The Pattern",
+    "category": "dsa",
+    "level": 4,
+    "xp_reward": 30,
+    "description": "The technique that kills nested loops. Used in dozens of interview questions involving contiguous subarrays.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "You want the maximum sum of any 3 consecutive numbers in [1, 4, 2, 9, 7, 3, 8].\n\nBrute force: compute the sum of every group of 3. How many groups are there?",
+        "options": [
+          "3 groups",
+          "5 groups: [1,4,2], [4,2,9], [2,9,7], [9,7,3], [7,3,8]",
+          "7 groups (one per element)",
+          "21 groups"
+        ],
+        "correct": 1,
+        "explanation": "For an array of length 7 with window size 3: there are 7 - 3 + 1 = 5 windows. Each requires summing 3 elements → 15 operations total. For large arrays this becomes O(n×k) — we can do better."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Sliding window insight: when you move from window [1,4,2] to [4,2,9], you only need to:\n\n• REMOVE 1 (the element that left)\n• ADD 9 (the element that entered)\n\nHow many operations is that instead of re-summing 3 elements?",
+        "options": [
+          "Still 3 operations",
+          "2 operations — one subtract, one add",
+          "1 operation",
+          "0 operations"
+        ],
+        "correct": 1,
+        "explanation": "Instead of recomputing sum([4,2,9]) from scratch, we do: new_sum = old_sum - 1 + 9. That's 2 operations instead of 3. For a window of size k, we go from O(k) per step to O(1) per step. Total becomes O(n) instead of O(n×k)."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Complete the sliding window — remove the element leaving the window:",
+        "code_lines": [
+          "window_sum = sum(nums[:k])",
+          "max_sum = window_sum",
+          "for i in range(k, len(nums)):",
+          "    window_sum += nums[i] - nums[___]",
+          "    max_sum = max(max_sum, window_sum)"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["i - k", "i - 1", "k", "0"],
+        "correct": 0,
+        "explanation": "nums[i - k] is the element leaving the window as nums[i] enters. When i=k, we remove nums[0]. When i=k+1, we remove nums[1]. The element leaving is always k positions behind the one entering."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "Sliding window is MOST useful when the problem involves:",
+        "options": [
+          "Finding a single element in an unsorted array",
+          "A contiguous subarray/substring with some constraint (sum, length, distinct chars)",
+          "Sorting the array",
+          "Binary search on a sorted array"
+        ],
+        "correct": 1,
+        "explanation": "Sliding window is the pattern for contiguous subarray/substring problems: max sum of size-k window, longest substring without repeats, smallest subarray with sum ≥ target. The key word is 'contiguous' — elements must be next to each other."
+      }
+    ]
+  },
+  {
+    "id": "lesson-strings-intro",
+    "topic_id": "t2",
+    "slug": "strings-what-are-they",
+    "title": "Strings: From Characters to Code",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 20,
+    "description": "A string is a sequence of characters. Understand how they work in memory and the operations you'll use constantly.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "A string is a sequence of characters. In Python, the string 'hello' has 5 characters.\n\nWhat do you get when you access s[0]?",
+        "options": [
+          "The entire string 'hello'",
+          "The character 'h'",
+          "The number 0",
+          "An error — strings aren't indexable"
+        ],
+        "correct": 1,
+        "explanation": "Strings are indexed just like arrays. s[0] = 'h', s[1] = 'e', s[2] = 'l', s[3] = 'l', s[4] = 'o'. Each character has a position starting from 0. This means all the array indexing techniques apply to strings too."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "In Python, strings are IMMUTABLE. What does that mean?",
+        "options": [
+          "You can't read characters from a string",
+          "Once created, a string cannot be changed — every 'modification' creates a new string",
+          "Strings can only hold lowercase letters",
+          "Strings are stored in a special database"
+        ],
+        "correct": 1,
+        "explanation": "s = 'hello'. You CANNOT do s[0] = 'H'. Python would raise a TypeError. Instead, s = 'H' + s[1:] creates a NEW string 'Hello'. This is important for performance — string concatenation in a loop can be O(n²). Use ''.join(list) instead."
+      },
+      {
+        "id": "e3",
+        "type": "code_pick",
+        "question": "Which extracts the substring 'ell' from 'hello'?",
+        "context": "s = 'hello'",
+        "options": [
+          "s[1, 3]",
+          "s[1:4]",
+          "s.sub(1, 4)",
+          "s[1..4]"
+        ],
+        "correct": 1,
+        "explanation": "s[1:4] is Python slicing. It means: start at index 1 (inclusive), stop at index 4 (exclusive). So you get characters at indices 1, 2, 3 — which are 'e', 'l', 'l' = 'ell'. The stop index is always excluded."
+      },
+      {
+        "id": "e4",
+        "type": "code_pick",
+        "question": "Which is the CORRECT way to build a string by joining a list of characters?",
+        "context": "chars = ['h', 'e', 'l', 'l', 'o']",
+        "options": [
+          "result = ''\nfor c in chars:\n    result += c",
+          "result = ''.join(chars)",
+          "result = chars.toString()",
+          "result = str(chars)"
+        ],
+        "correct": 1,
+        "explanation": "''.join(chars) is O(n) — it builds the string in one pass. The += approach (option 1) looks simple but is O(n²) because each concatenation creates a new string and copies everything. For any loop with string building, always use join()."
+      },
+      {
+        "id": "e5",
+        "type": "fill_blank",
+        "question": "Reverse a string in Python:",
+        "code_lines": [
+          "s = 'hello'",
+          "reversed_s = s[___]",
+          "# reversed_s == 'olleh'"
+        ],
+        "blank_index": 1,
+        "blank_placeholder": "___",
+        "options": ["::-1", ":-1", "0:-1", "reverse()"],
+        "correct": 0,
+        "explanation": "s[::-1] is Python's step-slice syntax: start=end, stop=beginning, step=-1. This reads the string backwards. It's O(n) and creates a new string. One of the most common Python interview tricks for string reversal."
+      }
+    ]
+  },
+  {
+    "id": "lesson-strings-palindrome",
+    "topic_id": "t2",
+    "slug": "strings-palindrome",
+    "title": "Palindrome: Two Pointer on Strings",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 30,
+    "description": "A palindrome reads the same forwards and backwards. Learn how to check it with two pointers — no extra space.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Which of these is a palindrome?",
+        "options": [
+          "'hello'",
+          "'racecar'",
+          "'python'",
+          "'world'"
+        ],
+        "correct": 1,
+        "explanation": "'racecar' read forwards: r-a-c-e-c-a-r. Read backwards: r-a-c-e-c-a-r. They're the same — it's a palindrome. Other examples: 'madam', 'level', 'noon'. The key property: character at position i equals character at position (length-1-i)."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "To check if 'racecar' is a palindrome, one approach:\n\n• Compare s[0] with s[6] (r vs r) ✓\n• Compare s[1] with s[5] (a vs a) ✓\n• Compare s[2] with s[4] (c vs c) ✓\n• Middle s[3] — no pair needed\n\nThis is the two pointer approach. Where do the pointers start?",
+        "options": [
+          "Both start at s[0]",
+          "Left starts at s[0], right starts at s[length-1]",
+          "Left starts at s[1], right starts at s[length-2]",
+          "Both start at the middle"
+        ],
+        "correct": 1,
+        "explanation": "Left pointer starts at the beginning (index 0), right pointer starts at the end (index length-1). They move toward each other, comparing characters. If they ever find a mismatch, it's not a palindrome. When they meet or cross, we've checked everything."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Complete the palindrome check — move pointers toward each other:",
+        "code_lines": [
+          "def is_palindrome(s):",
+          "    left, right = 0, len(s) - 1",
+          "    while left < right:",
+          "        if s[left] != s[right]:",
+          "            return False",
+          "        left ___",
+          "        right -= 1",
+          "    return True"
+        ],
+        "blank_index": 5,
+        "blank_placeholder": "___",
+        "options": ["+= 1", "-= 1", "+= 2", "= 0"],
+        "correct": 0,
+        "explanation": "left += 1 moves the left pointer right (inward). right -= 1 moves the right pointer left (inward). They converge toward the middle. When left >= right, we've compared all pairs — if no mismatch found, it's a palindrome."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "What is the time and space complexity of the two-pointer palindrome check?",
+        "options": [
+          "O(n) time, O(n) space",
+          "O(n) time, O(1) space",
+          "O(n²) time, O(1) space",
+          "O(1) time, O(1) space"
+        ],
+        "correct": 1,
+        "explanation": "O(n) time — we visit at most n/2 character pairs. O(1) space — we only use two integer variables (left and right), no extra array or string is created. Contrast with the naive approach: reverse the string (O(n) space) and compare — it works but uses more memory."
+      }
+    ]
+  },
+  {
+    "id": "lesson-strings-anagram",
+    "topic_id": "t2",
+    "slug": "strings-anagram",
+    "title": "Anagram: Counting Characters",
+    "category": "dsa",
+    "level": 3,
+    "xp_reward": 30,
+    "description": "Two strings are anagrams if they contain the same characters in any order. Learn the O(n) detection using hash maps.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Which pair of strings are anagrams of each other?",
+        "options": [
+          "'hello' and 'world'",
+          "'listen' and 'silent'",
+          "'python' and 'java'",
+          "'abc' and 'abcd'"
+        ],
+        "correct": 1,
+        "explanation": "'listen' and 'silent' contain the exact same characters: l, i, s, t, e, n — just rearranged. An anagram has identical character counts for every letter. 'abc' and 'abcd' fail because 'd' appears in one but not the other."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "To check if two strings are anagrams, you need to verify they have the same character counts.\n\nWhat's the first quick check you should always do?",
+        "options": [
+          "Sort both strings and compare",
+          "Check if their lengths are equal — if not, they can't be anagrams",
+          "Convert both to sets",
+          "Count only vowels first"
+        ],
+        "correct": 1,
+        "explanation": "If the lengths differ, they can't be anagrams — one has a character the other doesn't. This O(1) check can save you from unnecessary work. Always do the cheap check first."
+      },
+      {
+        "id": "e3",
+        "type": "code_pick",
+        "question": "Which code correctly counts character frequencies of string s?",
+        "context": "s = 'listen'",
+        "options": [
+          "count = set(s)",
+          "count = {}\nfor c in s:\n    count[c] = count.get(c, 0) + 1",
+          "count = sorted(s)",
+          "count = list(s)"
+        ],
+        "correct": 1,
+        "explanation": "count.get(c, 0) + 1 is the pattern: get the current count for character c (defaulting to 0 if not seen), then add 1. After the loop, count holds how many times each character appears. For 'listen': {'l':1, 'i':1, 's':1, 't':1, 'e':1, 'n':1}."
+      },
+      {
+        "id": "e4",
+        "type": "arrange",
+        "question": "Order the complete anagram check function:",
+        "blocks": [
+          "def is_anagram(s, t):",
+          "    if len(s) != len(t):",
+          "        return False",
+          "    count = {}",
+          "    for c in s:",
+          "        count[c] = count.get(c, 0) + 1",
+          "    for c in t:",
+          "        count[c] = count.get(c, 0) - 1",
+          "    return all(v == 0 for v in count.values())"
+        ],
+        "correct_order": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        "explanation": "Count up for every char in s, count down for every char in t. If anagrams, all counts cancel out to 0. The final check: all values in the dict must be 0. If any is non-zero, the strings have different character counts. O(n) time, O(1) space (at most 26 keys for lowercase letters)."
+      }
+    ]
+  },
+  {
+    "id": "lesson-recursion-concept",
+    "topic_id": "t3",
+    "slug": "recursion-the-idea",
+    "title": "Recursion: The Idea",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "Recursion sounds scary. It's just a function that calls a smaller version of itself. Build the intuition from everyday examples.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "To eat a pizza with 8 slices:\n'Eating 8 slices = eating 1 slice + eating 7 slices'\n'Eating 7 slices = eating 1 slice + eating 6 slices'\n...\n'Eating 1 slice = done!'\n\nThis is recursion. What makes it stop?",
+        "options": [
+          "It never stops — you'd eat forever",
+          "A base case: a problem small enough to solve directly",
+          "A for loop inside the recursion",
+          "Python automatically stops it after 100 calls"
+        ],
+        "correct": 1,
+        "explanation": "Every recursive solution needs two parts: a BASE CASE (the simplest version you can answer directly — 'eating 1 slice is done') and a RECURSIVE CASE (break it into a smaller version of itself). Without a base case, the function calls itself forever."
+      },
+      {
+        "id": "e2",
+        "type": "code_pick",
+        "question": "In this countdown function, which line is the BASE CASE?",
+        "context": "def countdown(n):\n    if n == 0:\n        print('Done!')\n        return\n    print(n)\n    countdown(n - 1)",
+        "options": [
+          "countdown(n - 1)",
+          "print(n)",
+          "if n == 0: ... return",
+          "def countdown(n):"
+        ],
+        "correct": 2,
+        "explanation": "'if n == 0: return' is the base case — it's the condition where we stop recursing and return directly. Without it, countdown(5) would call countdown(4) → countdown(3) → ... → countdown(-999999) → RecursionError."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "factorial(4) = 4 × 3 × 2 × 1 = 24\n\nIn recursive terms, factorial(4) equals:",
+        "options": [
+          "4 × factorial(3)",
+          "factorial(3) + factorial(3)",
+          "factorial(0)",
+          "4 × 4"
+        ],
+        "correct": 0,
+        "explanation": "factorial(4) = 4 × factorial(3). Then factorial(3) = 3 × factorial(2) → factorial(2) = 2 × factorial(1) → factorial(1) = 1 × factorial(0) → factorial(0) = 1 (base case). Python then unwinds: 1×1=1, 2×1=2, 3×2=6, 4×6=24."
+      },
+      {
+        "id": "e4",
+        "type": "fill_blank",
+        "question": "Complete the recursive factorial — make the problem smaller each call:",
+        "code_lines": [
+          "def factorial(n):",
+          "    if n == 0:",
+          "        return 1",
+          "    return n * factorial(___)"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["n - 1", "n", "n + 1", "1"],
+        "correct": 0,
+        "explanation": "factorial(n-1) makes the problem smaller by 1 each call. Each call reduces n by 1 until we hit n=0 (the base case). If we called factorial(n) instead, we'd never get smaller — infinite recursion and a crash."
+      }
+    ]
+  },
+  {
+    "id": "lesson-recursion-fibonacci",
+    "topic_id": "t3",
+    "slug": "recursion-fibonacci",
+    "title": "Fibonacci: Spot the Waste",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 35,
+    "description": "Fibonacci is the classic recursion problem. But the naive solution is shockingly slow. Learn why — and how memoization fixes it.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "The Fibonacci sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21...\n\nEach number is the sum of the two before it.\nfib(0) = 0, fib(1) = 1, fib(n) = fib(n-1) + fib(n-2)\n\nWhat is fib(5)?",
+        "options": [
+          "8",
+          "5",
+          "13",
+          "3"
+        ],
+        "correct": 1,
+        "explanation": "fib(5) = fib(4) + fib(3) = 3 + 2 = 5. The sequence is 0, 1, 1, 2, 3, 5 — so fib(5) = 5. Note the two base cases: fib(0) = 0 and fib(1) = 1. Both are needed because the recursion looks back two steps."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "To compute fib(5), the naive recursion computes:\nfib(4) + fib(3)\n= (fib(3) + fib(2)) + (fib(2) + fib(1))\n= ...\n\nfib(2) is computed how many times?",
+        "options": [
+          "Once",
+          "Twice",
+          "3 times",
+          "Only when needed"
+        ],
+        "correct": 2,
+        "explanation": "fib(2) is computed 3 times just for fib(5). For fib(50), the naive recursion runs about 2^50 operations — roughly 1 quadrillion calculations. This is O(2^n) exponential time. The problem: we keep recalculating the same values over and over."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Memoization fixes this by storing results we've already computed.\n\n'If I've already calculated fib(3) = 2, just remember that instead of recalculating it.'\n\nWhich data structure is best for storing these cached results?",
+        "options": [
+          "A list (fixed size)",
+          "A dict (hash map) mapping n → fib(n)",
+          "A sorted array",
+          "A string"
+        ],
+        "correct": 1,
+        "explanation": "A dict (hash map) is perfect: memo[n] = fib(n). Before computing fib(n), check: 'is n in memo?' If yes, return memo[n] instantly (O(1)). If not, compute it and store it. With memoization, each fib(n) is computed exactly once → O(n) total."
+      },
+      {
+        "id": "e4",
+        "type": "fill_blank",
+        "question": "Complete the memoized Fibonacci — check the cache before computing:",
+        "code_lines": [
+          "def fib(n, memo={}):",
+          "    if n <= 1:",
+          "        return n",
+          "    if ___ in memo:",
+          "        return memo[n]",
+          "    memo[n] = fib(n-1, memo) + fib(n-2, memo)",
+          "    return memo[n]"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["n", "memo[n]", "n-1", "0"],
+        "correct": 0,
+        "explanation": "'if n in memo' checks if we've already computed fib(n). If yes, we skip the work and return memo[n] immediately. If no, we compute it, store it in memo[n], then return it. This transforms O(2^n) exponential into O(n) linear time."
+      }
+    ]
+  },
+  {
+    "id": "lesson-linkedlist-intro",
+    "topic_id": "t4",
+    "slug": "linked-list-intro",
+    "title": "Linked Lists: Nodes and Pointers",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "Linked lists are a completely different way to store data compared to arrays. Understand nodes, pointers, and the key trade-offs.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "A linked list is like a treasure hunt. Each clue (node) tells you:\n1. The treasure at this location (the value)\n2. Where to find the next clue (a pointer to the next node)\n\nWhat is a NODE in a linked list?",
+        "options": [
+          "Just a number stored in memory",
+          "An object containing a VALUE and a pointer to the NEXT node",
+          "An index into an array",
+          "A key in a dictionary"
+        ],
+        "correct": 1,
+        "explanation": "A node holds two things: (1) data — the value you're storing, and (2) a next pointer — the memory address of the next node. The last node's next pointer is None (null), signaling the end of the list. This is the fundamental building block."
+      },
+      {
+        "id": "e2",
+        "type": "code_pick",
+        "question": "Which correctly defines a linked list node in Python?",
+        "context": "You want to create a node that holds a value and points to the next node.",
+        "options": [
+          "node = [value, next]",
+          "class ListNode:\n    def __init__(self, val):\n        self.val = val\n        self.next = None",
+          "node = {'val': value}",
+          "node = (value, None)"
+        ],
+        "correct": 1,
+        "explanation": "The ListNode class is the standard way. self.val stores the data. self.next starts as None (no next node yet). To link nodes: node1.next = node2. This creates the chain. You'll see this exact class definition in almost every linked list interview problem."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Arrays vs Linked Lists — inserting at the BEGINNING:\n\n• Array: shift ALL existing elements one position right, then insert. Cost?\n• Linked List: create a new node, point it at current head, update head. Cost?",
+        "options": [
+          "Both are O(1)",
+          "Array: O(n). Linked List: O(1)",
+          "Array: O(1). Linked List: O(n)",
+          "Both are O(n)"
+        ],
+        "correct": 1,
+        "explanation": "Array insertion at index 0: every element must shift right by one position — O(n). Linked list insertion at head: just update two pointers (new_node.next = head, head = new_node) — O(1) constant time. This is linked lists' biggest advantage over arrays."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "Arrays vs Linked Lists — accessing the 5th element:\n\n• Array: arr[4] — direct calculation from memory address. Cost?\n• Linked List: start at head, follow next 4 times. Cost?",
+        "options": [
+          "Both are O(1)",
+          "Array: O(n). Linked List: O(1)",
+          "Array: O(1). Linked List: O(n)",
+          "Both are O(n)"
+        ],
+        "correct": 2,
+        "explanation": "Array access by index is O(1) — direct memory calculation. Linked list access is O(n) — you must walk the chain from head to reach any element. There's no shortcut. This is linked lists' biggest DISADVANTAGE. Key trade-off: LL wins on insert/delete at known positions, arrays win on random access."
+      },
+      {
+        "id": "e5",
+        "type": "mcq",
+        "question": "A linked list where every node also has a PREV pointer (pointing to the previous node) is called:",
+        "options": [
+          "A circular linked list",
+          "A doubly linked list",
+          "A binary linked list",
+          "A tree"
+        ],
+        "correct": 1,
+        "explanation": "A doubly linked list has both next and prev pointers, allowing traversal in both directions. Python's collections.deque is implemented as a doubly linked list, which is why both appendleft() and popleft() are O(1) — something a regular list can't do."
+      }
+    ]
+  },
+  {
+    "id": "lesson-linkedlist-traverse",
+    "topic_id": "t4",
+    "slug": "linked-list-traversal",
+    "title": "Linked List: Traversal & Search",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 30,
+    "description": "How do you visit every node, find a value, or count elements in a linked list? Learn the fundamental traversal pattern.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "To traverse a linked list, you start at the head and follow next pointers until you reach None.\n\n1 → 2 → 3 → 4 → None\n\nWhat is the stopping condition?",
+        "options": [
+          "When current.val == 0",
+          "When current is None",
+          "When current.next == current",
+          "After exactly 10 steps"
+        ],
+        "correct": 1,
+        "explanation": "The last node's .next is None. When current becomes None, you've gone past the last node — the traversal is complete. This is always the stopping condition for linked list traversal."
+      },
+      {
+        "id": "e2",
+        "type": "fill_blank",
+        "question": "Complete the traversal — move to the next node each iteration:",
+        "code_lines": [
+          "current = head",
+          "while current is not None:",
+          "    print(current.val)",
+          "    current = current.___"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["next", "val", "prev", "head"],
+        "correct": 0,
+        "explanation": "current = current.next moves the pointer forward by one node. After visiting the current node (printing its value), we advance to the next one. When current.next is None, the next iteration will set current = None, ending the loop."
+      },
+      {
+        "id": "e3",
+        "type": "code_pick",
+        "question": "Which correctly counts the number of nodes in a linked list?",
+        "context": "# head → 1 → 2 → 3 → None",
+        "options": [
+          "return len(head)",
+          "count = 0\ncurrent = head\nwhile current:\n    count += 1\n    current = current.next\nreturn count",
+          "return head.length",
+          "return head.count()"
+        ],
+        "correct": 1,
+        "explanation": "Traverse the entire list, incrementing count for each node. while current: is shorthand for while current is not None: since None is falsy in Python. The result is O(n) — we must visit every node to count them. Unlike arrays, there's no stored length property."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "You're searching for value 7 in a linked list. In the worst case (7 is at the end or not present), how many nodes do you check?",
+        "options": [
+          "O(1) — hash maps make it instant",
+          "O(log n) — like binary search",
+          "O(n) — you must check every node",
+          "O(n²) — nested traversal needed"
+        ],
+        "correct": 2,
+        "explanation": "O(n) — linked lists have no random access and no index. You must start at head and check each node one by one. This is why linked lists are not used when you need frequent lookups. They shine when you need frequent insertions/deletions at the front."
+      }
+    ]
+  },
+  {
+    "id": "lesson-linkedlist-reverse",
+    "topic_id": "t4",
+    "slug": "linked-list-reverse",
+    "title": "Reverse a Linked List",
+    "category": "dsa",
+    "level": 3,
+    "xp_reward": 40,
+    "description": "Reversing a linked list is one of the most common interview problems. It's all about managing three pointers at once.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "To reverse 1 → 2 → 3 → None, you want: 3 → 2 → 1 → None.\n\nThe challenge: each node's .next currently points FORWARD. You need to make them point BACKWARD — without losing track of where you are.\n\nHow many pointer variables do you need to track simultaneously?",
+        "options": [
+          "1 (just current)",
+          "2 (current and next)",
+          "3 (prev, current, and next)",
+          "4 or more"
+        ],
+        "correct": 2,
+        "explanation": "You need 3 pointers: PREV (the node behind you, initially None), CURRENT (the node you're at), and NEXT (saved before you change current.next, so you don't lose the rest of the list). Think of it as: look ahead, turn around, step forward."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Step through the reversal on 1 → 2 → 3 → None.\n\nStep 1: prev=None, curr=1\n• Save next = curr.next → next=2\n• Flip: curr.next = prev → 1.next = None\n• Advance: prev=1, curr=2\n\nAfter step 1, what does node 1's .next point to?",
+        "options": [
+          "Node 2 (unchanged)",
+          "None — we reversed the pointer",
+          "Node 3",
+          "Itself"
+        ],
+        "correct": 1,
+        "explanation": "After step 1, 1.next = None (prev was None). We've reversed node 1's pointer. Now prev=1 so next iteration will set 2.next = 1, and so on. The key is saving next BEFORE flipping the pointer — otherwise you'd lose the rest of the list."
+      },
+      {
+        "id": "e3",
+        "type": "arrange",
+        "question": "Order the lines inside the reversal loop (prev=None, curr=head to start):",
+        "blocks": [
+          "while curr:",
+          "    next_node = curr.next",
+          "    curr.next = prev",
+          "    prev = curr",
+          "    curr = next_node",
+          "return prev"
+        ],
+        "correct_order": [0, 1, 2, 3, 4, 5],
+        "explanation": "1) Save next before losing it. 2) Flip the pointer backward. 3) prev advances to current node. 4) curr advances to saved next. When curr becomes None, prev is the new head (last node of original list). Return prev. O(n) time, O(1) space."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "After fully reversing 1 → 2 → 3 → None, what is the return value and what is the new list?",
+        "options": [
+          "Returns 1 (old head). List: 1 → 2 → 3",
+          "Returns 3. List: 3 → 2 → 1 → None",
+          "Returns None. List: 3 → 2 → 1",
+          "Returns the length 3"
+        ],
+        "correct": 1,
+        "explanation": "After reversal, prev points to node 3 — which is now the new head. The list is 3 → 2 → 1 → None. We return prev (the new head). Node 1's .next is now None since it's the new tail. This is a complete in-place reversal using O(1) extra space."
+      }
+    ]
+  },
+  {
+    "id": "lesson-stack-intro",
+    "topic_id": "t5",
+    "slug": "stack-the-idea",
+    "title": "Stack: Last In, First Out",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 20,
+    "description": "Stacks are everywhere — your browser's back button, undo in any app, function calls. Understand LIFO from real life first.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "A stack of plates: you put plates on top one by one. When you take a plate, you always take from the TOP.\n\nThis is called LIFO. What does LIFO stand for?",
+        "options": [
+          "Left In, First Out",
+          "Last In, First Out",
+          "Lowest Index, First Out",
+          "Linked Index, First Output"
+        ],
+        "correct": 1,
+        "explanation": "Last In, First Out — the last item you added is the first one you remove. Real examples: browser back button (last page visited = first to go back to), Ctrl+Z undo (last action = first to undo), function call stack (last function called = first to return)."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "A stack has two main operations:\n• PUSH: add to the top\n• POP: remove from the top\n\nYou push 1, push 2, push 3, then pop. What do you get?",
+        "options": [
+          "1 (the first pushed)",
+          "2 (the middle)",
+          "3 (the last pushed)",
+          "Nothing — the stack is empty"
+        ],
+        "correct": 2,
+        "explanation": "After pushing 1, 2, 3 — the stack (top to bottom) is [3, 2, 1]. Pop removes from the top, so you get 3. The stack is now [2, 1]. LIFO in action: the last thing pushed (3) is the first thing popped."
+      },
+      {
+        "id": "e3",
+        "type": "code_pick",
+        "question": "Which correctly implements push and pop using a Python list as a stack?",
+        "context": "stack = []\n# Push 5, then pop it",
+        "options": [
+          "stack.insert(0, 5)\nstack.pop(0)",
+          "stack.append(5)\nstack.pop()",
+          "stack.push(5)\nstack.pop()",
+          "stack.add(5)\nstack.remove()"
+        ],
+        "correct": 1,
+        "explanation": "stack.append(5) adds to the END of the list (top of stack) — O(1). stack.pop() removes from the END — O(1). Using insert(0) and pop(0) would work but they're O(n) because everything shifts. Python lists used with append/pop are efficient O(1) stacks."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "You call function A, which calls function B, which calls function C.\nC finishes first, then B, then A.\n\nWhich data structure does Python use internally to track these function calls?",
+        "options": [
+          "A queue — first called, first returned",
+          "A hash map — functions are stored by name",
+          "A stack — last called, first returned",
+          "An array — indexed by function name"
+        ],
+        "correct": 2,
+        "explanation": "Python's call stack is literally a stack. When you call a function, Python pushes a stack frame (containing local variables, return address). When the function returns, that frame is popped. This is why recursion without a base case causes a 'stack overflow' — too many frames pushed."
+      }
+    ]
+  },
+  {
+    "id": "lesson-valid-parentheses",
+    "topic_id": "t5",
+    "slug": "valid-parentheses",
+    "title": "Valid Parentheses: Stack in Action",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 35,
+    "description": "A classic interview problem that perfectly demonstrates when to use a stack. Learn the pattern, not just the answer.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Valid Parentheses: Given a string like '([{}])', determine if every opening bracket has a matching closing bracket in the right order.\n\n'([{}])' → valid\n'([)]'   → INVALID (wrong order)\n'{[]}'   → valid\n\nWhich is invalid?",
+        "options": [
+          "'{()}'",
+          "'()[]{}'",
+          "'(]'",
+          "'((()))'"
+        ],
+        "correct": 2,
+        "explanation": "'(]' is invalid — '(' expects to close with ')', but we see ']' instead. The brackets must be properly nested and matched. This is harder than just counting — '([)]' has equal counts but wrong ordering."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Why is a STACK the perfect data structure for this problem?\n\nThink about what happens as you read '([{':\n• See '(' → need ')' to close it later\n• See '[' → need ']' to close it later  \n• See '{' → need '}' to close it FIRST (innermost must close first)",
+        "options": [
+          "Because we need random access to any bracket",
+          "Because the most recently opened bracket must close first — exactly LIFO",
+          "Because we need to sort the brackets",
+          "Stacks aren't useful here — use a counter instead"
+        ],
+        "correct": 1,
+        "explanation": "LIFO perfectly matches bracket rules: the most recently opened bracket must be the next one closed. When you see '}', you check: was the LAST opened bracket a '{'? If yes, close it (pop). If no, it's invalid. The stack naturally tracks 'what needs to close next'."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Complete the logic — when you see a closing bracket, check the stack:",
+        "code_lines": [
+          "pairs = {')': '(', ']': '[', '}': '{'}",
+          "stack = []",
+          "for char in s:",
+          "    if char in '([{':",
+          "        stack.append(char)",
+          "    elif not stack or stack[-1] != pairs[___]:",
+          "        return False",
+          "    else:",
+          "        stack.pop()"
+        ],
+        "blank_index": 5,
+        "blank_placeholder": "___",
+        "options": ["char", "stack[-1]", "s", "pairs"],
+        "correct": 0,
+        "explanation": "pairs[char] gives the expected opening bracket for this closing bracket. For char='}', pairs['}'] = '{'. We check: is the top of the stack (stack[-1]) equal to the expected opening bracket? If not, it's invalid. If yes, pop it — the pair is matched."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "After processing all characters, what should be true about the stack for the string to be valid?",
+        "options": [
+          "The stack should have exactly one element",
+          "The stack should be empty — every opening bracket was matched",
+          "The stack should contain only '(' characters",
+          "The stack length doesn't matter"
+        ],
+        "correct": 1,
+        "explanation": "An empty stack means every opening bracket found its matching closing bracket and was popped. If the stack isn't empty, some opening brackets were never closed — invalid. The final check: return len(stack) == 0 (or equivalently, return not stack)."
+      }
+    ]
+  },
+  {
+    "id": "lesson-queue-intro",
+    "topic_id": "t5",
+    "slug": "queue-the-idea",
+    "title": "Queue: First In, First Out",
+    "category": "dsa",
+    "level": 3,
+    "xp_reward": 25,
+    "description": "Queues are the opposite of stacks. FIFO — the first item in is the first item out. Critical for BFS and level-order processing.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "A queue at a cinema: first person in line gets their ticket first.\n\nThis is FIFO. What does FIFO stand for?",
+        "options": [
+          "First Index, First Output",
+          "First In, First Out",
+          "Final Insert, First Output",
+          "Fastest Input, First Output"
+        ],
+        "correct": 1,
+        "explanation": "First In, First Out — the first item added is the first one removed. Real examples: print queue (first document sent = first printed), customer service calls, BFS (graph traversal), and level-order tree traversal."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Queue operations:\n• ENQUEUE: add to the BACK\n• DEQUEUE: remove from the FRONT\n\nYou enqueue 1, enqueue 2, enqueue 3, then dequeue. What do you get?",
+        "options": [
+          "3 (last added)",
+          "2 (middle)",
+          "1 (first added)",
+          "Nothing"
+        ],
+        "correct": 2,
+        "explanation": "Queue (front → back): 1, 2, 3. Dequeue removes from the front → 1. FIFO: the first item added is the first removed. Unlike a stack which gave you 3 (last added), a queue gives you 1 (first added)."
+      },
+      {
+        "id": "e3",
+        "type": "code_pick",
+        "question": "Why should you use collections.deque instead of a list for a queue?",
+        "context": "from collections import deque\nqueue = deque()\nqueue.append(1)      # enqueue\nqueue.popleft()      # dequeue",
+        "options": [
+          "deque is newer and looks better",
+          "list.pop(0) is O(n) — it shifts all elements. deque.popleft() is O(1).",
+          "deque uses less memory than a list",
+          "Lists can't store queue data"
+        ],
+        "correct": 1,
+        "explanation": "list.pop(0) removes the first element but shifts ALL other elements left — O(n). deque (double-ended queue) is implemented as a doubly linked list. popleft() just updates the head pointer — O(1). For queues, always use deque. For stacks, a list is fine since you pop from the end."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "When would you use a QUEUE instead of a STACK?",
+        "options": [
+          "When implementing undo/redo",
+          "When processing function calls",
+          "When you need to process things in the ORDER they arrived (BFS, level-by-level tree traversal)",
+          "When you need O(1) access to any element"
+        ],
+        "correct": 2,
+        "explanation": "Use a queue when ORDER of arrival matters. Classic cases: BFS (visit neighbors level by level), web server request handling, print spooler. Use a stack when you need LIFO: DFS, undo/redo, expression evaluation, function call tracking."
+      }
+    ]
+  },
+  {
+    "id": "lesson-trees-intro",
+    "topic_id": "t6",
+    "slug": "trees-what-and-why",
+    "title": "Trees: The Big Picture",
+    "category": "dsa",
+    "level": 1,
+    "xp_reward": 20,
+    "description": "Trees are everywhere — your file system, HTML, databases. Learn the terminology and why trees are more powerful than lists.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Your phone's file system:\n\n📁 Documents\n  📁 Work\n    📄 report.pdf\n  📁 Personal\n    📄 photo.jpg\n\nThis is a tree structure. What is the TOP-LEVEL folder called?",
+        "options": [
+          "A leaf",
+          "A child",
+          "The root",
+          "A branch"
+        ],
+        "correct": 2,
+        "explanation": "The topmost node is the ROOT — it has no parent. Every other node has exactly one parent. Nodes at the bottom with no children are LEAVES. The file system, HTML DOM, and company org charts are all trees. Trees are everywhere in software."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Match the tree terms:\n\n• ROOT: the top node (no parent)\n• LEAF: a node with NO children\n• PARENT: a node directly above another\n• CHILD: a node directly below another\n\nIn the tree: A → B → D\n                     → E\n              → C\n\nWhich nodes are LEAVES?",
+        "options": [
+          "A only",
+          "B and C only",
+          "D, E, and C",
+          "All nodes"
+        ],
+        "correct": 2,
+        "explanation": "D, E, and C are leaves — they have no children. A is the root. B and C are children of A. D and E are children of B. 'Leaf' just means no children — it doesn't matter how deep in the tree the node is."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Why are trees better than linked lists for storing sorted data?\n\nLinked list search: must scan from head, one by one.\nBST (binary search tree) search: at each node, go left or right — ELIMINATE half the remaining options.\n\nFor 1000 items, how many steps does BST search take at most?",
+        "options": [
+          "1000 steps (same as linked list)",
+          "About 10 steps (log₂ 1000 ≈ 10)",
+          "2 steps",
+          "500 steps (half of 1000)"
+        ],
+        "correct": 1,
+        "explanation": "log₂(1000) ≈ 10. A balanced BST with 1000 nodes has a height of about 10. Each comparison eliminates half the remaining nodes. This is O(log n) search — exponentially faster than a linked list's O(n). This is why databases use tree structures (B-trees) for indexes."
+      },
+      {
+        "id": "e4",
+        "type": "code_pick",
+        "question": "Which correctly defines a binary tree node in Python?",
+        "context": "A binary tree node holds a value and has at most 2 children: left and right.",
+        "options": [
+          "class Node:\n    def __init__(self, val):\n        self.val = val\n        self.children = []",
+          "class TreeNode:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None",
+          "node = {'val': 0, 'left': None}",
+          "class TreeNode:\n    val = 0\n    next = None"
+        ],
+        "correct": 1,
+        "explanation": "TreeNode with self.val, self.left, self.right is the standard definition used in virtually every tree interview problem on LeetCode and in interviews. self.left and self.right start as None (no children yet). You build the tree by assigning: node.left = TreeNode(value)."
+      }
+    ]
+  },
+  {
+    "id": "lesson-trees-traversal",
+    "topic_id": "t6",
+    "slug": "tree-traversals",
+    "title": "Tree Traversals: DFS",
+    "category": "dsa",
+    "level": 2,
+    "xp_reward": 35,
+    "description": "To process every node in a tree, you need a traversal strategy. Learn the three DFS orders and when each is useful.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "There are 3 depth-first traversal orders. For this tree:\n\n      1\n     / \\\n    2   3\n   / \\\n  4   5\n\nIn-order (Left → Root → Right) visits nodes in what order?",
+        "options": [
+          "1, 2, 3, 4, 5",
+          "4, 2, 5, 1, 3",
+          "4, 5, 2, 3, 1",
+          "1, 2, 4, 5, 3"
+        ],
+        "correct": 1,
+        "explanation": "In-order: Left, Root, Right. Start at root (1), go left to 2, go left to 4 (leaf → visit 4), back to 2 (visit 2), go right to 5 (visit 5), back to 1 (visit 1), go right to 3 (visit 3). Order: 4, 2, 5, 1, 3. For a BST, in-order traversal gives you SORTED output."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Pre-order traversal (Root → Left → Right) on the same tree:\n\n      1\n     / \\\n    2   3\n   / \\\n  4   5\n\nWhat order do you visit nodes?",
+        "options": [
+          "4, 2, 5, 1, 3",
+          "1, 2, 4, 5, 3",
+          "4, 5, 2, 3, 1",
+          "3, 1, 5, 2, 4"
+        ],
+        "correct": 1,
+        "explanation": "Pre-order: Root first, then Left, then Right. Visit 1 (root), go left → visit 2, go left → visit 4 (leaf), backtrack, go right → visit 5 (leaf), backtrack → go right from 1 → visit 3. Order: 1, 2, 4, 5, 3. Pre-order is used to COPY a tree — you process a node before its children."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Complete the in-order traversal function:",
+        "code_lines": [
+          "def inorder(root):",
+          "    if root is None:",
+          "        return",
+          "    inorder(root.___)   # go left first",
+          "    print(root.val)     # visit root",
+          "    inorder(root.right) # go right"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["left", "right", "val", "next"],
+        "correct": 0,
+        "explanation": "inorder(root.left) recurses into the left subtree first. Then we visit the current node (print). Then inorder(root.right) processes the right subtree. The base case 'if root is None: return' stops recursion at leaf nodes. This is the standard recursive DFS pattern."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "When would you use POST-ORDER traversal (Left → Right → Root)?",
+        "options": [
+          "When you want sorted output from a BST",
+          "When copying a tree structure",
+          "When deleting a tree — you must delete children before parents",
+          "When doing BFS level-by-level"
+        ],
+        "correct": 2,
+        "explanation": "Post-order processes children BEFORE the parent. This is essential for deletion (can't delete a parent if children are still attached) and for computing subtree sizes/heights (you need child results before processing the parent). Also useful for evaluating expression trees."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bst-search",
+    "topic_id": "t6",
+    "slug": "bst-search",
+    "title": "Binary Search Tree: Ordered Trees",
+    "category": "dsa",
+    "level": 3,
+    "xp_reward": 40,
+    "description": "A BST is a binary tree with an ordering rule: left < root < right. This simple rule enables O(log n) search.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "A BST has one rule: for EVERY node, all values in its LEFT subtree are SMALLER, and all values in its RIGHT subtree are LARGER.\n\nIs this a valid BST?\n\n     5\n    / \\\n   3   8\n  / \\\n 1   4",
+        "options": [
+          "No — 3 is less than 5 so it's on the wrong side",
+          "Yes — every node satisfies left < node < right",
+          "No — 8 should be on the left",
+          "No — all leaf nodes must have equal values"
+        ],
+        "correct": 1,
+        "explanation": "Check every node: 5's left subtree has {3,1,4} — all < 5 ✓. 5's right has {8} — all > 5 ✓. 3's left has {1} — all < 3 ✓. 3's right has {4} — all > 3 ✓. All nodes satisfy the BST property. Valid BST."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "You're searching for 4 in this BST:\n\n     5\n    / \\\n   3   8\n  / \\\n 1   4\n\nStep 1: 4 < 5, go LEFT to 3\nStep 2: 4 > 3, go RIGHT to 4\nStep 3: 4 == 4, FOUND!\n\nHow many comparisons did that take?",
+        "options": [
+          "5 comparisons (checked all nodes)",
+          "3 comparisons",
+          "1 comparison",
+          "10 comparisons"
+        ],
+        "correct": 1,
+        "explanation": "Only 3 comparisons to find 4 in a tree of 5 nodes. In a balanced BST, each comparison eliminates half the remaining nodes — O(log n). This is the power of BSTs: searching in a sorted linked list would require checking 1, 3, 4 — which happens to also be 3, but in a larger tree the difference is dramatic."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Complete the BST search — go left if target is smaller, right if larger:",
+        "code_lines": [
+          "def search(root, target):",
+          "    if root is None:",
+          "        return False",
+          "    if target == root.val:",
+          "        return True",
+          "    if target < root.val:",
+          "        return search(root.___, target)",
+          "    return search(root.right, target)"
+        ],
+        "blank_index": 5,
+        "blank_placeholder": "___",
+        "options": ["left", "right", "val", "parent"],
+        "correct": 0,
+        "explanation": "If target < root.val, the target can only be in the LEFT subtree (BST property: left subtree has smaller values). So we recurse into root.left. If target > root.val, we recurse right. This binary decision at every step is what gives us O(log n) search on a balanced BST."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "A BST can become UNBALANCED. If you insert values 1, 2, 3, 4, 5 in order, the tree becomes:\n\n1\n \\\n  2\n   \\\n    3\n     \\\n      4\n       \\\n        5\n\nWhat is the search complexity for this 'tree'?",
+        "options": [
+          "Still O(log n) — it's still a BST",
+          "O(n) — it degenerates into a linked list",
+          "O(1) — BSTs are always fast",
+          "O(n²)"
+        ],
+        "correct": 1,
+        "explanation": "An unbalanced BST degenerates into a linked list — O(n) search. This is why self-balancing trees (AVL, Red-Black) exist: they automatically rebalance after insertions/deletions to maintain O(log n). In interviews, balanced BST means O(log n). This is also why you should never insert sorted data into a naive BST."
+      }
+    ]
+  },
+  {
+    "id": "lesson-recursion-concept-placeholder",
+    "topic_id": "t3",
+    "slug": "recursion-the-idea-old",
+    "title": "Recursion: Call Stack Depth",
+    "category": "dsa",
+    "level": 3,
+    "xp_reward": 30,
+    "description": "Understand how the call stack works with recursion, and what determines how deep you can go.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "When a recursive function calls itself, Python creates a new 'stack frame' for each call containing local variables and where to return to.\n\nFor factorial(5), Python creates stack frames for:\nfactorial(5) → factorial(4) → factorial(3) → factorial(2) → factorial(1) → factorial(0)\n\nHow many stack frames are created?",
+        "options": [
+          "1 frame (the original call)",
+          "5 frames",
+          "6 frames (5, 4, 3, 2, 1, 0)",
+          "25 frames"
+        ],
+        "correct": 2,
+        "explanation": "6 frames: one for factorial(5), factorial(4), factorial(3), factorial(2), factorial(1), and factorial(0). Python's default recursion limit is 1000. For problems requiring deeper recursion, you'd use sys.setrecursionlimit() — or better, convert to an iterative approach using an explicit stack."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "After factorial(0) returns 1, what happens next?",
+        "options": [
+          "The program ends",
+          "Python pops frames and multiplies backward: factorial(1)=1×1=1, factorial(2)=2×1=2, factorial(3)=3×2=6...",
+          "It starts over from factorial(5)",
+          "The result is stored and all frames are discarded"
+        ],
+        "correct": 1,
+        "explanation": "This is called 'unwinding the stack'. factorial(0) returns 1 to factorial(1), which computes 1×1=1 and returns to factorial(2), which computes 2×1=2 and returns to factorial(3) — and so on until factorial(5) computes 5×24=120 and returns the final answer. Each frame completes as the stack unwinds."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Which is generally more memory-efficient for large inputs: recursion or iteration?",
+        "options": [
+          "Recursion — it's cleaner so Python optimizes it",
+          "They're always identical in memory usage",
+          "Iteration — it uses O(1) stack space vs recursion's O(n) call stack frames",
+          "Recursion — it only needs one stack frame"
+        ],
+        "correct": 2,
+        "explanation": "An iterative loop uses O(1) space — the same variables are reused each iteration. Recursion creates a new stack frame per call — O(n) space for n-deep recursion (like factorial). For large inputs, iterative solutions avoid stack overflow. In interviews, knowing this trade-off shows depth."
+      }
+    ]
+  },
+  {
+    "id": "lesson-bigo-concept",
+    "topic_id": "cs1",
+    "slug": "big-o-the-idea",
+    "title": "Big O: Why It Matters",
+    "category": "cs-fundamentals",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "Every interviewer will ask about time complexity. Build the intuition for Big O from everyday examples — before any math.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "You have 1000 contacts on your phone. You're looking for 'Zara'.\n\nMethod A: Scan from the top one by one.\nMethod B: Jump straight to the 'Z' section.\n\nIf the list doubles to 2000 contacts, which method gets twice as slow?",
+        "options": [
+          "Both get twice as slow",
+          "Method A — it has to scan more names. Method B stays fast.",
+          "Method B — more sections to check",
+          "Neither — phones are fast enough"
+        ],
+        "correct": 1,
+        "explanation": "Method A (linear scan) doubles in time when the list doubles. That's O(n) — time grows proportionally with input. Method B (jumping to the right section) stays roughly constant. Big O measures how time SCALES as input grows — not the exact speed."
+      },
+      {
+        "id": "e2",
+        "type": "code_pick",
+        "question": "What is the Big O of this function?",
+        "context": "def get_first(items):\n    return items[0]",
+        "options": [
+          "O(n)",
+          "O(n²)",
+          "O(1)",
+          "O(log n)"
+        ],
+        "correct": 2,
+        "explanation": "O(1) — constant time. No matter how large the list is, we always access the first element. 10 items? One operation. 10 million items? Still one operation. The input size doesn't affect the runtime at all."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Two nested loops, each running n times. What is the total number of operations?",
+        "options": [
+          "2n operations",
+          "n + n = 2n",
+          "n × n = n²",
+          "n!"
+        ],
+        "correct": 2,
+        "explanation": "The outer loop runs n times. For EACH of those n times, the inner loop runs n times. Total: n × n = n². If n=100 → 10,000 operations. If n=1000 → 1,000,000. Nested loops are a performance red flag. Always ask: can I eliminate the inner loop?"
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "Rank these from FASTEST to SLOWEST for large n:",
+        "options": [
+          "O(1) → O(log n) → O(n) → O(n²)",
+          "O(n²) → O(n) → O(log n) → O(1)",
+          "O(n) → O(log n) → O(1) → O(n²)",
+          "They're all the same"
+        ],
+        "correct": 0,
+        "explanation": "Fastest to slowest: O(1) constant → O(log n) logarithmic → O(n) linear → O(n²) quadratic. For n=1000: O(1)=1, O(log n)≈10, O(n)=1000, O(n²)=1,000,000. In interviews, O(n) or better is usually the goal. O(n²) often means 'find a better approach'."
+      }
+    ]
+  },
+  {
+    "id": "lesson-python-lists",
+    "topic_id": "p1",
+    "slug": "python-lists-core",
+    "title": "Python Lists: What You Need",
+    "category": "python",
+    "level": 1,
+    "xp_reward": 25,
+    "description": "The list operations you will actually use in every Python interview.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "code_pick",
+        "question": "Which creates a list with 5 zeros — the Pythonic way?",
+        "context": "You need to initialize a result array of size n.",
+        "options": [
+          "zeros = [0, 0, 0, 0, 0]",
+          "zeros = [0] * 5",
+          "zeros = list.fill(0, 5)",
+          "zeros = Array(5).fill(0)"
+        ],
+        "correct": 1,
+        "explanation": "[0] * 5 creates [0, 0, 0, 0, 0]. This works with any value: [None] * n, [False] * n. It's the standard way to pre-allocate a list in Python."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "nums = [10, 20, 30, 40, 50]\n\nWhat does nums[-1] return?",
+        "options": [
+          "Error — negative indices don't exist",
+          "10 (first element)",
+          "50 (last element)",
+          "None"
+        ],
+        "correct": 2,
+        "explanation": "Negative indices count from the end. nums[-1] = 50 (last), nums[-2] = 40, nums[-3] = 30. Much cleaner than nums[len(nums)-1]."
+      },
+      {
+        "id": "e3",
+        "type": "fill_blank",
+        "question": "Append to end, then remove the last element:",
+        "code_lines": [
+          "stack = []",
+          "stack.___(42)    # add 42",
+          "val = stack.___()  # remove and return last"
+        ],
+        "blank_index": 1,
+        "blank_placeholder": "___",
+        "options": ["append", "push", "add", "insert"],
+        "correct": 0,
+        "explanation": "stack.append(42) adds to the end — O(1). stack.pop() removes and returns the last element — O(1). These two make a list behave as an efficient stack."
+      },
+      {
+        "id": "e4",
+        "type": "code_pick",
+        "question": "Which creates [1, 4, 9, 16, 25] in one line?",
+        "context": "Squares of numbers 1 through 5.",
+        "options": [
+          "[x^2 for x in range(1, 6)]",
+          "[x**2 for x in range(1, 6)]",
+          "[x*x for x in range(5)]",
+          "[pow(x) for x in range(1, 6)]"
+        ],
+        "correct": 1,
+        "explanation": "[x**2 for x in range(1, 6)] → [1, 4, 9, 16, 25]. ** is Python's power operator. ^ is bitwise XOR (common mistake). range(1, 6) gives 1–5 — the upper bound is exclusive."
+      }
+    ]
+  },
+  {
+    "id": "lesson-binary-search-intro",
+    "topic_id": "t1",
+    "slug": "binary-search-intro",
+    "title": "Binary Search: Half and Half",
+    "category": "dsa",
+    "level": 5,
+    "xp_reward": 30,
+    "description": "The dictionary trick — eliminate half the options every step. Build the intuition before touching code.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "You want to find a word in a physical dictionary.\n\nMethod A: Start from page 1, flip page by page until you find it.\nMethod B: Open the middle. If your word comes before, look in the left half. If after, look in the right half. Repeat.\n\nMethod B is binary search. For a 1000-page dictionary, what is the MAXIMUM number of page-opens Method B needs?",
+        "options": [
+          "1000 (same as Method A in the worst case)",
+          "500 (half the pages)",
+          "About 10 (log2 of 1000 is roughly 10)",
+          "2 (just open middle twice)"
+        ],
+        "correct": 2,
+        "explanation": "log2(1000) is about 10. Each step cuts the remaining pages in half: 1000 -> 500 -> 250 -> 125 -> 63 -> 32 -> 16 -> 8 -> 4 -> 2 -> 1. That is at most 10 steps for 1000 pages. This is O(log n) vs O(n) for page-by-page. For 1 billion items: Method A needs 1 billion steps, binary search needs only 30."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Binary search requires ONE critical condition. Without it, the algorithm breaks completely.\n\nWhat is that condition?",
+        "options": [
+          "The array must have an even number of elements",
+          "The array must be SORTED",
+          "The array must contain only integers",
+          "The array must have no duplicates"
+        ],
+        "correct": 1,
+        "explanation": "The array MUST be sorted. Binary search works by comparing the target to the middle element and deciding which HALF to continue in. If the array is unsorted, the decision 'go left or go right' is meaningless — you could easily eliminate the half containing the answer. Always check: is it sorted? If not, sort first or use a different approach."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "Searching for 7 in [1, 3, 5, 7, 9, 11, 13].\n\nStep 1: left=0, right=6, mid = (0+6)//2 = 3, nums[3] = 7\n\nWhat do we do at step 1?",
+        "options": [
+          "7 < nums[3], so search the left half",
+          "7 > nums[3], so search the right half",
+          "7 == nums[3], return index 3 immediately",
+          "Move left pointer to mid+1 and continue"
+        ],
+        "correct": 2,
+        "explanation": "nums[3] = 7 equals our target. We found it on the first try and return index 3 immediately. Best case for binary search is O(1) — the middle element is the target. Worst case is O(log n). Average case is also O(log n)."
+      },
+      {
+        "id": "e4",
+        "type": "fill_blank",
+        "question": "Complete binary search — update pointers after comparing to mid:",
+        "code_lines": [
+          "def binary_search(nums, target):",
+          "    left, right = 0, len(nums) - 1",
+          "    while left <= right:",
+          "        mid = (left + right) // 2",
+          "        if nums[mid] == target:",
+          "            return mid",
+          "        elif nums[mid] < target:",
+          "            left = ___ + 1",
+          "        else:",
+          "            right = mid - 1",
+          "    return -1"
+        ],
+        "blank_index": 7,
+        "blank_placeholder": "___",
+        "options": ["mid", "left", "right", "0"],
+        "correct": 0,
+        "explanation": "left = mid + 1. If nums[mid] is less than target, the target must be in the RIGHT half (indices mid+1 to right). So we move left up past mid. Similarly, right = mid - 1 moves right down past mid when target is in the left half. The loop ends when left > right, meaning the target is not in the array."
+      },
+      {
+        "id": "e5",
+        "type": "mcq",
+        "question": "Why do we use mid = (left + right) // 2 and not mid = (left + right) / 2?",
+        "options": [
+          "// is faster than /",
+          "// gives an integer index. / gives a float which cannot be used as an array index.",
+          "They give the same result",
+          "/ would cause the loop to run forever"
+        ],
+        "correct": 1,
+        "explanation": "Array indices must be integers. (left + right) / 2 gives a float like 3.5, which Python would raise a TypeError on when used as an index. (left + right) // 2 is integer (floor) division, always giving a whole number. In languages like Java and C++, there is also an overflow risk with large values: use mid = left + (right - left) // 2 to be safe."
+      }
+    ]
+  },
+  {
+    "id": "lesson-binary-search-apply",
+    "topic_id": "t1",
+    "slug": "binary-search-applied",
+    "title": "Binary Search: Beyond Simple Search",
+    "category": "dsa",
+    "level": 6,
+    "xp_reward": 35,
+    "description": "Binary search is not just for finding a number. It is a thinking pattern. Use it to find insertion points and search unknown spaces.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "Search Insert Position: given sorted [1, 3, 5, 6] and target = 4, return the index where 4 would be inserted to keep it sorted.\n\nAnswer: 2 (between 3 and 5).\n\nAfter binary search ends without finding 4, what does the LEFT pointer point to?",
+        "options": [
+          "The element just before the insertion point",
+          "The correct insertion index — exactly where the target should go",
+          "Always index 0",
+          "The last element"
+        ],
+        "correct": 1,
+        "explanation": "When binary search ends (left > right) without finding the target, the left pointer is always sitting at the exact position where the target would be inserted. This is a universal property of binary search. So for search-insert problems: just run binary search and return left at the end instead of -1."
+      },
+      {
+        "id": "e2",
+        "type": "fill_blank",
+        "question": "Search Insert Position — return left instead of -1 when not found:",
+        "code_lines": [
+          "def search_insert(nums, target):",
+          "    left, right = 0, len(nums) - 1",
+          "    while left <= right:",
+          "        mid = (left + right) // 2",
+          "        if nums[mid] == target:",
+          "            return mid",
+          "        elif nums[mid] < target:",
+          "            left = mid + 1",
+          "        else:",
+          "            right = mid - 1",
+          "    return ___"
+        ],
+        "blank_index": 10,
+        "blank_placeholder": "___",
+        "options": ["left", "right", "-1", "mid"],
+        "correct": 0,
+        "explanation": "return left. When the loop ends, left is the insertion point. Run it on [1,3,5,6], target=4: left=0,right=3 -> mid=1, nums[1]=3 < 4 -> left=2. mid=2, nums[2]=5 > 4 -> right=1. Loop ends (left=2 > right=1). Return left=2. Correct."
+      },
+      {
+        "id": "e3",
+        "type": "mcq",
+        "question": "The REAL power of binary search: you can use it on any problem where:\n\n- Answers exist on a spectrum (like a number line)\n- You can check if a given answer is 'too small' or 'too big'\n\nExample: 'What is the minimum speed to finish eating bananas in H hours?'\n\nThis is called searching on the ANSWER SPACE. What does this mean?",
+        "options": [
+          "Sort the bananas and binary search the pile",
+          "Instead of searching the input array, binary search over the range of possible ANSWERS",
+          "Use two pointers instead of binary search",
+          "This problem cannot use binary search"
+        ],
+        "correct": 1,
+        "explanation": "Answer-space binary search: define a range of possible answers (e.g., speed from 1 to max). For each candidate answer (mid), write a check function: 'is this speed fast enough?' If yes, try smaller (right=mid-1). If no, try bigger (left=mid+1). This pattern solves a huge class of problems that do not look like search problems at first."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "Which of these problems can be solved with binary search?\n\n1. Find a number in a sorted array\n2. Find the minimum capacity to ship packages in D days\n3. Find the square root of a number (integer part)\n4. All of the above",
+        "options": [
+          "Only problem 1",
+          "Problems 1 and 3",
+          "All of the above",
+          "None — binary search only works on phone books"
+        ],
+        "correct": 2,
+        "explanation": "All three use binary search. 1 is the classic case. 2 is answer-space binary search: search over possible capacities, check if that capacity works. 3 is also answer-space: search over possible square roots from 1 to n, find the largest x where x*x <= n. Any problem where you can binary-decide 'too small or too big' can use binary search."
+      }
+    ]
+  },
+  {
+    "id": "lesson-tree-bfs",
+    "topic_id": "t6",
+    "slug": "tree-bfs-level-order",
+    "title": "Tree BFS: Level by Level",
+    "category": "dsa",
+    "level": 4,
+    "xp_reward": 35,
+    "description": "DFS goes deep first. BFS goes wide — visiting every node level by level using a queue. A completely different way to explore a tree.",
+    "exercises": [
+      {
+        "id": "e1",
+        "type": "mcq",
+        "question": "For this tree:\n      1\n     / \\\n    2   3\n   / \\\n  4   5\n\nDFS (in-order) visits: 4, 2, 5, 1, 3\nBFS (level order) visits in what order?",
+        "options": [
+          "4, 2, 5, 1, 3 (same as DFS)",
+          "1, 2, 3, 4, 5 (level by level, left to right)",
+          "1, 3, 2, 5, 4 (level by level, right to left)",
+          "4, 5, 2, 3, 1 (bottom up)"
+        ],
+        "correct": 1,
+        "explanation": "BFS visits level by level: Level 0: [1]. Level 1: [2, 3]. Level 2: [4, 5]. Reading left to right at each level: 1, 2, 3, 4, 5. This is level-order traversal. It is useful for finding the shortest path, the minimum depth, or processing nodes by their depth."
+      },
+      {
+        "id": "e2",
+        "type": "mcq",
+        "question": "Why does BFS use a QUEUE while DFS uses a STACK (or recursion)?\n\nBFS visits nodes in the order they are discovered.\nQueues are FIFO — first discovered, first processed.\n\nIf you use a stack instead of a queue in BFS, what happens?",
+        "options": [
+          "Nothing changes — they both work the same",
+          "You get DFS instead of BFS — the traversal goes deep instead of wide",
+          "The tree gets sorted",
+          "You get an error"
+        ],
+        "correct": 1,
+        "explanation": "A stack gives LIFO — you would process the most recently added node first, diving deep down one branch before the others. That is DFS. A queue gives FIFO — you process nodes in discovery order, so all nodes at depth 1 are processed before any node at depth 2. The choice of queue vs stack is literally what makes the difference between BFS and DFS."
+      },
+      {
+        "id": "e3",
+        "type": "arrange",
+        "question": "Order the BFS level-order traversal:",
+        "blocks": [
+          "from collections import deque",
+          "def level_order(root):",
+          "    if not root: return []",
+          "    result, queue = [], deque([root])",
+          "    while queue:",
+          "        level = []",
+          "        for _ in range(len(queue)):",
+          "            node = queue.popleft()",
+          "            level.append(node.val)",
+          "            if node.left: queue.append(node.left)",
+          "            if node.right: queue.append(node.right)",
+          "        result.append(level)",
+          "    return result"
+        ],
+        "correct_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "explanation": "The key trick: for _ in range(len(queue)) processes exactly the nodes at the CURRENT level (snapshot of queue size before adding children). Children added during this loop go into the queue but are NOT processed until the next iteration of the while loop — which becomes the next level."
+      },
+      {
+        "id": "e4",
+        "type": "mcq",
+        "question": "You want to find the MINIMUM DEPTH of a tree — the fewest nodes from root to the nearest leaf.\n\nWhich traversal is better: DFS or BFS?",
+        "options": [
+          "DFS — it goes all the way to the deepest leaf first",
+          "BFS — it finds the nearest leaf first and can stop immediately",
+          "Both are equally good",
+          "Neither — you need a special algorithm"
+        ],
+        "correct": 1,
+        "explanation": "BFS is better here. Since BFS visits level by level, the FIRST leaf it encounters is guaranteed to be the closest to the root. It can return immediately without exploring the rest of the tree. DFS would have to visit every path to every leaf and track the minimum — potentially much more work."
+      },
+      {
+        "id": "e5",
+        "type": "fill_blank",
+        "question": "Complete BFS — after popping a node, add its children to the queue:",
+        "code_lines": [
+          "node = queue.popleft()",
+          "level.append(node.val)",
+          "if node.left:",
+          "    queue.___(node.left)",
+          "if node.right:",
+          "    queue.append(node.right)"
+        ],
+        "blank_index": 3,
+        "blank_placeholder": "___",
+        "options": ["append", "push", "insert", "add"],
+        "correct": 0,
+        "explanation": "queue.append(node.left) adds the left child to the BACK of the queue. It will be processed after all nodes already in the queue — which are all at the same level as the current node. This is exactly what makes BFS work level by level."
+      }
+    ]
+  }
+]
+
