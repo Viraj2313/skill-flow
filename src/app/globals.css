@@ -57,6 +57,12 @@
   .raised-shadow { box-shadow: 0 4px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04); }
   .sheet-shadow  { box-shadow: 0 -4px 24px rgba(0,0,0,0.07); }
 
+  .skeleton-pulse {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e8edf2 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  }
+
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -115,6 +121,11 @@
 @keyframes draw-check {
   0% { stroke-dashoffset: 100; }
   100% { stroke-dashoffset: 0; }
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
 
 *, *::before, *::after { box-sizing: border-box; }

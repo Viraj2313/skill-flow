@@ -49,6 +49,68 @@ const CAT_THEME = {
 
 const WEEK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
+function Sk({ w = '100%', h = 14, r = 8, mb = 0 }) {
+  return (
+    <div className="skeleton-pulse" style={{ width: w, height: h, borderRadius: r, marginBottom: mb, background: '#f1f5f9' }} />
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="pb-2 border-b border-slate-200/80 space-y-2">
+        <Sk w={220} h={26} />
+        <Sk w={180} h={14} />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-8 space-y-6">
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e8edf2', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            <div className="px-6 py-4 border-b border-slate-100" style={{ background: '#f8fafc' }}>
+              <Sk w={80} h={12} />
+            </div>
+            <div className="p-6 space-y-3">
+              <Sk w={'55%'} h={20} />
+              <Sk w={'88%'} h={13} />
+              <Sk w={'72%'} h={13} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1,2,3].map(i => (
+              <div key={i} className="p-4 rounded-xl" style={{ background: '#fff', border: '1px solid #e8edf2' }}>
+                <Sk w={'65%'} h={13} mb={8} />
+                <Sk w={'45%'} h={11} mb={12} />
+                <Sk h={4} r={4} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="lg:col-span-4 space-y-6">
+          <div className="p-5 rounded-xl" style={{ background: '#fff', border: '1px solid #e8edf2' }}>
+            <Sk w={70} h={11} mb={16} />
+            <div className="grid grid-cols-7 gap-1.5">
+              {Array(7).fill(0).map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-1.5">
+                  <Sk w={12} h={10} />
+                  <Sk w={32} h={32} r={8} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="p-5 rounded-xl" style={{ background: '#fff', border: '1px solid #e8edf2' }}>
+            <Sk w={100} h={11} mb={16} />
+            {[1,2,3].map(i => (
+              <div key={i} className="flex items-center justify-between py-2.5" style={{ borderBottom: i < 3 ? '1px solid #f1f5f9' : 'none' }}>
+                <Sk w={'52%'} h={13} />
+                <Sk w={'20%'} h={11} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function timeAgo(dateStr) {
   if (!dateStr) return '';
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -152,15 +214,7 @@ export default function DashboardPage() {
     });
   }, [router]);
 
-  if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <span className="material-symbols-outlined text-[32px] text-slate-400 animate-spin">
-          progress_activity
-        </span>
-      </div>
-    );
-  }
+  if (loading) return <DashboardSkeleton />;
 
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Engineer';
   const xp          = profile?.xp ?? 0;

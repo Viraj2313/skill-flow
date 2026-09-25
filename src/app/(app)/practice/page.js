@@ -108,7 +108,8 @@ export default function PracticePage() {
         {MODES.map(mode => (
           <Link key={mode.href} href={mode.href} className="block group">
             <Card
-              className="h-full overflow-hidden hover:shadow-md transition-all duration-200 border-slate-200 hover:border-slate-300"
+              className="h-full overflow-hidden"
+              style={{ transition: 'box-shadow 200ms ease, border-color 200ms ease' }}
             >
               <div className="px-5 py-4 border-b" style={{ backgroundColor: mode.bg, borderColor: mode.border }}>
                 <div className="flex items-center gap-2.5">

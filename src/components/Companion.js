@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-/* ─────────────────────── Topic detection ────────────────────────── */
+/* ─── Topic detection ─── */
 const PATH_MAP = [
   ['/practice/visualizer',   'Algorithm Visualization'],
   ['/practice/patterns',     'Pattern Recognition'],
@@ -36,7 +36,7 @@ function getTopic(pathname) {
   return 'DSA & Algorithms';
 }
 
-/* ─────────────────────── Quick actions ──────────────────────────── */
+/* ─── Quick actions ─── */
 const ACTIONS = [
   {
     icon:   'quiz',
@@ -64,13 +64,14 @@ const ACTIONS = [
   },
 ];
 
-/* ─────────────────────── Typing indicator ───────────────────────── */
+/* ─── Typing dots ─── */
 function TypingDots() {
   return (
-    <div className="flex items-center gap-1 px-3.5 py-3 rounded-2xl rounded-bl-sm" style={{ background: '#1e293b', width: 56 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '10px 14px',
+      background: '#1e293b', borderRadius: '16px 16px 16px 4px', width: 52 }}>
       {[0, 1, 2].map(i => (
         <span key={i} style={{
-          width: 6, height: 6, borderRadius: '50%', background: '#475569', display: 'inline-block',
+          width: 5, height: 5, borderRadius: '50%', background: '#475569', display: 'inline-block',
           animation: `alex-dot 1.3s ease-in-out ${i * 0.22}s infinite`,
         }} />
       ))}
@@ -78,75 +79,89 @@ function TypingDots() {
   );
 }
 
-/* ─────────────────────── Message bubble ─────────────────────────── */
+/* ─── Message bubble ─── */
 function Bubble({ msg }) {
   const isUser = msg.role === 'user';
   return (
-    <div className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div style={{ display: 'flex', gap: 8, flexDirection: isUser ? 'row-reverse' : 'row' }}>
       {!isUser && (
-        <div className="w-6 h-6 rounded-lg shrink-0 flex items-center justify-center mt-0.5"
-          style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
+        <div style={{
+          width: 24, height: 24, borderRadius: 8, flexShrink: 0, marginTop: 2,
+          background: 'linear-gradient(135deg,#4f46e5,#7c3aed)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
           <span className="material-symbols-outlined filled text-white" style={{ fontSize: 13 }}>psychology</span>
         </div>
       )}
-      <div
-        className="rounded-2xl px-3.5 py-2.5"
-        style={{
-          maxWidth: '82%',
-          background:    isUser ? '#4338ca' : '#1e293b',
-          borderRadius:  isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-          fontSize:      13,
-          lineHeight:    1.55,
-          color:         '#f1f5f9',
-          whiteSpace:    'pre-wrap',
-          wordBreak:     'break-word',
-        }}
-      >
+      <div style={{
+        maxWidth: '82%',
+        background:   isUser ? '#4338ca' : '#1e293b',
+        borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+        padding:      '10px 14px',
+        fontSize:     13,
+        lineHeight:   1.55,
+        color:        '#f1f5f9',
+        whiteSpace:   'pre-wrap',
+        wordBreak:    'break-word',
+      }}>
         {msg.content}
       </div>
     </div>
   );
 }
 
-/* ─────────────────────── Main component ─────────────────────────── */
-const ANIM_CSS = `
+/* ─── Styles ─── */
+const CSS = `
 @keyframes alex-dot {
   0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
   40%          { transform: scale(1);   opacity: 1;   }
 }
-@keyframes alex-panel-in {
-  from { opacity: 0; transform: translateY(12px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+@keyframes alex-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
-@keyframes alex-btn-in {
-  from { opacity: 0; transform: scale(0.85); }
-  to   { opacity: 1; transform: scale(1);    }
+.alex-action {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: 12px; text-align: left;
+  background: #111827; border: 1px solid #1e293b; cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease;
 }
+.alex-action:hover { background: #1a2540; border-color: #334155; }
+.alex-action:disabled { opacity: 0.4; cursor: default; }
+.alex-pill {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 8px; cursor: pointer;
+  background: #111827; border: 1px solid #1e293b; flex-shrink: 0;
+  transition: color 150ms ease, border-color 150ms ease;
+  font-size: 11px; font-family: inherit; color: #64748b;
+}
+.alex-pill:hover { color: #cbd5e1; border-color: #334155; }
+.alex-pill:disabled { opacity: 0.4; cursor: default; }
 `;
 
+/* ─── Main component ─── */
 export default function Companion() {
   const pathname = usePathname();
   const topic    = getTopic(pathname);
 
-  const [open,         setOpen]         = useState(false);
-  const [messages,     setMessages]     = useState([]);
-  const [input,        setInput]        = useState('');
-  const [loading,      setLoading]      = useState(false);
-  const [userId,       setUserId]       = useState(null);
-  const [panelVisible, setPanelVisible] = useState(false);
+  const [open,       setOpen]       = useState(false);
+  const [messages,   setMessages]   = useState([]);
+  const [input,      setInput]      = useState('');
+  const [loading,    setLoading]    = useState(false);
+  const [userId,     setUserId]     = useState(null);
+  const [mounted,    setMounted]    = useState(false);
 
-  const bottomRef  = useRef(null);
-  const inputRef   = useRef(null);
+  const bottomRef    = useRef(null);
+  const inputRef     = useRef(null);
   const prevTopicRef = useRef(topic);
 
-  // Get user id for rate-limiting
   useEffect(() => {
+    setMounted(true);
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) setUserId(user.id);
     });
   }, []);
 
-  // Reset conversation on topic change
   useEffect(() => {
     if (prevTopicRef.current !== topic) {
       prevTopicRef.current = topic;
@@ -155,49 +170,31 @@ export default function Companion() {
     }
   }, [topic]);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading, open]);
 
-  // Focus input when panel opens
   useEffect(() => {
-    if (open) {
-      setPanelVisible(true);
-      setTimeout(() => inputRef.current?.focus(), 250);
-    } else {
-      setTimeout(() => setPanelVisible(false), 200);
-    }
+    if (open) setTimeout(() => inputRef.current?.focus(), 220);
   }, [open]);
 
   const send = useCallback(async (overrideText) => {
     const text = (overrideText ?? input).trim();
     if (!text || loading) return;
-
     setInput('');
-    const userMsg = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => [...prev, { role: 'user', content: text }]);
     setLoading(true);
-
     try {
-      const res = await fetch('/api/ai/companion', {
+      const res  = await fetch('/api/ai/companion', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text,
-          topic,
-          history: messages.slice(-6),
-          userId,
-        }),
+        body:    JSON.stringify({ message: text, topic, history: messages.slice(-6), userId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
     } catch (err) {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: err.message === 'Failed' ? 'Something went wrong. Try again.' : err.message,
-      }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: err.message || 'Something went wrong.' }]);
     } finally {
       setLoading(false);
     }
@@ -207,117 +204,81 @@ export default function Companion() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   }
 
-  function clearChat() {
-    setMessages([]);
-    setInput('');
-    setTimeout(() => inputRef.current?.focus(), 50);
-  }
+  if (!mounted) return null;
 
   const hasMessages = messages.length > 0;
 
   return (
     <>
-      <style>{ANIM_CSS}</style>
+      <style>{CSS}</style>
+      <div style={{ position: 'fixed', zIndex: 200, bottom: 'calc(env(safe-area-inset-bottom) + 74px)', right: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontFamily: 'Inter, sans-serif' }}>
 
-      {/* Positioned wrapper — above bottom tab on mobile, corner on desktop */}
-      <div
-        className="fixed z-[200] flex flex-col items-end"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom) + 74px)', right: 16 }}
-      >
         {/* Panel */}
-        {panelVisible && (
-          <div
-            className="flex flex-col mb-3 overflow-hidden"
-            style={{
-              width:         'min(360px, calc(100vw - 32px))',
-              height:        'clamp(380px, 55vh, 500px)',
-              background:    '#0c1220',
-              border:        '1px solid #1e293b',
-              borderRadius:  20,
-              boxShadow:     '0 32px 64px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.3)',
-              animation:     open ? 'alex-panel-in 220ms cubic-bezier(0.34,1.56,0.64,1) both' : undefined,
-              opacity:       open ? 1 : 0,
-              transform:     open ? 'none' : 'translateY(8px) scale(0.97)',
-              transition:    open ? 'none' : 'opacity 180ms ease, transform 180ms ease',
-              pointerEvents: open ? 'auto' : 'none',
-            }}
-          >
-            {/* ── Header ── */}
-            <div
-              className="flex items-center justify-between shrink-0 px-4 py-3"
-              style={{ background: '#111827', borderBottom: '1px solid #1e293b' }}
-            >
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: 'linear-gradient(145deg,#4f46e5,#7c3aed)' }}
-                >
-                  <span className="material-symbols-outlined filled text-white" style={{ fontSize: 17 }}>psychology</span>
+        {open && (
+          <div style={{
+            width: 'min(360px, calc(100vw - 32px))',
+            height: 'clamp(380px, 55vh, 500px)',
+            background: '#0c1220',
+            border: '1px solid #1e293b',
+            borderRadius: 18,
+            boxShadow: '0 24px 48px rgba(0,0,0,0.45), 0 8px 16px rgba(0,0,0,0.25)',
+            display: 'flex', flexDirection: 'column',
+            marginBottom: 10,
+            animation: 'alex-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both',
+            overflow: 'hidden',
+          }}>
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#111827', borderBottom: '1px solid #1e293b', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 30, height: 30, borderRadius: 10, background: 'linear-gradient(145deg,#4f46e5,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span className="material-symbols-outlined filled text-white" style={{ fontSize: 16 }}>psychology</span>
                 </div>
-                <div className="leading-tight">
-                  <p className="font-sans font-bold text-white" style={{ fontSize: 13.5 }}>Alex</p>
-                  <p className="font-mono" style={{ fontSize: 9.5, color: '#6366f1', letterSpacing: '0.05em' }}>
-                    STUDY COMPANION
-                  </p>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.2 }}>Alex</p>
+                  <p style={{ fontSize: 9.5, color: '#6366f1', letterSpacing: '0.06em', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', lineHeight: 1.2 }}>Study Companion</p>
                 </div>
               </div>
-
-              <div className="flex items-center gap-1.5">
-                {/* Topic chip */}
-                <span
-                  className="font-mono hidden sm:inline-block px-2 py-0.5 rounded-md"
-                  style={{ fontSize: 10, background: '#1e293b', color: '#6366f1', border: '1px solid #312e81', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 10, fontFamily: 'JetBrains Mono, monospace', background: '#1e293b', color: '#6366f1', border: '1px solid #312e81', padding: '2px 8px', borderRadius: 6, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {topic.length > 18 ? topic.slice(0, 18) + '…' : topic}
                 </span>
-
                 {hasMessages && (
-                  <button
-                    onClick={clearChat}
-                    className="flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-white/5"
-                    title="New chat"
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: 15, color: '#475569' }}>refresh</span>
+                  <button onClick={() => { setMessages([]); setInput(''); setTimeout(() => inputRef.current?.focus(), 50); }}
+                    style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: '#475569', transition: 'color 150ms ease' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#475569'}
+                    title="New chat">
+                    <span className="material-symbols-outlined" style={{ fontSize: 15 }}>refresh</span>
                   </button>
                 )}
-
-                <button
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-white/5"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 17, color: '#475569' }}>close</span>
+                <button onClick={() => setOpen(false)}
+                  style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'transparent', border: 'none', cursor: 'pointer', color: '#475569', transition: 'color 150ms ease' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#94a3b8'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#475569'}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 17 }}>close</span>
                 </button>
               </div>
             </div>
 
-            {/* ── Messages ── */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 scrollbar-hide">
+            {/* Messages */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10, scrollbarWidth: 'none' }}>
               {!hasMessages && (
-                <div className="space-y-2">
-                  {/* Welcome message */}
-                  <div className="flex gap-2">
-                    <div className="w-6 h-6 rounded-lg shrink-0 flex items-center justify-center mt-0.5"
-                      style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
-                      <span className="material-symbols-outlined filled text-white" style={{ fontSize: 13 }}>psychology</span>
-                    </div>
-                    <div className="rounded-2xl rounded-bl-sm px-3.5 py-2.5"
-                      style={{ background: '#1e293b', fontSize: 13, lineHeight: 1.55, color: '#e2e8f0' }}>
-                      <span>I'm tracking your session on </span>
-                      <span style={{ color: '#a5b4fc', fontWeight: 600 }}>{topic}</span>
-                      <span>. Ask me anything or pick a quick action.</span>
-                    </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 8, flexShrink: 0, marginTop: 2, background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="material-symbols-outlined filled text-white" style={{ fontSize: 13 }}>psychology</span>
+                  </div>
+                  <div style={{ background: '#1e293b', borderRadius: '16px 16px 16px 4px', padding: '10px 14px', fontSize: 13, lineHeight: 1.55, color: '#e2e8f0' }}>
+                    Tracking your session on{' '}
+                    <span style={{ color: '#a5b4fc', fontWeight: 600 }}>{topic}</span>
+                    . Ask me anything or pick an action below.
                   </div>
                 </div>
               )}
-
-              {messages.map((msg, i) => (
-                <Bubble key={i} msg={msg} />
-              ))}
-
+              {messages.map((msg, i) => <Bubble key={i} msg={msg} />)}
               {loading && (
-                <div className="flex gap-2">
-                  <div className="w-6 h-6 rounded-lg shrink-0 flex items-center justify-center mt-0.5"
-                    style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 8, flexShrink: 0, marginTop: 2, background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <span className="material-symbols-outlined filled text-white" style={{ fontSize: 13 }}>psychology</span>
                   </div>
                   <TypingDots />
@@ -326,100 +287,73 @@ export default function Companion() {
               <div ref={bottomRef} />
             </div>
 
-            {/* ── Quick Actions (when no messages) ── */}
+            {/* Quick actions */}
             {!hasMessages && (
-              <div className="px-4 pb-3 grid grid-cols-2 gap-1.5 shrink-0">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: '0 14px 12px', flexShrink: 0 }}>
                 {ACTIONS.map(action => (
-                  <button
-                    key={action.label}
-                    onClick={() => send(action.prompt)}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-left transition-all duration-100 active:scale-95 disabled:opacity-40"
-                    style={{ background: '#111827', border: '1px solid #1e293b' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = action.color + '55'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = '#1e293b'}
-                  >
-                    <span className="material-symbols-outlined shrink-0" style={{ fontSize: 15, color: action.color }}>{action.icon}</span>
-                    <span className="font-sans font-medium" style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.3 }}>{action.label}</span>
+                  <button key={action.label} className="alex-action" onClick={() => send(action.prompt)} disabled={loading}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: action.color, flexShrink: 0 }}>{action.icon}</span>
+                    <span style={{ fontSize: 12, color: '#cbd5e1', fontWeight: 500, lineHeight: 1.3 }}>{action.label}</span>
                   </button>
                 ))}
               </div>
             )}
 
-            {/* ── Compact action pills (after conversation started) ── */}
+            {/* Compact pills after conversation */}
             {hasMessages && !loading && (
-              <div className="px-4 pt-2 flex gap-1.5 overflow-x-auto scrollbar-hide shrink-0">
+              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '0 14px 10px', flexShrink: 0, scrollbarWidth: 'none' }}>
                 {ACTIONS.slice(0, 3).map(a => (
-                  <button
-                    key={a.label}
-                    onClick={() => send(a.prompt)}
-                    className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg transition-colors duration-100"
-                    style={{ background: '#111827', border: '1px solid #1e293b', fontSize: 11, color: '#64748b', fontFamily: 'Inter, sans-serif' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = '#334155'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#1e293b'; }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: 12, color: a.color }}>{a.icon}</span>
+                  <button key={a.label} className="alex-pill" onClick={() => send(a.prompt)} disabled={loading}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 11, color: a.color }}>{a.icon}</span>
                     {a.label}
                   </button>
                 ))}
               </div>
             )}
 
-            {/* ── Input ── */}
-            <div className="px-4 pt-2 pb-4 shrink-0">
-              <div
-                className="flex items-center gap-2 px-3 py-2 rounded-2xl"
-                style={{ background: '#111827', border: '1px solid #1e293b' }}
-              >
+            {/* Input */}
+            <div style={{ padding: '0 14px 14px', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 14, background: '#111827', border: '1px solid #1e293b' }}>
                 <input
                   ref={inputRef}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKey}
-                  placeholder={`Ask about ${topic.length > 24 ? 'this topic' : topic}…`}
                   disabled={loading}
-                  className="flex-1 bg-transparent font-sans outline-none placeholder-slate-600"
-                  style={{ fontSize: 13, color: '#f1f5f9', caretColor: '#818cf8' }}
+                  placeholder={`Ask about ${topic.length > 22 ? 'this topic' : topic}…`}
+                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: '#f1f5f9', caretColor: '#818cf8', fontFamily: 'inherit', placeholder: '#475569' }}
                 />
                 <button
                   onClick={() => send()}
                   disabled={!input.trim() || loading}
-                  className="flex items-center justify-center rounded-xl transition-all duration-150 active:scale-90 disabled:opacity-30"
-                  style={{ width: 30, height: 30, background: '#4f46e5', flexShrink: 0 }}
-                >
-                  <span className="material-symbols-outlined filled text-white" style={{ fontSize: 15 }}>arrow_upward</span>
+                  style={{ width: 28, height: 28, borderRadius: 10, background: '#4f46e5', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: (!input.trim() || loading) ? 0.35 : 1, transition: 'opacity 150ms ease' }}>
+                  <span className="material-symbols-outlined filled text-white" style={{ fontSize: 14 }}>arrow_upward</span>
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Trigger button ── */}
+        {/* Trigger button — no scale, no text change, just bg change */}
         <button
           onClick={() => setOpen(o => !o)}
-          className="flex items-center gap-2 font-sans font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95 select-none"
           style={{
-            padding:      '9px 16px 9px 12px',
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '9px 16px 9px 11px',
             borderRadius: 100,
-            background:   open
-              ? '#111827'
-              : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-            border:       open ? '1px solid #1e293b' : '1px solid transparent',
-            boxShadow:    open
-              ? 'none'
-              : '0 4px 20px rgba(79,70,229,0.5), 0 2px 8px rgba(0,0,0,0.25)',
-            fontSize:     13,
-            animation:    'alex-btn-in 400ms cubic-bezier(0.34,1.56,0.64,1) both',
+            background: open ? '#111827' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+            border: open ? '1px solid #334155' : '1px solid transparent',
+            boxShadow: open ? '0 1px 4px rgba(0,0,0,0.2)' : '0 4px 20px rgba(79,70,229,0.4), 0 2px 8px rgba(0,0,0,0.2)',
+            cursor: 'pointer',
+            fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
+            color: 'white',
+            transition: 'background 200ms ease, box-shadow 200ms ease, border-color 200ms ease',
           }}
         >
-          <span
-            className="material-symbols-outlined filled"
-            style={{ fontSize: 20, color: open ? '#475569' : 'white' }}
-          >
-            {open ? 'keyboard_arrow_down' : 'psychology'}
+          <span className="material-symbols-outlined filled" style={{ fontSize: 19, color: open ? '#6366f1' : 'white' }}>
+            psychology
           </span>
-          {!open && <span>Alex</span>}
-          {open && <span style={{ color: '#475569', fontSize: 13 }}>Close</span>}
+          <span style={{ color: open ? '#64748b' : 'white' }}>Alex</span>
         </button>
       </div>
     </>
