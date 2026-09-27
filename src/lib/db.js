@@ -85,9 +85,23 @@ export async function getUserProfile() {
     .from('user_profiles')
     .select('*')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
-  if (error) throw error;
+  if (error) return null;
+
+  // Profile missing — trigger exception handler skipped the insert.
+  // Create it now so the user can use the app immediately.
+  if (!data) {
+    const base = (user.email?.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_]/g, '');
+    const username = (base || 'user') + '_' + Date.now().toString(36).slice(-4);
+    const { data: created } = await supabase
+      .from('user_profiles')
+      .insert({ id: user.id, username, display_name: base || 'User' })
+      .select()
+      .maybeSingle();
+    return created || null;
+  }
+
   return data;
 }
 
@@ -221,8 +235,8 @@ export async function getSpeedLeaderboard(topicId, limit = 10) {
 
 export async function getLeaderboard(limit = 10) {
   const { data, error } = await supabase.rpc('get_leaderboard', { result_limit: limit });
-  if (error) throw error;
-  return data;
+  if (error) return [];
+  return data || [];
 }
 
 export async function getDailyChallenge() {
@@ -231,10 +245,10 @@ export async function getDailyChallenge() {
     .from('daily_challenges')
     .select('*, lessons(*)')
     .eq('active_date', today)
-    .single();
+    .maybeSingle();
 
   if (error) return null;
-  return data;
+  return data ?? null;
 }
 
 export async function completeLesson(lessonId, correctCount, totalCount, xpEarned) {
