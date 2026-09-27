@@ -137,6 +137,9 @@ const CSS = `
 }
 .alex-pill:hover { color: #cbd5e1; border-color: #334155; }
 .alex-pill:disabled { opacity: 0.4; cursor: default; }
+#alex-msgs { scrollbar-width: none; }
+#alex-msgs::-webkit-scrollbar { display: none; }
+#alex-input::placeholder { color: #4b5563; }
 `;
 
 /* ─── Main component ─── */
@@ -262,7 +265,7 @@ export default function Companion() {
             </div>
 
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10, scrollbarWidth: 'none' }}>
+            <div id="alex-msgs" style={{ flex: 1, overflowY: 'auto', padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               {!hasMessages && (
                 <div style={{ display: 'flex', gap: 8 }}>
                   <div style={{ width: 24, height: 24, borderRadius: 8, flexShrink: 0, marginTop: 2, background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -316,12 +319,13 @@ export default function Companion() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 14, background: '#111827', border: '1px solid #1e293b' }}>
                 <input
                   ref={inputRef}
+                  id="alex-input"
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKey}
                   disabled={loading}
                   placeholder={`Ask about ${topic.length > 22 ? 'this topic' : topic}…`}
-                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: '#f1f5f9', caretColor: '#818cf8', fontFamily: 'inherit', placeholder: '#475569' }}
+                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 13, color: '#f1f5f9', caretColor: '#818cf8', fontFamily: 'inherit' }}
                 />
                 <button
                   onClick={() => send()}
@@ -353,7 +357,7 @@ export default function Companion() {
           <span className="material-symbols-outlined filled" style={{ fontSize: 19, color: open ? '#6366f1' : 'white' }}>
             psychology
           </span>
-          <span style={{ color: open ? '#64748b' : 'white' }}>Alex</span>
+          <span style={{ color: open ? '#94a3b8' : 'white' }}>Alex</span>
         </button>
       </div>
     </>
