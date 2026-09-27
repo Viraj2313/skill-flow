@@ -51,7 +51,7 @@ export function DesktopSidebar() {
         >
           <span className="material-symbols-outlined filled text-white" style={{ fontSize: 16 }}>terminal</span>
         </div>
-        <span className="font-sans font-bold tracking-tight" style={{ fontSize: 15, color: '#0f172a' }}>AlgoQuest</span>
+        <span className="font-sans font-bold tracking-tight" style={{ fontSize: 15, color: '#0f172a' }}>SkillFlow</span>
       </div>
 
       {/* Nav */}

@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'AlgoQuest — Tech Interview Prep',
+  title: 'SkillFlow — Tech Interview Prep',
   description: 'Master DSA, Python, and CS fundamentals through daily practice. Earn XP, build streaks, and get interview-ready.',
 };
 

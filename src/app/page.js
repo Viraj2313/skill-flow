@@ -103,8 +103,8 @@ export default function LandingPage() {
         </div>
 
         <h1 className="font-sans font-bold text-[44px] md:text-[60px] leading-[1.1] text-aq-text-primary mb-5 tracking-tight">
-          Not just DSA.<br />
-          <span className="text-aq-primary">Full tech interview prep.</span>
+          Master every interview topic.<br />
+          <span className="text-aq-primary">DSA, Python &amp; CS — daily.</span>
         </h1>
 
         <p className="font-sans text-[17px] text-aq-text-secondary max-w-xl mx-auto mb-10 leading-relaxed">
