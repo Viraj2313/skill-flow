@@ -220,7 +220,7 @@ export default function EvolutionsPage() {
           From Brute Force to Optimal
         </h1>
         <p className="font-sans text-[15px] text-slate-500 leading-relaxed max-w-xl">
-          Most sites show you the answer. This shows you the <em>journey</em> — the exact moment of insight that transforms a slow solution into an elegant one.
+          Step through solutions as they evolve from brute force to optimal. Compare time and space complexity, inspect key insights, and see the intuition behind each optimization.
         </p>
       </div>
 
