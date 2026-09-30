@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
 const HIGHLIGHTS = [
-  { icon: 'account_tree', text: 'DSA, Python & CS — all in one place' },
+  { icon: 'account_tree', text: 'DSA, Programming Languages & CS — all in one' },
   { icon: 'local_fire_department', text: 'Daily streaks that build real discipline' },
   { icon: 'psychology', text: 'Alex — your AI study companion' },
 ];

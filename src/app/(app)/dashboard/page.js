@@ -28,8 +28,8 @@ const CAT_THEME = {
     badge: 'bg-emerald-100/80 text-emerald-800 border-emerald-200',
   },
   python: {
-    label: 'Python',
-    name: 'Python',
+    label: 'Prog. Languages',
+    name: 'Programming Languages',
     color: '#2563eb',
     bg: 'bg-blue-50',
     border: 'border-blue-200',

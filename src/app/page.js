@@ -14,8 +14,8 @@ const CATEGORIES = [
   },
   {
     id: 'python',
-    label: 'Python',
-    desc: 'Write idiomatic Python. Master decorators, OOP, and built-in libraries.',
+    label: 'Programming Languages',
+    desc: 'Write clean, idiomatic code. Master language features, OOP patterns, and built-in libraries.',
     icon: 'code',
     count: '3 topics · 30+ problems',
     color: '#2563eb',
@@ -45,7 +45,7 @@ const STATS = [
   { value: '150+', label: 'Problems' },
   { value: '15',   label: 'Topics'   },
   { value: '8',    label: 'Modes'    },
-  { value: 'Free', label: 'Always'   },
+  { value: '5',    label: 'Levels'   },
 ];
 
 const weekDone = [true, true, true, true, true, true, false];
@@ -214,9 +214,9 @@ export default function LandingPage() {
           <Link href="/register" style={{ display: 'inline-block', padding: '14px 32px', background: '#059669', color: '#fff', fontWeight: 600, fontSize: 15, borderRadius: 10, textDecoration: 'none', transition: 'background 150ms' }}
             onMouseEnter={e => e.currentTarget.style.background = '#047857'}
             onMouseLeave={e => e.currentTarget.style.background = '#059669'}>
-            Start for free →
+            Start now →
           </Link>
-          <p style={{ marginTop: 16, fontSize: 12, color: '#94a3b8', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', textTransform: 'uppercase' }}>No credit card · No pressure · Just show up</p>
+          <p style={{ marginTop: 16, fontSize: 12, color: '#94a3b8', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Just show up</p>
         </div>
       </section>
 
