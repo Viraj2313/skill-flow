@@ -28,8 +28,25 @@ function ProgressBar({ current, total, color }) {
 
 function CodeBlock({ text }) {
   return (
-    <div className="bg-aq-surface-raised rounded-input px-4 py-3 font-mono text-[13px] text-aq-text-primary whitespace-pre leading-relaxed overflow-x-auto">
-      {text}
+    <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b', marginBottom: 4 }}>
+      {/* Mac title bar */}
+      <div style={{
+        background: '#1e293b', padding: '9px 14px',
+        display: 'flex', alignItems: 'center', gap: 6,
+        borderBottom: '1px solid #0f172a',
+      }}>
+        <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#ff5f57', display: 'inline-block' }} />
+        <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#ffbd2e', display: 'inline-block' }} />
+        <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#28c840', display: 'inline-block' }} />
+      </div>
+      {/* Code */}
+      <div style={{
+        background: '#0f172a', padding: '16px 20px',
+        fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#94a3b8',
+        whiteSpace: 'pre', lineHeight: 1.75, overflowX: 'auto',
+      }}>
+        {text}
+      </div>
     </div>
   );
 }
@@ -155,182 +172,218 @@ function ConceptCard({ card, index, total, color, onNext, token }) {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#fff' }}>
+
+      {/* ── Scrollable content ── */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '28px 24px 8px' }}>
         {card.heading && (
-          <h2 className="font-sans font-bold text-[22px] text-aq-text-primary leading-snug mb-4">
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', lineHeight: 1.35, marginBottom: 18, fontFamily: 'Inter, sans-serif' }}>
             {card.heading}
           </h2>
         )}
 
+        {/* Content modes */}
         {socratic ? (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px] text-violet-600">psychology</span>
-                <span className="font-mono text-[9px] font-bold tracking-widest uppercase text-violet-600">Discover Mode</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 15, color: '#7c3aed' }}>psychology</span>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7c3aed' }}>Discover Mode</span>
               </div>
-              <button onClick={() => { setSocratic(false); setSocraticQs([]); setSocraticIdx(0); setSocraticHistory([]); setSocraticDone(false); }} className="font-mono text-[9px] text-slate-400 hover:text-slate-600">Exit ×</button>
+              <button onClick={() => { setSocratic(false); setSocraticQs([]); setSocraticIdx(0); setSocraticHistory([]); setSocraticDone(false); }}
+                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, letterSpacing: '0.06em' }}>
+                EXIT ×
+              </button>
             </div>
 
             {socraticLoading && socraticHistory.length === 0 && (
-              <div className="flex items-center gap-2 py-4">
-                <span className="w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
-                <span className="font-mono text-[11px] text-slate-400">Crafting questions for you…</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '16px 0' }}>
+                <span style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #7c3aed', borderTopColor: 'transparent', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>Crafting questions…</span>
               </div>
             )}
 
-            <div className="space-y-3 mb-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
               {socraticHistory.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className="max-w-[88%] rounded-2xl px-4 py-2.5"
-                    style={{
-                      background: msg.role === 'user' ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : msg.isQuestion ? '#f5f3ff' : '#f8fafc',
-                      color:      msg.role === 'user' ? 'white' : '#374151',
-                      border:     msg.isQuestion ? '1px solid #ddd6fe' : msg.role === 'user' ? 'none' : '1px solid #e2e8f0',
-                    }}
-                  >
-                    <p className="font-sans text-[14px] leading-relaxed">{msg.text}</p>
+                <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '88%', borderRadius: 16, padding: '10px 16px',
+                    background: msg.role === 'user' ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : msg.isQuestion ? '#f5f3ff' : '#f8fafc',
+                    color: msg.role === 'user' ? 'white' : '#374151',
+                    border: msg.role === 'user' ? 'none' : msg.isQuestion ? '1px solid #ddd6fe' : '1px solid #e2e8f0',
+                  }}>
+                    <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, lineHeight: 1.6, margin: 0 }}>{msg.text}</p>
                   </div>
                 </div>
               ))}
               {socraticLoading && socraticHistory.length > 0 && (
-                <div className="flex justify-start">
-                  <div className="bg-slate-100 rounded-2xl px-4 py-3 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <div style={{ background: '#f1f5f9', borderRadius: 16, padding: '10px 16px', display: 'flex', gap: 4, alignItems: 'center' }}>
+                    {[0, 150, 300].map(d => <span key={d} style={{ width: 7, height: 7, borderRadius: '50%', background: '#94a3b8', display: 'inline-block', animation: `bounce 1.2s ${d}ms ease-in-out infinite` }} />)}
                   </div>
                 </div>
               )}
             </div>
 
             {socraticDone && (
-              <div className="p-4 rounded-xl border border-violet-200 bg-violet-50 mb-4">
-                <p className="font-mono text-[9px] font-bold tracking-widest uppercase text-violet-600 mb-2">You worked it out — now read it fully</p>
-                <p className="font-sans text-[14px] text-slate-700 leading-relaxed whitespace-pre-line">{card.body}</p>
+              <div style={{ padding: '14px 16px', borderRadius: 12, border: '1px solid #ddd6fe', background: '#faf5ff', marginBottom: 12 }}>
+                <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7c3aed', marginBottom: 8 }}>You worked it out — now read it fully</p>
+                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>{card.body}</p>
               </div>
             )}
 
             {!socraticDone && !socraticLoading && socraticQs.length > 0 && (
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: 8 }}>
                 <input
                   value={socraticInput}
                   onChange={e => setSocraticInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && submitSocraticAnswer()}
-                  placeholder="Your answer..."
-                  className="flex-1 font-sans text-[14px] border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-violet-300 bg-white"
+                  placeholder="Your answer…"
+                  style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontSize: 14, border: '1px solid #e2e8f0', borderRadius: 12, padding: '10px 14px', outline: 'none', color: '#0f172a', background: '#fff' }}
                 />
-                <button
-                  onClick={submitSocraticAnswer}
-                  disabled={!socraticInput.trim()}
-                  className="px-4 py-2 rounded-xl font-mono text-[11px] font-bold tracking-widest uppercase text-white disabled:opacity-40"
-                  style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
-                >
+                <button onClick={submitSocraticAnswer} disabled={!socraticInput.trim()}
+                  style={{ padding: '10px 18px', borderRadius: 12, background: 'linear-gradient(135deg,#7c3aed,#6366f1)', border: 'none', cursor: 'pointer', color: 'white', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, fontSize: 14, opacity: !socraticInput.trim() ? 0.4 : 1 }}>
                   →
                 </button>
               </div>
             )}
-            {socraticErr && <p className="font-sans text-[12px] text-red-500 mt-2">{socraticErr}</p>}
+            {socraticErr && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#ef4444', marginTop: 8 }}>{socraticErr}</p>}
           </div>
         ) : altText ? (
-          <div className="mb-5">
-            <div className="flex items-center gap-1.5 mb-2">
-              <span className="material-symbols-outlined text-[15px] text-purple-600 filled">auto_awesome</span>
-              <span className="font-mono text-[10px] font-bold tracking-widest uppercase text-purple-600">AI Explanation</span>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+              <span className="material-symbols-outlined filled" style={{ fontSize: 15, color: '#9333ea' }}>auto_awesome</span>
+              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#9333ea' }}>AI Explanation</span>
             </div>
-            <p className="font-sans text-[16px] text-aq-text-secondary leading-relaxed whitespace-pre-line bg-purple-50 border border-purple-200 rounded-card p-4">
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#374151', lineHeight: 1.75, whiteSpace: 'pre-line', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: 12, padding: '16px 18px', margin: 0 }}>
               {altText}
             </p>
-            <button
-              onClick={() => setAltText(null)}
-              className="mt-2 font-mono text-[10px] text-aq-text-muted tracking-wide hover:text-aq-text-primary"
-            >
+            <button onClick={() => setAltText(null)}
+              style={{ marginTop: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: '#94a3b8', padding: 0 }}>
               ← Back to original
             </button>
           </div>
         ) : (
-          <p className="font-sans text-[16px] text-aq-text-secondary leading-relaxed whitespace-pre-line mb-5">
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#334155', lineHeight: 1.8, whiteSpace: 'pre-line', marginBottom: 20, margin: 0 }}>
             {card.body}
           </p>
         )}
-        {!socratic && card.code && <CodeBlock text={card.code} />}
+
+        {!socratic && card.code && (
+          <div style={{ marginTop: 20 }}>
+            <CodeBlock text={card.code} />
+          </div>
+        )}
+
+        {/* Angle result — shown inline in content */}
+        {angleText && (
+          <div style={{ marginTop: 20, padding: '14px 18px', borderRadius: 12, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+            <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: ANGLES.find(a => a.id === activeAngle)?.color, marginBottom: 10 }}>
+              {ANGLES.find(a => a.id === activeAngle)?.label}
+            </p>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#374151', lineHeight: 1.75, whiteSpace: 'pre-line', margin: 0 }}>{angleText}</p>
+          </div>
+        )}
+
         {explainErr && (
-          <p className="mt-3 font-sans text-[12px] text-aq-error">{explainErr}</p>
+          <p style={{ marginTop: 12, fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#ef4444' }}>{explainErr}</p>
         )}
       </div>
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border space-y-2.5">
-        <div className="flex gap-2">
-          <button
-            onClick={onNext}
-            className="flex-1 py-2 rounded-input font-mono text-[10px] font-semibold tracking-widest uppercase border border-slate-200 text-slate-500 bg-white hover:bg-slate-50 transition-colors"
-          >
-            Skip
-          </button>
-          {!socratic && (
-            <button
-              onClick={startSocratic}
-              className="flex-1 py-2 rounded-input font-mono text-[10px] font-semibold tracking-widest uppercase border border-violet-300 text-violet-700 bg-violet-50 hover:bg-violet-100 transition-colors flex items-center justify-center gap-1"
-            >
-              <span className="material-symbols-outlined text-[13px]">psychology</span>
-              Discover
+
+      {/* ── Bottom action bar ── */}
+      <div style={{ flexShrink: 0, borderTop: '1px solid #f1f5f9', background: '#fff', padding: '14px 20px 22px' }}>
+
+        {/* Tool pills row */}
+        {!socratic && (
+          <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 14, scrollbarWidth: 'none' }}>
+            {/* Discover */}
+            <button onClick={startSocratic} style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '6px 14px', borderRadius: 100, flexShrink: 0, cursor: 'pointer',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+              border: '1px solid #ddd6fe', color: '#7c3aed', background: '#faf5ff',
+              transition: 'background 150ms',
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 13 }}>psychology</span>
+              DISCOVER
             </button>
-          )}
-        </div>
 
-        <div className="flex gap-1.5">
-          {ANGLES.map(a => (
-            <button
-              key={a.id}
-              onClick={() => handleAngle(a.id)}
-              disabled={angleLoading}
-              className="flex-1 flex flex-col items-center gap-0.5 py-2 rounded-lg border transition-all"
-              style={{
-                borderColor: activeAngle === a.id ? a.color : '#e2e8f0',
-                background:  activeAngle === a.id ? a.color + '12' : '#f8fafc',
-              }}
-            >
-              <span className="material-symbols-outlined text-[15px]" style={{ color: activeAngle === a.id ? a.color : '#94a3b8' }}>{a.icon}</span>
-              <span className="font-mono text-[8px] font-bold tracking-wider" style={{ color: activeAngle === a.id ? a.color : '#94a3b8' }}>{a.label}</span>
-            </button>
-          ))}
-        </div>
+            {/* Angle pills */}
+            {ANGLES.map(a => (
+              <button key={a.id} onClick={() => handleAngle(a.id)} disabled={angleLoading}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '6px 14px', borderRadius: 100, flexShrink: 0, cursor: angleLoading ? 'default' : 'pointer',
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+                  border: `1px solid ${activeAngle === a.id ? a.color : '#e2e8f0'}`,
+                  color: activeAngle === a.id ? a.color : '#64748b',
+                  background: activeAngle === a.id ? a.color + '18' : '#f8fafc',
+                  opacity: angleLoading && activeAngle !== a.id ? 0.45 : 1,
+                  transition: 'all 150ms',
+                }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 12, color: activeAngle === a.id ? a.color : '#94a3b8' }}>{a.icon}</span>
+                {a.label.toUpperCase()}
+              </button>
+            ))}
 
-        {angleLoading && (
-          <div className="flex items-center gap-2 py-1">
-            <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-            <span className="font-mono text-[11px] text-slate-400">Generating {ANGLES.find(a=>a.id===activeAngle)?.label} view…</span>
-          </div>
-        )}
-        {angleText && (
-          <div className="p-3.5 rounded-xl border bg-indigo-50 border-indigo-200">
-            <p className="font-mono text-[9px] font-bold tracking-widest uppercase text-indigo-500 mb-1.5">
-              {ANGLES.find(a => a.id === activeAngle)?.label} view
-            </p>
-            <p className="font-sans text-[14px] text-slate-700 leading-relaxed whitespace-pre-line">{angleText}</p>
-          </div>
-        )}
-
-        {!altText && !angleText && (
-          <button
-            onClick={handleExplain}
-            disabled={explaining}
-            className="w-full py-2.5 rounded-input font-mono text-[12px] font-semibold tracking-widest uppercase border border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {explaining ? (
-              <><span className="w-3.5 h-3.5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" /> Thinking...</>
-            ) : (
-              <><span className="material-symbols-outlined text-[16px]">auto_awesome</span> Explain it differently</>
+            {/* AI Explain */}
+            {!altText && !angleText && (
+              <button onClick={handleExplain} disabled={explaining}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '6px 14px', borderRadius: 100, flexShrink: 0,
+                  cursor: explaining ? 'default' : 'pointer',
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+                  border: '1px solid #e9d5ff', color: '#9333ea', background: '#fdf4ff',
+                  opacity: explaining ? 0.6 : 1, transition: 'opacity 150ms',
+                }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 12 }}>auto_awesome</span>
+                {explaining ? 'THINKING…' : 'EXPLAIN'}
+              </button>
             )}
-          </button>
+          </div>
         )}
+
+        {/* Loading state for angle */}
+        {angleLoading && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <span style={{ width: 13, height: 13, borderRadius: '50%', border: '2px solid #6366f1', borderTopColor: 'transparent', display: 'inline-block', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', color: '#94a3b8', textTransform: 'uppercase' }}>
+              Generating {ANGLES.find(a => a.id === activeAngle)?.label}…
+            </span>
+          </div>
+        )}
+
+        {/* Primary CTA */}
         <button
           onClick={onNext}
-          className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
-          style={{ backgroundColor: color }}
+          style={{
+            width: '100%', padding: '16px', borderRadius: 16,
+            background: color, border: 'none', cursor: 'pointer',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 700,
+            letterSpacing: '0.09em', textTransform: 'uppercase', color: 'white',
+            transition: 'filter 150ms ease', display: 'block',
+          }}
+          onMouseEnter={e => e.currentTarget.style.filter = 'brightness(0.9)'}
+          onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
         >
-          {index + 1 < total ? 'GOT IT →' : 'START EXERCISES →'}
+          {index + 1 < total ? 'Got it →' : 'Start Exercises →'}
+        </button>
+
+        {/* Skip — demoted to a quiet text link */}
+        <button
+          onClick={onNext}
+          style={{
+            display: 'block', width: '100%', marginTop: 10,
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 600,
+            letterSpacing: '0.07em', textTransform: 'uppercase',
+            color: '#cbd5e1', textAlign: 'center', transition: 'color 150ms',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = '#64748b'}
+          onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}
+        >
+          skip
         </button>
       </div>
     </div>
@@ -1135,28 +1188,32 @@ export default function LessonPage() {
         </button>
       )}
 
-      <div className="flex-shrink-0 px-4 pt-4 pb-3 border-b border-aq-border bg-aq-surface">
-        <div className="flex items-center gap-3 mb-3">
+      {/* ── Top bar ── */}
+      <div style={{ flexShrink: 0, padding: '14px 20px 12px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <button
             onClick={() => router.back()}
-            className="p-1 text-aq-text-muted hover:text-aq-text-primary flex-shrink-0"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: 8, display: 'flex', alignItems: 'center', color: '#94a3b8', flexShrink: 0, transition: 'color 150ms' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#475569'}
+            onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
           >
-            <span className="material-symbols-outlined text-[22px]">close</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>close</span>
           </button>
-          <div className="flex-1">
-            <ProgressBar
-              current={done ? totalSteps : cardIndex + exerciseIndex}
-              total={totalSteps}
-              color={color}
-            />
+          {/* Progress bar */}
+          <div style={{ flex: 1, height: 8, borderRadius: 100, background: '#f1f5f9', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 100, background: color,
+              width: `${Math.round(((done ? totalSteps : cardIndex + exerciseIndex) / totalSteps) * 100)}%`,
+              transition: 'width 400ms ease',
+            }} />
           </div>
-          <span className="font-mono text-[11px] text-aq-text-muted flex-shrink-0">
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, fontWeight: 700, color: '#94a3b8', flexShrink: 0, letterSpacing: '0.06em' }}>
             {done ? totalSteps : cardIndex + exerciseIndex}/{totalSteps}
           </span>
         </div>
-        <h1 className="font-mono text-[12px] font-semibold tracking-widest uppercase" style={{ color }}>
+        <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color, marginTop: 10, margin: '10px 0 0' }}>
           {lesson.title}
-        </h1>
+        </p>
       </div>
 
       <div className="flex-1 overflow-hidden">
