@@ -7,6 +7,7 @@ import { completeLesson, getLessonBySlug, saveExerciseAttempt, saveAhaJournal } 
 import { supabase } from '@/lib/supabase';
 import { EVOLUTIONS } from '@/data/evolutions';
 import { getChecklist } from '@/data/topicChecklists';
+import Companion from '@/components/Companion';
 
 const CAT_COLOR = {
   dsa: '#059669',
@@ -1149,6 +1150,8 @@ export default function LessonPage() {
 
   return (
     <div className="min-h-screen bg-aq-surface flex flex-col" style={{ maxHeight: '100dvh', overflow: 'hidden' }}>
+      {/* Alex — floats over lesson, auto-detects topic from slug */}
+      <Companion />
       {unstuckOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }} onClick={e => e.target === e.currentTarget && setUnstuckOpen(false)}>
           <div className="w-full max-w-sm mx-4 mb-4 sm:mb-0 bg-white rounded-2xl overflow-hidden shadow-2xl">
