@@ -368,6 +368,134 @@ export async function getWeakExercises(limit = 10) {
     .slice(0, limit);
 }
 
+export async function getUserMistakesAndPerformance() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const [{ data: attempts }, { data: allLessons }, { data: allExercises }, { data: topics }] = await Promise.all([
+    supabase
+      .from('user_exercise_attempts')
+      .select('exercise_id, lesson_id, is_correct, attempts_taken, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(300),
+    supabase.from('lessons').select('id, title, slug, topic_id, category, xp_reward'),
+    supabase.from('exercises').select('id, lesson_id, type, question, options, correct_option, explanation, explanation_context'),
+    supabase.from('topics').select('id, name, category_id, description, tier'),
+  ]);
+
+  const lessonMap = Object.fromEntries((allLessons || []).map(l => [String(l.id), l]));
+  const exerciseMap = Object.fromEntries((allExercises || []).map(e => [String(e.id), normaliseExercise(e)]));
+  const topicMap = Object.fromEntries((topics || []).map(t => [String(t.id), t]));
+
+  const attemptRows = attempts || [];
+  const exerciseStats = {};
+
+  for (const row of attemptRows) {
+    const eid = String(row.exercise_id);
+    if (!exerciseStats[eid]) {
+      exerciseStats[eid] = {
+        exerciseId: eid,
+        lessonId: String(row.lesson_id),
+        total: 0,
+        wrong: 0,
+        correct: 0,
+        lastAttemptDate: row.created_at,
+        isLatestCorrect: row.is_correct,
+        history: [],
+      };
+    }
+    exerciseStats[eid].total++;
+    if (row.is_correct) exerciseStats[eid].correct++;
+    else exerciseStats[eid].wrong++;
+    exerciseStats[eid].history.push(row.is_correct);
+  }
+
+  const mistakes = [];
+  for (const stat of Object.values(exerciseStats)) {
+    if (stat.wrong > 0) {
+      const ex = exerciseMap[stat.exerciseId] || {};
+      const lesson = lessonMap[stat.lessonId] || {};
+      const topic = topicMap[String(lesson.topic_id)] || {};
+
+      let formattedCorrect = '';
+      if (Array.isArray(ex.options) && typeof ex.correct === 'number' && ex.options[ex.correct]) {
+        formattedCorrect = ex.options[ex.correct];
+      } else if (ex.correct) {
+        formattedCorrect = String(ex.correct);
+      }
+
+      mistakes.push({
+        exerciseId: stat.exerciseId,
+        question: ex.question || 'Practice exercise',
+        type: ex.type || 'mcq',
+        options: ex.options || [],
+        correctAnswer: formattedCorrect,
+        explanation: ex.explanation || '',
+        explanationContext: ex.explanation_context || '',
+        lessonId: stat.lessonId,
+        lessonTitle: lesson.title || 'Lesson',
+        lessonSlug: lesson.slug || '',
+        topicId: lesson.topic_id,
+        topicName: topic.name || 'DSA',
+        category: lesson.category || 'dsa',
+        wrongCount: stat.wrong,
+        totalAttempts: stat.total,
+        isResolved: stat.isLatestCorrect,
+        lastAttemptedAt: stat.lastAttemptDate,
+      });
+    }
+  }
+
+  mistakes.sort((a, b) => {
+    if (a.isResolved !== b.isResolved) return a.isResolved ? 1 : -1;
+    return new Date(b.lastAttemptedAt).getTime() - new Date(a.lastAttemptedAt).getTime();
+  });
+
+  const totalQuestionsTackled = attemptRows.length;
+  const totalCorrect = attemptRows.filter(r => r.is_correct).length;
+  const overallAccuracy = totalQuestionsTackled > 0 ? Math.round((totalCorrect / totalQuestionsTackled) * 100) : 0;
+
+  const recent10 = attemptRows.slice(0, 10);
+  const recentAccuracy = recent10.length > 0 ? Math.round((recent10.filter(r => r.is_correct).length / recent10.length) * 100) : overallAccuracy;
+
+  const topicAccuracyMap = {};
+  for (const row of attemptRows) {
+    const l = lessonMap[String(row.lesson_id)];
+    if (!l) continue;
+    const tid = String(l.topic_id);
+    if (!topicAccuracyMap[tid]) {
+      topicAccuracyMap[tid] = {
+        topic: topicMap[tid] || { name: 'Topic', category_id: l.category },
+        total: 0,
+        correct: 0,
+        lessonSlug: l.slug,
+      };
+    }
+    topicAccuracyMap[tid].total++;
+    if (row.is_correct) topicAccuracyMap[tid].correct++;
+  }
+
+  const topicPerformance = Object.values(topicAccuracyMap).map(t => ({
+    topicId: t.topic.id,
+    name: t.topic.name,
+    category: t.topic.category_id,
+    accuracy: Math.round((t.correct / t.total) * 100),
+    totalAnswered: t.total,
+    lessonSlug: t.lessonSlug,
+    status: (t.total >= 2 && (t.correct / t.total) < 0.6) ? 'struggling' : (t.correct / t.total) >= 0.8 ? 'strong' : 'inprogress',
+  })).sort((a, b) => a.accuracy - b.accuracy);
+
+  return {
+    mistakes,
+    unresolvedCount: mistakes.filter(m => !m.isResolved).length,
+    overallAccuracy,
+    recentAccuracy,
+    totalQuestionsTackled,
+    topicPerformance,
+  };
+}
+
 export async function saveAhaJournal({ lessonId, lessonTitle, note }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;

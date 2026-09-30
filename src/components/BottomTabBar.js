@@ -12,10 +12,10 @@ const MAIN_NAV = [
 ];
 
 const TOOLS_NAV = [
+  { href: '/focus',                icon: 'troubleshoot',   label: 'Mistakes & Focus' },
   { href: '/practice/visualizer',  icon: 'animation',      label: 'Visualizer'      },
   { href: '/evolutions',           icon: 'trending_up',    label: 'Code Evolution'  },
   { href: '/interview',            icon: 'psychology',     label: 'Interview Mode'  },
-  { href: '/focus',                icon: 'my_location',    label: 'Where to Focus'  },
   { href: '/goal',                 icon: 'flag',           label: 'Interview Goal'  },
   { href: '/unstuck',              icon: 'psychology_alt', label: 'Unstuck Protocol'},
   { href: '/journal',              icon: 'auto_stories',   label: 'Aha Journal'     },
