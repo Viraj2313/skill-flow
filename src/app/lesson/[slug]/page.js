@@ -987,6 +987,7 @@ export default function LessonPage() {
   const [ahaNote, setAhaNote]             = useState('');
   const [ahaSaved, setAhaSaved]           = useState(false);
   const [ahaSaving, setAhaSaving]         = useState(false);
+  const [unstuckOpen, setUnstuckOpen]     = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -1085,7 +1086,6 @@ export default function LessonPage() {
     return null;
   }
 
-  const [unstuckOpen, setUnstuckOpen] = useState(false);
   const UNSTUCK_STEPS = [
     { n: 1, label: 'Restate the problem in one sentence.' },
     { n: 2, label: 'Write a concrete example (3–4 elements).' },
