@@ -51,7 +51,7 @@ Return ONLY valid JSON, no extra text:
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama3-70b-8192',
       temperature: 0.2,
       max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],

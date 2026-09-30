@@ -31,7 +31,7 @@ Return ONLY valid JSON: {"questions":["...","...","..."]}`;
       method: 'POST',
       headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama3-70b-8192',
         temperature: 0.6,
         max_tokens: 300,
         messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: prompt }],
@@ -76,7 +76,7 @@ Respond as a Socratic teacher:
       method: 'POST',
       headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama3-70b-8192',
         temperature: 0.5,
         max_tokens: 150,
         messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: prompt }],

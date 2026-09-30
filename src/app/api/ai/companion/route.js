@@ -69,7 +69,7 @@ export async function POST(request) {
     method:  'POST',
     headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model:       'llama-3.3-70b-versatile',
+      model:       'llama3-70b-8192',
       messages,
       temperature: 0.72,
       max_tokens:  350,
