@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import SelectionTooltip from '@/components/SelectionTooltip';
 
 /* ─── Topic detection ─── */
 const PATH_MAP = [
@@ -202,6 +203,17 @@ export default function Companion() {
     }
   }, [input, loading, messages, topic, userId]);
 
+  useEffect(() => {
+    function handleAskAlex(e) {
+      const selectedSnippet = e.detail?.text;
+      if (!selectedSnippet) return;
+      setOpen(true);
+      send(`Can you explain this part of the code/concept: "${selectedSnippet}"`);
+    }
+    window.addEventListener('ask-alex', handleAskAlex);
+    return () => window.removeEventListener('ask-alex', handleAskAlex);
+  }, [send]);
+
   function handleKey(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   }
@@ -212,10 +224,10 @@ export default function Companion() {
 
   return (
     <>
+      <SelectionTooltip />
       <style>{CSS}</style>
       <div style={{ position: 'fixed', zIndex: 200, bottom: 'calc(env(safe-area-inset-bottom) + 74px)', right: 16, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontFamily: 'Inter, sans-serif' }}>
 
-        {/* Panel */}
         {open && (
           <div style={{
             width: 'min(360px, calc(100vw - 32px))',

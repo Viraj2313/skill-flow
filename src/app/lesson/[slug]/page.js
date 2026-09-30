@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase';
 import { EVOLUTIONS } from '@/data/evolutions';
 import { getChecklist } from '@/data/topicChecklists';
 import Companion from '@/components/Companion';
+import Confetti from '@/components/Confetti';
+import { playSuccessSound, playErrorSound, playCompletionSound, isAudioMuted, setAudioMuted } from '@/lib/audio';
 
 const CAT_COLOR = {
   dsa: '#059669',
@@ -518,10 +520,12 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
     setChecklistDismissed(true);
     if (selected === exercise.correct) {
       setConfirmed(true);
+      playSuccessSound();
     } else {
       const next = attempts + 1;
       setAttempts(next);
       setWrongPicks(prev => new Set([...prev, selected]));
+      playErrorSound();
       if (next >= 3) setConfirmed(true);
     }
   }
@@ -665,11 +669,22 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
 
 function CodePickExercise({ exercise, onAnswer }) {
   const [selected, setSelected] = useState(null);
-  const answered = selected !== null;
+  const [confirmed, setConfirmed] = useState(false);
+  const answered = confirmed;
 
   function handleSelect(i) {
     if (answered) return;
     setSelected(i);
+  }
+
+  function handleCheck() {
+    if (selected === null || answered) return;
+    setConfirmed(true);
+    if (selected === exercise.correct) {
+      playSuccessSound();
+    } else {
+      playErrorSound();
+    }
   }
 
   return (
@@ -728,7 +743,7 @@ function CodePickExercise({ exercise, onAnswer }) {
         {!answered ? (
           <button
             disabled={selected === null}
-            onClick={() => selected !== null && setSelected(selected)}
+            onClick={handleCheck}
             className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
               selected !== null
                 ? 'btn-tactile btn-tactile-dark'
@@ -754,7 +769,18 @@ function CodePickExercise({ exercise, onAnswer }) {
 
 function FillBlankExercise({ exercise, onAnswer }) {
   const [selected, setSelected] = useState(null);
-  const answered = selected !== null;
+  const [confirmed, setConfirmed] = useState(false);
+  const answered = confirmed;
+
+  function handleCheck() {
+    if (selected === null || answered) return;
+    setConfirmed(true);
+    if (selected === exercise.correct) {
+      playSuccessSound();
+    } else {
+      playErrorSound();
+    }
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -828,7 +854,7 @@ function FillBlankExercise({ exercise, onAnswer }) {
         {!answered ? (
           <button
             disabled={selected === null}
-            onClick={() => selected !== null && setSelected(selected)}
+            onClick={handleCheck}
             className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
               selected !== null
                 ? 'btn-tactile btn-tactile-dark'
@@ -872,6 +898,16 @@ function ArrangeExercise({ exercise, onAnswer }) {
     const next = [...order];
     [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
     setOrder(next);
+  }
+
+  function handleCheck() {
+    setSubmitted(true);
+    const correct = JSON.stringify(order) === JSON.stringify(exercise.correct_order);
+    if (correct) {
+      playSuccessSound();
+    } else {
+      playErrorSound();
+    }
   }
 
   return (
@@ -935,7 +971,7 @@ function ArrangeExercise({ exercise, onAnswer }) {
       <div className="px-5 pb-6 pt-3 border-t border-aq-border">
         {!submitted ? (
           <button
-            onClick={() => setSubmitted(true)}
+            onClick={handleCheck}
             className="btn-tactile btn-tactile-dark w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase"
           >
             CHECK
@@ -1070,6 +1106,18 @@ export default function LessonPage() {
   const [ahaSaved, setAhaSaved]           = useState(false);
   const [ahaSaving, setAhaSaving]         = useState(false);
   const [unstuckOpen, setUnstuckOpen]     = useState(false);
+  const [showConfetti, setShowConfetti]   = useState(false);
+  const [muted, setMuted]                 = useState(false);
+
+  useEffect(() => {
+    setMuted(isAudioMuted());
+  }, []);
+
+  function toggleMute() {
+    const next = !muted;
+    setMuted(next);
+    setAudioMuted(next);
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -1130,6 +1178,10 @@ export default function LessonPage() {
     if (exerciseIndex + 1 >= exercises.length) {
       setCorrectCount(nextCorrect);
       setDone(true);
+      playCompletionSound();
+      if (nextCorrect >= exercises.length * 0.7) {
+        setShowConfetti(true);
+      }
       try {
         await completeLesson(
           lesson.id,
@@ -1212,6 +1264,7 @@ export default function LessonPage() {
         </div>
       )}
 
+      {showConfetti && <Confetti onComplete={() => setShowConfetti(false)} />}
       {!showingCards && !done && (
         <button onClick={() => setUnstuckOpen(true)} className="fixed bottom-6 left-4 z-40 flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-lg border border-slate-200 bg-white hover:bg-slate-50 transition-all" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
           <span className="text-[16px]">🆘</span>
@@ -1246,6 +1299,17 @@ export default function LessonPage() {
             <span className="text-slate-400">/</span>
             <span>{totalSteps}</span>
           </div>
+
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shrink-0"
+            title={muted ? 'Unmute sounds' : 'Mute sounds'}
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {muted ? 'volume_off' : 'volume_up'}
+            </span>
+          </button>
         </div>
 
         <div className="flex items-center justify-between mt-2.5 px-0.5">
