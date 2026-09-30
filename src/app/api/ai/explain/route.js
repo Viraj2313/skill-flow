@@ -49,7 +49,7 @@ export async function POST(request) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'llama3-70b-8192',
+      model: 'openai/gpt-oss-20b',
       temperature: 0.6,
       max_tokens: 180,
       messages: [
