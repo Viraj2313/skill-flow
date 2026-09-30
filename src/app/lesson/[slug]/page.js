@@ -27,25 +27,39 @@ function ProgressBar({ current, total, color }) {
   );
 }
 
-function CodeBlock({ text }) {
+function CodeBlock({ text, lang = 'python' }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    }
+  }
+
   return (
-    <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b', marginBottom: 4 }}>
-      {/* Mac title bar */}
-      <div style={{
-        background: '#1e293b', padding: '9px 14px',
-        display: 'flex', alignItems: 'center', gap: 6,
-        borderBottom: '1px solid #0f172a',
-      }}>
-        <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#ff5f57', display: 'inline-block' }} />
-        <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#ffbd2e', display: 'inline-block' }} />
-        <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#28c840', display: 'inline-block' }} />
+    <div className="rounded-xl overflow-hidden border border-slate-800 shadow-md mb-4 bg-[#0d1117]">
+      <div className="bg-[#161b22] px-3.5 py-2 flex items-center justify-between border-b border-slate-800 select-none">
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-[#ff5f56] inline-block" />
+          <span className="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block" />
+          <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block" />
+        </div>
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#0d1117] border border-slate-800 text-[11px] font-mono text-slate-300">
+          <span className="material-symbols-outlined text-[13px] text-slate-400">terminal</span>
+          <span>{lang}</span>
+        </div>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+        >
+          <span className="material-symbols-outlined text-[13px]">{copied ? 'check' : 'content_copy'}</span>
+          <span>{copied ? 'Copied' : 'Copy'}</span>
+        </button>
       </div>
-      {/* Code */}
-      <div style={{
-        background: '#0f172a', padding: '16px 20px',
-        fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#94a3b8',
-        whiteSpace: 'pre', lineHeight: 1.75, overflowX: 'auto',
-      }}>
+      <div className="p-4 font-mono text-[13px] text-slate-200 leading-relaxed overflow-x-auto whitespace-pre bg-[#0d1117]">
         {text}
       </div>
     </div>
@@ -355,18 +369,13 @@ function ConceptCard({ card, index, total, color, onNext, token }) {
           </div>
         )}
 
-        {/* Primary CTA */}
         <button
           onClick={onNext}
+          className="btn-tactile w-full py-4 rounded-2xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all"
           style={{
-            width: '100%', padding: '16px', borderRadius: 16,
-            background: color, border: 'none', cursor: 'pointer',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 700,
-            letterSpacing: '0.09em', textTransform: 'uppercase', color: 'white',
-            transition: 'filter 150ms ease', display: 'block',
+            backgroundColor: color,
+            borderBottom: '4px solid rgba(0,0,0,0.25)',
           }}
-          onMouseEnter={e => e.currentTarget.style.filter = 'brightness(0.9)'}
-          onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
         >
           {index + 1 < total ? 'Got it →' : 'Start Exercises →'}
         </button>
@@ -620,16 +629,20 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
           <button
             onClick={handleCheck}
             disabled={selected === null || wrongPicks.has(selected)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase transition-colors disabled:opacity-30 disabled:cursor-default bg-aq-text-primary text-white"
+            className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
+              selected !== null && !wrongPicks.has(selected)
+                ? 'btn-tactile btn-tactile-dark'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
+            }`}
           >
             CHECK
           </button>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             {!isCorrect && onReviewCards && (
               <button
                 onClick={onReviewCards}
-                className="w-full py-2.5 rounded-input font-mono text-[11px] font-semibold tracking-widest uppercase border border-aq-border text-aq-text-muted bg-aq-surface hover:bg-aq-surface-raised transition-colors flex items-center justify-center gap-1.5"
+                className="btn-tactile btn-tactile-secondary w-full py-2.5 rounded-xl font-mono text-[11px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-[15px]">arrow_back</span>
                 Re-read concept cards
@@ -637,8 +650,9 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
             )}
             <button
               onClick={() => onAnswer(isCorrect)}
-              className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
-              style={{ backgroundColor: isCorrect ? '#059669' : '#dc2626' }}
+              className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+                isCorrect ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+              }`}
             >
               CONTINUE →
             </button>
@@ -715,15 +729,20 @@ function CodePickExercise({ exercise, onAnswer }) {
           <button
             disabled={selected === null}
             onClick={() => selected !== null && setSelected(selected)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase transition-colors disabled:opacity-30 disabled:cursor-default bg-aq-text-primary text-white"
+            className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
+              selected !== null
+                ? 'btn-tactile btn-tactile-dark'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
+            }`}
           >
             CHECK
           </button>
         ) : (
           <button
             onClick={() => onAnswer(selected === exercise.correct)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white transition-colors"
-            style={{ backgroundColor: selected === exercise.correct ? '#5a7a3a' : '#9b3c3c' }}
+            className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+              selected === exercise.correct ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+            }`}
           >
             CONTINUE →
           </button>
@@ -810,15 +829,20 @@ function FillBlankExercise({ exercise, onAnswer }) {
           <button
             disabled={selected === null}
             onClick={() => selected !== null && setSelected(selected)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase transition-colors disabled:opacity-30 disabled:cursor-default bg-aq-text-primary text-white"
+            className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
+              selected !== null
+                ? 'btn-tactile btn-tactile-dark'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
+            }`}
           >
             CHECK
           </button>
         ) : (
           <button
             onClick={() => onAnswer(selected === exercise.correct)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white"
-            style={{ backgroundColor: selected === exercise.correct ? '#5a7a3a' : '#9b3c3c' }}
+            className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+              selected === exercise.correct ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+            }`}
           >
             CONTINUE →
           </button>
@@ -912,15 +936,16 @@ function ArrangeExercise({ exercise, onAnswer }) {
         {!submitted ? (
           <button
             onClick={() => setSubmitted(true)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase bg-aq-text-primary text-white"
+            className="btn-tactile btn-tactile-dark w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase"
           >
             CHECK
           </button>
         ) : (
           <button
             onClick={() => onAnswer(isCorrect)}
-            className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white"
-            style={{ backgroundColor: isCorrect ? '#5a7a3a' : '#9b3c3c' }}
+            className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+              isCorrect ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+            }`}
           >
             CONTINUE →
           </button>
@@ -1000,8 +1025,11 @@ function CompletionScreen({ lesson, correct, total, color, onFinish, ahaNote, se
 
       <button
         onClick={onFinish}
-        className="w-full py-3.5 rounded-input font-mono text-[13px] font-semibold tracking-widest uppercase text-white"
-        style={{ backgroundColor: color }}
+        className="btn-tactile w-full py-4 rounded-2xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm"
+        style={{
+          backgroundColor: color,
+          borderBottom: '4px solid rgba(0,0,0,0.25)',
+        }}
       >
         BACK TO TOPICS
       </button>
@@ -1191,32 +1219,46 @@ export default function LessonPage() {
         </button>
       )}
 
-      {/* ── Top bar ── */}
-      <div style={{ flexShrink: 0, padding: '14px 20px 12px', borderBottom: '1px solid #f1f5f9', background: '#fff' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="shrink-0 px-5 py-3.5 border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+        <div className="flex items-center gap-3.5">
           <button
             onClick={() => router.back()}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: 8, display: 'flex', alignItems: 'center', color: '#94a3b8', flexShrink: 0, transition: 'color 150ms' }}
-            onMouseEnter={e => e.currentTarget.style.color = '#475569'}
-            onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shrink-0"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>close</span>
+            <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
-          {/* Progress bar */}
-          <div style={{ flex: 1, height: 8, borderRadius: 100, background: '#f1f5f9', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', borderRadius: 100, background: color,
-              width: `${Math.round(((done ? totalSteps : cardIndex + exerciseIndex) / totalSteps) * 100)}%`,
-              transition: 'width 400ms ease',
-            }} />
+          
+          <div className="flex-1 h-3.5 bg-slate-100 rounded-full p-0.5 border border-slate-200/70 overflow-hidden relative shadow-inner">
+            <div
+              className="h-full rounded-full transition-all duration-500 ease-out relative"
+              style={{
+                backgroundColor: color,
+                width: `${Math.round(((done ? totalSteps : cardIndex + exerciseIndex) / totalSteps) * 100)}%`,
+                boxShadow: `0 0 10px ${color}60`,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-white/35 to-transparent rounded-full" />
+            </div>
           </div>
-          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, fontWeight: 700, color: '#94a3b8', flexShrink: 0, letterSpacing: '0.06em' }}>
-            {done ? totalSteps : cardIndex + exerciseIndex}/{totalSteps}
+
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-mono text-[11px] font-bold tracking-wide shrink-0">
+            <span>{done ? totalSteps : cardIndex + exerciseIndex}</span>
+            <span className="text-slate-400">/</span>
+            <span>{totalSteps}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mt-2.5 px-0.5">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+            <span className="font-mono text-[10px] font-bold tracking-widest uppercase text-slate-700">
+              {lesson.title}
+            </span>
+          </div>
+          <span className="font-mono text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+            {showingCards ? 'Concepts' : 'Exercise'}
           </span>
         </div>
-        <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color, marginTop: 10, margin: '10px 0 0' }}>
-          {lesson.title}
-        </p>
       </div>
 
       <div className="flex-1 overflow-hidden">

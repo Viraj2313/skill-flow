@@ -36,8 +36,13 @@ function getTopic(pathname) {
   return 'DSA & Algorithms';
 }
 
-/* ─── Quick actions ─── */
 const ACTIONS = [
+  {
+    icon:   'lightbulb',
+    label:  'Give me a hint',
+    color:  '#34d399',
+    prompt: 'Give me one subtle hint to point me in the right direction without spoiling the solution.',
+  },
   {
     icon:   'quiz',
     label:  'Quiz me',
@@ -45,22 +50,16 @@ const ACTIONS = [
     prompt: 'Give me one sharp, interview-style question about this topic. Just the question — wait for my answer before explaining anything.',
   },
   {
-    icon:   'warning_amber',
-    label:  'Common mistakes',
+    icon:   'trending_up',
+    label:  'Why is it optimal?',
     color:  '#f59e0b',
-    prompt: 'What are the 3 most common mistakes people make when learning or using this? Be specific and honest — not generic advice.',
+    prompt: 'Explain what bottleneck the optimal algorithm eliminates and why the brute force approach is slower.',
   },
   {
-    icon:   'lightbulb',
+    icon:   'psychology',
     label:  'Fresh analogy',
-    color:  '#34d399',
-    prompt: 'Explain the core concept using a completely fresh analogy or mental model. Not the standard textbook explanation — something that makes it click.',
-  },
-  {
-    icon:   'tips_and_updates',
-    label:  'Interview tips',
     color:  '#60a5fa',
-    prompt: 'Give me 3 specific interview tips for this topic: what to say, what to avoid, and what impresses interviewers.',
+    prompt: 'Explain the core concept using a fresh, clear real-world analogy that makes the intuition click instantly.',
   },
 ];
 
@@ -338,26 +337,29 @@ export default function Companion() {
           </div>
         )}
 
-        {/* Trigger button — no scale, no text change, just bg change */}
         <button
           onClick={() => setOpen(o => !o)}
+          className="btn-tactile"
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            padding: '9px 16px 9px 11px',
+            padding: '9px 16px 9px 12px',
             borderRadius: 100,
-            background: open ? '#111827' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-            border: open ? '1px solid #334155' : '1px solid transparent',
-            boxShadow: open ? '0 1px 4px rgba(0,0,0,0.2)' : '0 4px 20px rgba(79,70,229,0.4), 0 2px 8px rgba(0,0,0,0.2)',
+            background: open ? '#0f172a' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+            border: open ? '1px solid #334155' : '1px solid #6366f1',
+            boxShadow: open ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 20px rgba(99,102,241,0.4)',
             cursor: 'pointer',
             fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13,
             color: 'white',
-            transition: 'background 200ms ease, box-shadow 200ms ease, border-color 200ms ease',
+            transition: 'all 150ms ease',
           }}
         >
-          <span className="material-symbols-outlined filled" style={{ fontSize: 19, color: open ? '#6366f1' : 'white' }}>
+          <span className="material-symbols-outlined filled" style={{ fontSize: 19, color: open ? '#818cf8' : 'white' }}>
             psychology
           </span>
-          <span style={{ color: open ? '#94a3b8' : 'white' }}>Alex</span>
+          <span style={{ color: open ? '#94a3b8' : 'white' }}>{open ? 'Close' : 'Ask Alex'}</span>
+          {!open && (
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#34d399', display: 'inline-block', boxShadow: '0 0 8px #34d399' }} />
+          )}
         </button>
       </div>
     </>

@@ -30,25 +30,49 @@ function ComplexityBadge({ label }) {
 }
 
 function CodeBlock({ code, highlightLines = [] }) {
+  const [copied, setCopied] = useState(false);
   const lines = code.split('\n');
+
+  function handleCopy() {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    }
+  }
+
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-800 text-[13px] font-mono">
-      <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 border-b border-slate-700">
-        <span className="w-3 h-3 rounded-full bg-red-500/70" />
-        <span className="w-3 h-3 rounded-full bg-amber-500/70" />
-        <span className="w-3 h-3 rounded-full bg-emerald-500/70" />
+    <div className="rounded-xl overflow-hidden border border-slate-800 text-[13px] font-mono shadow-md bg-[#0d1117]">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#161b22] border-b border-slate-800 select-none">
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-[#ff5f56] inline-block shadow-sm" />
+          <span className="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block shadow-sm" />
+          <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block shadow-sm" />
+        </div>
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#0d1117] border border-slate-800 text-[11px] font-mono text-slate-300">
+          <span className="material-symbols-outlined text-[13px] text-slate-400">terminal</span>
+          <span>solution.py</span>
+        </div>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+        >
+          <span className="material-symbols-outlined text-[13px]">{copied ? 'check' : 'content_copy'}</span>
+          <span>{copied ? 'Copied' : 'Copy'}</span>
+        </button>
       </div>
-      <div className="bg-slate-950 overflow-x-auto">
+      <div className="bg-[#0d1117] overflow-x-auto py-2">
         {lines.map((line, i) => {
           const lineNum = i + 1;
           const isHighlighted = highlightLines.includes(i);
           return (
             <div
               key={i}
-              className={`flex leading-6 ${isHighlighted ? 'bg-blue-500/10 border-l-2 border-blue-400' : ''}`}
+              className={`flex leading-6 ${isHighlighted ? 'bg-blue-500/15 border-l-2 border-blue-400 shadow-[inset_0_0_12px_rgba(59,130,246,0.1)]' : ''}`}
             >
-              <span className="select-none w-8 text-right text-slate-600 shrink-0 px-2 py-0.5 text-[11px]">{lineNum}</span>
-              <span className={`px-3 py-0.5 whitespace-pre ${isHighlighted ? 'text-blue-200' : 'text-slate-300'}`}>{line}</span>
+              <span className="select-none w-9 text-right text-slate-600 shrink-0 px-2 py-0.5 text-[11px]">{lineNum}</span>
+              <span className={`px-3 py-0.5 whitespace-pre ${isHighlighted ? 'text-blue-100 font-medium' : 'text-slate-300'}`}>{line}</span>
             </div>
           );
         })}
@@ -59,34 +83,38 @@ function CodeBlock({ code, highlightLines = [] }) {
 
 function StepIndicator({ steps, current, onSelect }) {
   return (
-    <div className="flex items-center gap-2 mb-8">
-      {steps.map((step, i) => (
-        <button
-          key={i}
-          onClick={() => onSelect(i)}
-          className="flex items-center gap-2 group"
-        >
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
-            i === current
-              ? 'bg-slate-900 border-slate-900 text-white'
-              : i < current
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                : 'bg-white border-slate-200 text-slate-400'
-          }`}>
-            {i < current ? (
-              <span className="material-symbols-outlined text-[14px] filled text-emerald-600">check_circle</span>
-            ) : (
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
-                i === current ? 'bg-white text-slate-900' : 'bg-slate-200 text-slate-500'
-              }`}>{i + 1}</span>
+    <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-1 scrollbar-hide">
+      {steps.map((step, i) => {
+        const isCurrent = i === current;
+        const isPast = i < current;
+        return (
+          <button
+            key={i}
+            onClick={() => onSelect(i)}
+            className="flex items-center gap-2 group shrink-0 btn-tactile"
+          >
+            <div className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border transition-all ${
+              isCurrent
+                ? 'bg-slate-900 border-slate-900 text-white shadow-md'
+                : isPast
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100/60'
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+            }`}>
+              {isPast ? (
+                <span className="material-symbols-outlined text-[15px] filled text-emerald-600">check_circle</span>
+              ) : (
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  isCurrent ? 'bg-white text-slate-900' : 'bg-slate-100 text-slate-500 border border-slate-200'
+                }`}>{i + 1}</span>
+              )}
+              <span className="font-mono text-[11px] font-bold tracking-wider">{step.label}</span>
+            </div>
+            {i < steps.length - 1 && (
+              <div className={`w-5 h-0.5 rounded-full transition-colors ${i < current ? 'bg-emerald-400' : 'bg-slate-200'}`} />
             )}
-            <span className="font-mono text-[11px] font-bold tracking-wide hidden sm:block">{step.label}</span>
-          </div>
-          {i < steps.length - 1 && (
-            <div className={`w-6 h-px ${i < current ? 'bg-emerald-300' : 'bg-slate-200'}`} />
-          )}
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -166,7 +194,7 @@ function EvolutionView({ slug }) {
         {!isFirst && (
           <button
             onClick={() => setStep(s => s - 1)}
-            className="flex-1 py-3.5 rounded-xl font-mono text-[12px] font-bold tracking-widest uppercase border-2 border-slate-300 text-slate-700 hover:border-slate-400 transition-colors flex items-center justify-center gap-2"
+            className="btn-tactile btn-tactile-secondary flex-1 py-3.5 rounded-xl font-mono text-[12px] font-bold tracking-widest uppercase flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             Previous
@@ -175,13 +203,13 @@ function EvolutionView({ slug }) {
         {!isLast ? (
           <button
             onClick={() => setStep(s => s + 1)}
-            className="flex-1 py-3.5 rounded-xl font-mono text-[12px] font-bold tracking-widest uppercase bg-slate-900 hover:bg-slate-800 text-white transition-colors flex items-center justify-center gap-2"
+            className="btn-tactile btn-tactile-dark flex-1 py-3.5 rounded-xl font-mono text-[12px] font-bold tracking-widest uppercase flex items-center justify-center gap-2 shadow-sm"
           >
             {step === 0 ? 'Show the Insight →' : 'See Optimised →'}
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </button>
         ) : (
-          <div className="flex-1 py-3.5 rounded-xl font-mono text-[12px] font-bold tracking-widest uppercase bg-emerald-600 text-white flex items-center justify-center gap-2">
+          <div className="flex-1 py-3.5 rounded-xl font-mono text-[12px] font-bold tracking-widest uppercase bg-emerald-600 border-b-4 border-emerald-800 text-white flex items-center justify-center gap-2 shadow-sm">
             <span className="material-symbols-outlined text-[16px] filled">check_circle</span>
             Optimised!
           </div>

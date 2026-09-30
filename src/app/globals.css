@@ -174,3 +174,60 @@ input, textarea, select { outline: none; }
 ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
 ::selection { background: #d1fae5; color: #064e3b; }
+
+.btn-tactile {
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  cursor: pointer;
+}
+
+.btn-tactile-primary {
+  background-color: #059669;
+  color: #ffffff;
+  border-bottom: 3.5px solid #065f46;
+}
+.btn-tactile-primary:hover {
+  background-color: #10b981;
+}
+.btn-tactile-primary:active {
+  border-bottom-width: 0px;
+  transform: translateY(3.5px);
+}
+
+.btn-tactile-secondary {
+  background-color: #ffffff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-bottom: 3.5px solid #cbd5e1;
+}
+.btn-tactile-secondary:hover {
+  background-color: #f8fafc;
+}
+.btn-tactile-secondary:active {
+  border-bottom-width: 1px;
+  transform: translateY(2.5px);
+}
+
+.btn-tactile-dark {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-bottom: 3.5px solid #020617;
+}
+.btn-tactile-dark:hover {
+  background-color: #1e293b;
+}
+.btn-tactile-dark:active {
+  border-bottom-width: 0px;
+  transform: translateY(3.5px);
+}
+
+@keyframes shake-error {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.shake-error {
+  animation: shake-error 0.35s ease-in-out;
+}
+
