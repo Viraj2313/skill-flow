@@ -575,3 +575,50 @@ export async function getPracticeStats() {
   }
   return stats;
 }
+
+export async function saveMockInterviewSession({
+  topic,
+  problemTitle,
+  verdict,
+  overallScore,
+  rubricScores,
+  durationSeconds,
+  transcript,
+  userCode,
+  feedback,
+}) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase
+    .from('mock_interview_sessions')
+    .insert({
+      user_id: user.id,
+      topic,
+      problem_title: problemTitle,
+      verdict,
+      overall_score: overallScore,
+      rubric_scores: rubricScores || {},
+      duration_seconds: durationSeconds || 0,
+      transcript: transcript || [],
+      user_code: userCode || '',
+      feedback: feedback || {},
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function getUserMockInterviews(limit = 10) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data, error } = await supabase
+    .from('mock_interview_sessions')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) return [];
+  return data || [];
+}
+
