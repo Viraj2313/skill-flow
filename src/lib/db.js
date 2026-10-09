@@ -379,8 +379,8 @@ export async function getUserMistakesAndPerformance() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(300),
-    supabase.from('lessons').select('id, title, slug, topic_id, category, xp_reward'),
-    supabase.from('exercises').select('id, lesson_id, type, question, options, correct_option, explanation, explanation_context'),
+    supabase.from('lessons').select('id, title, slug, topic_id, xp_reward'),
+    supabase.from('exercises').select('id, lesson_id, type, question, options, correct_option, explanation, context'),
     supabase.from('topics').select('id, name, category_id, description, tier'),
   ]);
 
@@ -396,7 +396,7 @@ export async function getUserMistakesAndPerformance() {
     if (!exerciseStats[eid]) {
       exerciseStats[eid] = {
         exerciseId: eid,
-        lessonId: String(row.lesson_id),
+        lessonId: String(row.lesson_id || ''),
         total: 0,
         wrong: 0,
         correct: 0,
@@ -415,13 +415,13 @@ export async function getUserMistakesAndPerformance() {
   for (const stat of Object.values(exerciseStats)) {
     if (stat.wrong > 0) {
       const ex = exerciseMap[stat.exerciseId] || {};
-      const lesson = lessonMap[stat.lessonId] || {};
+      const lesson = lessonMap[stat.lessonId] || (ex.lesson_id ? lessonMap[String(ex.lesson_id)] : null) || {};
       const topic = topicMap[String(lesson.topic_id)] || {};
 
       let formattedCorrect = '';
       if (Array.isArray(ex.options) && typeof ex.correct === 'number' && ex.options[ex.correct]) {
         formattedCorrect = ex.options[ex.correct];
-      } else if (ex.correct) {
+      } else if (ex.correct !== null && ex.correct !== undefined) {
         formattedCorrect = String(ex.correct);
       }
 
@@ -432,13 +432,13 @@ export async function getUserMistakesAndPerformance() {
         options: ex.options || [],
         correctAnswer: formattedCorrect,
         explanation: ex.explanation || '',
-        explanationContext: ex.explanation_context || '',
-        lessonId: stat.lessonId,
+        explanationContext: ex.context || '',
+        lessonId: lesson.id || stat.lessonId,
         lessonTitle: lesson.title || 'Lesson',
         lessonSlug: lesson.slug || '',
         topicId: lesson.topic_id,
         topicName: topic.name || 'DSA',
-        category: lesson.category || 'dsa',
+        category: topic.category_id || 'dsa',
         wrongCount: stat.wrong,
         totalAttempts: stat.total,
         isResolved: stat.isLatestCorrect,
@@ -461,12 +461,16 @@ export async function getUserMistakesAndPerformance() {
 
   const topicAccuracyMap = {};
   for (const row of attemptRows) {
-    const l = lessonMap[String(row.lesson_id)];
+    const eid = String(row.exercise_id);
+    const ex = exerciseMap[eid] || {};
+    const lid = String(row.lesson_id || ex.lesson_id || '');
+    const l = lessonMap[lid];
     if (!l) continue;
     const tid = String(l.topic_id);
     if (!topicAccuracyMap[tid]) {
+      const topic = topicMap[tid] || { id: tid, name: 'Topic', category_id: 'dsa' };
       topicAccuracyMap[tid] = {
-        topic: topicMap[tid] || { name: 'Topic', category_id: l.category },
+        topic,
         total: 0,
         correct: 0,
         lessonSlug: l.slug,
@@ -479,7 +483,7 @@ export async function getUserMistakesAndPerformance() {
   const topicPerformance = Object.values(topicAccuracyMap).map(t => ({
     topicId: t.topic.id,
     name: t.topic.name,
-    category: t.topic.category_id,
+    category: t.topic.category_id || 'dsa',
     accuracy: Math.round((t.correct / t.total) * 100),
     totalAnswered: t.total,
     lessonSlug: t.lessonSlug,

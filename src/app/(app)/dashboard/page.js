@@ -478,7 +478,7 @@ export default function DashboardPage() {
 
                         <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                           <Link
-                            href={`/lesson/${spot.slug}`}
+                            href={spot.slug ? `/lesson/${spot.slug}` : '/skills'}
                             className="btn-tactile btn-tactile-secondary px-3 py-1.5 rounded-lg font-mono text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1 text-slate-700 hover:text-slate-900"
                           >
                             <span className="material-symbols-outlined text-[13px] text-emerald-600">menu_book</span>
@@ -486,7 +486,7 @@ export default function DashboardPage() {
                           </Link>
 
                           <Link
-                            href={`/focus?tab=weak-spots&retestTopic=${spot.slug}`}
+                            href={`/focus?tab=weak-spots${spot.slug ? `&retestTopic=${spot.slug}` : ''}`}
                             className="btn-tactile btn-tactile-primary px-3 py-1.5 rounded-lg font-mono text-[10.5px] font-bold uppercase tracking-wider text-white flex items-center gap-1 shadow-xs"
                           >
                             <span className="material-symbols-outlined text-[13px]">bolt</span>

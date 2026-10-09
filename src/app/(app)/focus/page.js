@@ -518,13 +518,23 @@ function MistakeCard({ item, onRetest }) {
             <span>Retest Question</span>
           </button>
 
-          <Link
-            href={`/lesson/${item.lessonSlug}`}
-            className="btn-tactile btn-tactile-secondary px-4 py-2 rounded-xl font-mono text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5"
-          >
-            <span>Practice in Lesson</span>
-            <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-          </Link>
+          {item.lessonSlug ? (
+            <Link
+              href={`/lesson/${item.lessonSlug}`}
+              className="btn-tactile btn-tactile-secondary px-4 py-2 rounded-xl font-mono text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5"
+            >
+              <span>Practice in Lesson</span>
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </Link>
+          ) : (
+            <Link
+              href="/skills"
+              className="btn-tactile btn-tactile-secondary px-4 py-2 rounded-xl font-mono text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5"
+            >
+              <span>Explore Lessons</span>
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </Link>
+          )}
 
           <button
             type="button"
@@ -664,13 +674,21 @@ function WeakSpotTopicCard({ topic, onStartDrill }) {
 
         {/* Action Buttons: LEARN & PRACTICE */}
         <div className="pt-2 flex flex-wrap items-center gap-3 border-t border-slate-100">
-          {topic.lessonSlug && (
+          {topic.lessonSlug ? (
             <Link
               href={`/lesson/${topic.lessonSlug}`}
               className="btn-tactile btn-tactile-secondary flex-1 min-w-[160px] py-2.5 px-4 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 text-slate-800 border-slate-300 hover:bg-slate-100"
             >
               <span className="material-symbols-outlined text-[16px] text-emerald-600">menu_book</span>
               <span>1-Click Learn ({topic.name})</span>
+            </Link>
+          ) : (
+            <Link
+              href="/skills"
+              className="btn-tactile btn-tactile-secondary flex-1 min-w-[160px] py-2.5 px-4 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 text-slate-800 border-slate-300 hover:bg-slate-100"
+            >
+              <span className="material-symbols-outlined text-[16px] text-emerald-600">menu_book</span>
+              <span>Explore Lessons</span>
             </Link>
           )}
 
@@ -749,13 +767,37 @@ export default function FocusPage() {
         isWeak,
       };
     })
-    .filter((t) => t.isWeak || t.topicMistakes.length > 0)
-    .sort((a, b) => {
-      if (b.unresolvedMistakes.length !== a.unresolvedMistakes.length) {
-        return b.unresolvedMistakes.length - a.unresolvedMistakes.length;
-      }
-      return a.accuracy - b.accuracy;
-    });
+    .filter((t) => t.isWeak || t.topicMistakes.length > 0);
+
+  // Fallback: If any mistakes exist whose topics weren't in topicPerf, add them as weak topics
+  const coveredTopics = new Set(weakTopics.map(w => String(w.topicId || w.name)));
+  for (const m of mistakes) {
+    const key = String(m.topicId || m.topicName || 'DSA');
+    if (!coveredTopics.has(key)) {
+      coveredTopics.add(key);
+      const tMistakes = mistakes.filter(item => String(item.topicId || item.topicName || 'DSA') === key);
+      const unresolved = tMistakes.filter(item => !item.isResolved);
+      weakTopics.push({
+        topicId: m.topicId || key,
+        name: m.topicName || 'DSA',
+        category: m.category || 'dsa',
+        accuracy: 0,
+        totalAnswered: tMistakes.reduce((acc, curr) => acc + (curr.totalAttempts || 1), 0),
+        lessonSlug: m.lessonSlug || '',
+        status: 'struggling',
+        topicMistakes: tMistakes,
+        unresolvedMistakes: unresolved,
+        isWeak: true,
+      });
+    }
+  }
+
+  weakTopics.sort((a, b) => {
+    if (b.unresolvedMistakes.length !== a.unresolvedMistakes.length) {
+      return b.unresolvedMistakes.length - a.unresolvedMistakes.length;
+    }
+    return a.accuracy - b.accuracy;
+  });
 
   const startDrill = useCallback((items) => {
     if (!items || !items.length) return;
