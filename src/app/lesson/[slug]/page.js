@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { completeLesson, getLessonBySlug, saveExerciseAttempt, saveAhaJournal } from '@/lib/db';
 import { supabase } from '@/lib/supabase';
 import { EVOLUTIONS } from '@/data/evolutions';
-import { getChecklist } from '@/data/topicChecklists';
 import Companion from '@/components/Companion';
 import Confetti from '@/components/Confetti';
 import { playSuccessSound, playErrorSound, playCompletionSound, isAudioMuted, setAudioMuted } from '@/lib/audio';
@@ -501,13 +500,10 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
   const [attempts, setAttempts]     = useState(0);
   const [wrongPicks, setWrongPicks] = useState(new Set());
   const [confirmed, setConfirmed]   = useState(false);
-  const [checklistDismissed, setChecklistDismissed] = useState(false);
 
   const isCorrect     = selected === exercise.correct;
   const answered      = confirmed;
   const hint          = HINTS[Math.min(attempts, HINTS.length - 1)];
-  const checklist     = getChecklist(lessonTitle);
-  const showChecklist = selected !== null && !answered && attempts === 0 && !checklistDismissed;
 
   function handleSelect(i) {
     if (answered) return;
@@ -516,7 +512,6 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
 
   function handleCheck() {
     if (selected === null || answered) return;
-    setChecklistDismissed(true);
     if (selected === exercise.correct) {
       setConfirmed(true);
       playSuccessSound();
@@ -611,34 +606,7 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
         )}
       </div>
 
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border relative">
-        {/* Floating popover checklist: absolute positioned so it NEVER shifts the CHECK button */}
-        {showChecklist && (
-          <div className="absolute bottom-[calc(100%+10px)] left-5 right-5 z-30 p-3.5 rounded-2xl border border-amber-300 bg-amber-50/98 backdrop-blur-md shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-150">
-            <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-amber-200/70">
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px] text-amber-700">lightbulb</span>
-                <p className="font-mono text-[10px] font-bold tracking-widest uppercase text-amber-800">Before you lock in…</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setChecklistDismissed(true)}
-                className="w-5 h-5 rounded-full flex items-center justify-center font-mono text-[11px] text-amber-600 hover:text-amber-900 hover:bg-amber-100 transition-colors"
-                title="Dismiss checklist"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="space-y-1.5">
-              {checklist.map((item, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[14px] text-amber-600 shrink-0 mt-0.5">{item.icon}</span>
-                  <p className="font-sans text-[12px] text-amber-900 leading-snug">{item.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
         {!answered ? (
           <button
             onClick={handleCheck}
