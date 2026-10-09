@@ -97,11 +97,44 @@ const MODES = [
 export default function PracticePage() {
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-12">
-      <div className="pb-2 border-b border-slate-200/80">
-        <h1 className="font-sans font-bold text-[24px] sm:text-[28px] text-slate-900 tracking-tight">Practice Modes</h1>
-        <p className="font-sans text-[14px] text-slate-500 mt-1">
-          Deeper exercises you can do any time — not tied to a lesson, no pressure.
-        </p>
+      <div className="pb-2 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-sans font-bold text-[24px] sm:text-[28px] text-slate-900 tracking-tight">Practice Modes</h1>
+          <p className="font-sans text-[14px] text-slate-500 mt-1">
+            Deeper exercises you can do any time — not tied to a lesson, no pressure.
+          </p>
+        </div>
+        <Link
+          href="/focus?tab=weak-spots"
+          className="btn-tactile px-3.5 py-2 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
+        >
+          <span className="material-symbols-outlined text-[15px] filled">my_location</span>
+          <span>Where I Lack Hub</span>
+        </Link>
+      </div>
+
+      {/* Where I Lack Quick Callout */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-red-50 via-amber-50/50 to-white border border-red-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[20px] text-red-600 filled">flag_circle</span>
+          </div>
+          <div>
+            <h2 className="font-sans font-bold text-[14.5px] text-slate-900">
+              Target Your Personal Weak Spots
+            </h2>
+            <p className="font-sans text-[12.5px] text-slate-600">
+              See what topics you&apos;re getting wrong, read the concepts, and retest them in 1 click.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/focus?tab=weak-spots"
+          className="btn-tactile btn-tactile-primary px-3.5 py-2 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider text-white shrink-0 flex items-center gap-1.5 self-end sm:self-auto shadow-xs"
+        >
+          <span>View Weak Spots</span>
+          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

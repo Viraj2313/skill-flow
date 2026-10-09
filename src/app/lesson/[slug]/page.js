@@ -512,7 +512,6 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
   function handleSelect(i) {
     if (answered) return;
     setSelected(i);
-    setChecklistDismissed(false);
   }
 
   function handleCheck() {
@@ -612,17 +611,28 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
         )}
       </div>
 
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
+      <div className="px-5 pb-6 pt-3 border-t border-aq-border relative">
+        {/* Floating popover checklist: absolute positioned so it NEVER shifts the CHECK button */}
         {showChecklist && (
-          <div className="mb-3 p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50">
-            <div className="flex items-center justify-between mb-2">
-              <p className="font-mono text-[9px] font-bold tracking-widest uppercase text-amber-700">Before you lock in…</p>
-              <button onClick={() => setChecklistDismissed(true)} className="font-mono text-[9px] text-amber-500 hover:text-amber-700">dismiss</button>
+          <div className="absolute bottom-[calc(100%+10px)] left-5 right-5 z-30 p-3.5 rounded-2xl border border-amber-300 bg-amber-50/98 backdrop-blur-md shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-150">
+            <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-amber-200/70">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[15px] text-amber-700">lightbulb</span>
+                <p className="font-mono text-[10px] font-bold tracking-widest uppercase text-amber-800">Before you lock in…</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChecklistDismissed(true)}
+                className="w-5 h-5 rounded-full flex items-center justify-center font-mono text-[11px] text-amber-600 hover:text-amber-900 hover:bg-amber-100 transition-colors"
+                title="Dismiss checklist"
+              >
+                ✕
+              </button>
             </div>
             <div className="space-y-1.5">
               {checklist.map((item, i) => (
                 <div key={i} className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[13px] text-amber-600 shrink-0 mt-0.5">{item.icon}</span>
+                  <span className="material-symbols-outlined text-[14px] text-amber-600 shrink-0 mt-0.5">{item.icon}</span>
                   <p className="font-sans text-[12px] text-amber-900 leading-snug">{item.text}</p>
                 </div>
               ))}

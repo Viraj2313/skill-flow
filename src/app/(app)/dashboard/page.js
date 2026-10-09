@@ -169,14 +169,17 @@ export default function DashboardPage() {
       });
 
       const spots = (userProgress || [])
-        .filter(p => p.total_count > 0 && p.correct_count / p.total_count < 0.6 && p.total_count >= 2)
+        .filter(p => p.total_count > 0 && p.correct_count / p.total_count < 0.75)
         .sort((a, b) => (a.correct_count / a.total_count) - (b.correct_count / b.total_count))
         .slice(0, 3)
         .map(p => ({
           lessonId:  p.lesson_id,
           title:     p.lessons?.title || 'Unknown Lesson',
           slug:      p.lessons?.slug,
+          topicId:   p.lessons?.topic_id,
+          topicName: p.lessons?.topics?.name || p.lessons?.title,
           pct:       Math.round((p.correct_count / p.total_count) * 100),
+          wrongCount: (p.total_count || 0) - (p.correct_count || 0),
           catId:     p.lessons?.topics?.category_id || 'dsa',
         }));
 
@@ -409,13 +412,18 @@ export default function DashboardPage() {
           <Card className="overflow-hidden border-slate-200 bg-white">
             <div className="px-6 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[17px] text-indigo-600">troubleshoot</span>
+                <span className="material-symbols-outlined text-[17px] text-red-600 filled">my_location</span>
                 <span className="font-mono text-[11px] font-semibold tracking-wider text-slate-700 uppercase">
-                  Performance & Mistakes Review
+                  Where You Lack (Weak Spots)
                 </span>
+                {weakSpots.length > 0 && (
+                  <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
+                    {weakSpots.length} Needs Attention
+                  </span>
+                )}
               </div>
-              <Link href="/focus" className="font-sans text-[12px] font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
-                <span>Open Focus Hub</span>
+              <Link href="/focus?tab=weak-spots" className="font-sans text-[12px] font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-1">
+                <span>Open Weak Spots Hub</span>
                 <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
               </Link>
             </div>
@@ -423,47 +431,76 @@ export default function DashboardPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h3 className="font-sans font-bold text-[17px] text-slate-900">
-                    Track Missed Questions & Diagnose with AI
+                    Instantly Spot What You Got Wrong & Practice Again
                   </h3>
                   <p className="font-sans text-[13px] text-slate-600 max-w-lg leading-relaxed">
-                    View every question you missed across exercises, inspect root causes, and get 1-click AI explanations on how to avoid errors in interviews.
+                    Review your weakest topics below. Jump directly to learn the core concepts or launch a targeted practice drill in 1 click.
                   </p>
                 </div>
                 <Link
-                  href="/focus"
+                  href="/focus?tab=weak-spots"
                   className="btn-tactile px-4 py-2.5 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 border-b-[3.5px] border-black text-white shrink-0 flex items-center gap-2 shadow-sm"
                 >
-                  <span className="material-symbols-outlined text-[15px]">troubleshoot</span>
-                  <span>View Mistakes</span>
+                  <span className="material-symbols-outlined text-[15px]">my_location</span>
+                  <span>Where I Lack Hub</span>
                 </Link>
               </div>
 
-              {weakSpots.length > 0 && (
-                <div className="mt-5 pt-4 border-t border-slate-100">
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
-                    Priority Weak Spots
+              {weakSpots.length > 0 ? (
+                <div className="mt-5 pt-4 border-t border-slate-100 space-y-2.5">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Priority Topics Needing Practice
                   </span>
-                  <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+                  <div className="space-y-2">
                     {weakSpots.map((spot, i) => (
-                      <Link
+                      <div
                         key={i}
-                        href={`/lesson/${spot.slug}`}
-                        className="flex items-center justify-between gap-4 px-4 py-2.5 hover:bg-slate-50 transition-colors group"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl hover:border-slate-300 transition-colors"
                       >
-                        <div className="flex-1 min-w-0">
-                          <p className="font-sans text-[13px] font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors truncate">
-                            {spot.title}
-                          </p>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                          <div className="min-w-0">
+                            <p className="font-sans text-[13.5px] font-bold text-slate-800 truncate">
+                              {spot.title}
+                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="font-mono text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.2 rounded">
+                                {spot.pct}% Accuracy
+                              </span>
+                              {spot.wrongCount > 0 && (
+                                <span className="font-mono text-[10px] text-slate-500">
+                                  • {spot.wrongCount} missed questions
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="font-mono text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">
-                            {spot.pct}%
-                          </span>
-                          <span className="text-[12px] font-mono text-slate-400 group-hover:text-slate-700">→</span>
+
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                          <Link
+                            href={`/lesson/${spot.slug}`}
+                            className="btn-tactile btn-tactile-secondary px-3 py-1.5 rounded-lg font-mono text-[10.5px] font-bold uppercase tracking-wider flex items-center gap-1 text-slate-700 hover:text-slate-900"
+                          >
+                            <span className="material-symbols-outlined text-[13px] text-emerald-600">menu_book</span>
+                            <span>Learn</span>
+                          </Link>
+
+                          <Link
+                            href={`/focus?tab=weak-spots&retestTopic=${spot.slug}`}
+                            className="btn-tactile btn-tactile-primary px-3 py-1.5 rounded-lg font-mono text-[10.5px] font-bold uppercase tracking-wider text-white flex items-center gap-1 shadow-xs"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">bolt</span>
+                            <span>Practice</span>
+                          </Link>
                         </div>
-                      </Link>
+                      </div>
                     ))}
                   </div>
+                </div>
+              ) : (
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-slate-500 text-[13px]">
+                  <span className="material-symbols-outlined text-[18px] text-emerald-600 filled">check_circle</span>
+                  <span>No weak spots detected yet! Keep solving exercises to benchmark your accuracy.</span>
                 </div>
               )}
             </div>

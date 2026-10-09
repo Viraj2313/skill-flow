@@ -540,11 +540,161 @@ function MistakeCard({ item, onRetest }) {
   );
 }
 
+function WeakSpotTopicCard({ topic, onStartDrill }) {
+  const [showQuestions, setShowQuestions] = useState(false);
+  const theme = CAT_THEME[topic.category] || CAT_THEME.dsa;
+  const isCritical = topic.accuracy < 50 || topic.unresolvedMistakes.length >= 2;
+
+  return (
+    <div className={`bg-white border rounded-2xl overflow-hidden shadow-sm transition-all ${
+      isCritical ? 'border-red-200 hover:border-red-300' : 'border-amber-200 hover:border-amber-300'
+    }`}>
+      {/* Header */}
+      <div className={`px-5 py-3.5 border-b flex flex-wrap items-center justify-between gap-3 ${
+        isCritical ? 'bg-red-50/50 border-red-100' : 'bg-amber-50/40 border-amber-100'
+      }`}>
+        <div className="flex items-center gap-2.5">
+          <span
+            className="w-2.5 h-2.5 rounded-full shrink-0"
+            style={{ backgroundColor: isCritical ? '#dc2626' : '#d97706' }}
+          />
+          <span className="font-sans font-bold text-[16px] text-slate-900">
+            {topic.name}
+          </span>
+          <span
+            className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full uppercase"
+            style={{ backgroundColor: theme.color + '15', color: theme.color }}
+          >
+            {theme.label}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className={`font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+            isCritical
+              ? 'bg-red-100/80 text-red-700 border-red-200'
+              : 'bg-amber-100/80 text-amber-700 border-amber-200'
+          }`}>
+            {isCritical ? 'Critical Gap' : 'Needs Focus'}
+          </span>
+          <span className="font-mono text-[12px] font-bold text-slate-700">
+            {topic.accuracy}% accuracy
+          </span>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="p-5 space-y-4">
+        {/* Progress & stats */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+          <div className="flex items-center gap-4">
+            <div>
+              <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Missed Questions
+              </span>
+              <span className="font-mono font-bold text-[15px] text-red-600">
+                {topic.topicMistakes.length} missed
+                {topic.unresolvedMistakes.length > 0 && ` (${topic.unresolvedMistakes.length} unresolved)`}
+              </span>
+            </div>
+            <div className="h-6 w-px bg-slate-200" />
+            <div>
+              <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Total Attempts
+              </span>
+              <span className="font-mono font-bold text-[15px] text-slate-700">
+                {topic.totalAnswered} questions
+              </span>
+            </div>
+          </div>
+
+          <AccuracyGauge pct={topic.accuracy} />
+        </div>
+
+        {/* Missed questions toggle */}
+        {topic.topicMistakes.length > 0 && (
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowQuestions(prev => !prev)}
+              className="text-left font-mono text-[11px] font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[15px]">
+                {showQuestions ? 'expand_less' : 'expand_more'}
+              </span>
+              <span>
+                {showQuestions ? 'Hide questions you got wrong' : `See ${topic.topicMistakes.length} questions you got wrong in this topic`}
+              </span>
+            </button>
+
+            {showQuestions && (
+              <div className="mt-2.5 space-y-2 border-l-2 border-amber-200 pl-3">
+                {topic.topicMistakes.map((m, idx) => (
+                  <div key={m.exerciseId || idx} className="bg-slate-50/80 p-3 rounded-xl border border-slate-100 space-y-1.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-sans text-[13px] font-medium text-slate-800">
+                        {m.question}
+                      </p>
+                      {m.isResolved ? (
+                        <span className="font-mono text-[9px] font-bold uppercase text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded shrink-0">
+                          Resolved
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[9px] font-bold uppercase text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded shrink-0">
+                          Unresolved
+                        </span>
+                      )}
+                    </div>
+                    {m.correctAnswer && (
+                      <p className="font-mono text-[11px] text-emerald-700">
+                        ✓ Correct: {m.correctAnswer}
+                      </p>
+                    )}
+                    {m.explanation && (
+                      <p className="font-sans text-[11px] text-slate-500 leading-relaxed">
+                        {m.explanation}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Action Buttons: LEARN & PRACTICE */}
+        <div className="pt-2 flex flex-wrap items-center gap-3 border-t border-slate-100">
+          {topic.lessonSlug && (
+            <Link
+              href={`/lesson/${topic.lessonSlug}`}
+              className="btn-tactile btn-tactile-secondary flex-1 min-w-[160px] py-2.5 px-4 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 text-slate-800 border-slate-300 hover:bg-slate-100"
+            >
+              <span className="material-symbols-outlined text-[16px] text-emerald-600">menu_book</span>
+              <span>1-Click Learn ({topic.name})</span>
+            </Link>
+          )}
+
+          {topic.topicMistakes.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onStartDrill(topic.topicMistakes)}
+              className="btn-tactile btn-tactile-primary flex-1 min-w-[160px] py-2.5 px-4 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider text-white flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[16px]">bolt</span>
+              <span>1-Click Practice Again ({topic.topicMistakes.length} Qs)</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FocusPage() {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('mistakes');
+  const [tab, setTab] = useState('weak-spots');
   const [mistakeFilter, setMistakeFilter] = useState('all');
   const [drillQueue, setDrillQueue] = useState(null);
 
@@ -560,6 +710,16 @@ export default function FocusPage() {
   }, []);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const qTab = sp.get('tab');
+      if (qTab && ['weak-spots', 'mistakes', 'topics'].includes(qTab)) {
+        setTab(qTab);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) {
         router.push('/login');
@@ -569,6 +729,54 @@ export default function FocusPage() {
     });
   }, [router, loadData]);
 
+  const mistakes = data?.mistakes || [];
+  const topicPerf = data?.topicPerformance || [];
+  const unresolvedMistakes = mistakes.filter(m => !m.isResolved);
+  const filteredMistakes = mistakeFilter === 'unresolved' ? unresolvedMistakes : mistakes;
+
+  // Group mistakes into weak topics (topics with < 75% accuracy or having mistakes)
+  const weakTopics = topicPerf
+    .map((t) => {
+      const topicMistakes = mistakes.filter(
+        (m) => String(m.topicId) === String(t.topicId) || m.topicName === t.name
+      );
+      const unresolved = topicMistakes.filter((m) => !m.isResolved);
+      const isWeak = t.accuracy < 75 || unresolved.length > 0;
+      return {
+        ...t,
+        topicMistakes,
+        unresolvedMistakes: unresolved,
+        isWeak,
+      };
+    })
+    .filter((t) => t.isWeak || t.topicMistakes.length > 0)
+    .sort((a, b) => {
+      if (b.unresolvedMistakes.length !== a.unresolvedMistakes.length) {
+        return b.unresolvedMistakes.length - a.unresolvedMistakes.length;
+      }
+      return a.accuracy - b.accuracy;
+    });
+
+  const startDrill = useCallback((items) => {
+    if (!items || !items.length) return;
+    setDrillQueue(items.slice(0, 5));
+  }, []);
+
+  useEffect(() => {
+    if (!loading && data && typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const retestTopic = sp.get('retestTopic');
+      if (retestTopic) {
+        const matches = (data?.mistakes || []).filter(
+          m => String(m.topicId) === String(retestTopic) || m.topicName === retestTopic || m.lessonSlug === retestTopic
+        );
+        if (matches.length > 0) {
+          startDrill(matches);
+        }
+      }
+    }
+  }, [loading, data, startDrill]);
+
   if (loading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
@@ -576,16 +784,6 @@ export default function FocusPage() {
       </div>
     );
   }
-
-  const mistakes = data?.mistakes || [];
-  const topicPerf = data?.topicPerformance || [];
-  const unresolvedMistakes = mistakes.filter(m => !m.isResolved);
-  const filteredMistakes = mistakeFilter === 'unresolved' ? unresolvedMistakes : mistakes;
-
-  const startDrill = (items) => {
-    if (!items || !items.length) return;
-    setDrillQueue(items.slice(0, 5));
-  };
 
   return (
     <div className="max-w-4xl mx-auto pb-16 px-4 space-y-8">
@@ -609,7 +807,7 @@ export default function FocusPage() {
             Performance & Focus Hub
           </h1>
           <p className="font-sans text-[14px] text-slate-500 mt-1">
-            Review every question you missed, spot conceptual blindspots, and diagnose traps with AI.
+            Instantly see where you lack, review topics you got wrong, and learn or practice again in 1 click.
           </p>
         </div>
 
@@ -648,22 +846,22 @@ export default function FocusPage() {
 
         <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-            Questions Tackled
+            Weak Spots
           </span>
-          <p className="font-mono font-bold text-[24px] text-slate-900">
-            {data?.totalQuestionsTackled ?? 0}
+          <p className={`font-mono font-bold text-[24px] ${weakTopics.length > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+            {weakTopics.length}
           </p>
-          <span className="font-sans text-[11px] text-slate-500">Total logged attempts</span>
+          <span className="font-sans text-[11px] text-slate-500">Topics needing focus</span>
         </div>
 
         <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
           <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-            Needs Review
+            Unresolved Misses
           </span>
-          <p className="font-mono font-bold text-[24px] text-amber-600">
+          <p className={`font-mono font-bold text-[24px] ${unresolvedMistakes.length > 0 ? 'text-amber-600' : 'text-slate-900'}`}>
             {unresolvedMistakes.length}
           </p>
-          <span className="font-sans text-[11px] text-slate-500">Unresolved questions</span>
+          <span className="font-sans text-[11px] text-slate-500">Questions to retest</span>
         </div>
 
         <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
@@ -677,11 +875,29 @@ export default function FocusPage() {
         </div>
       </div>
 
-      <div className="flex border-b border-slate-200 gap-4">
+      <div className="flex border-b border-slate-200 gap-2 sm:gap-4 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setTab('weak-spots')}
+          className={`pb-3 font-mono text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 shrink-0 ${
+            tab === 'weak-spots'
+              ? 'border-slate-900 text-slate-900'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px] text-red-600 filled">my_location</span>
+          <span>Where I Lack ({weakTopics.length})</span>
+          {weakTopics.length > 0 && (
+            <span className="px-1.5 py-0.2 rounded-full bg-red-100 text-red-700 text-[10px] font-mono font-bold">
+              Action
+            </span>
+          )}
+        </button>
+
         <button
           type="button"
           onClick={() => setTab('mistakes')}
-          className={`pb-3 font-mono text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 ${
+          className={`pb-3 font-mono text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 shrink-0 ${
             tab === 'mistakes'
               ? 'border-slate-900 text-slate-900'
               : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -694,7 +910,7 @@ export default function FocusPage() {
         <button
           type="button"
           onClick={() => setTab('topics')}
-          className={`pb-3 font-mono text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 ${
+          className={`pb-3 font-mono text-[12px] font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-2 shrink-0 ${
             tab === 'topics'
               ? 'border-slate-900 text-slate-900'
               : 'border-transparent text-slate-400 hover:text-slate-600'
@@ -704,6 +920,75 @@ export default function FocusPage() {
           <span>Topic Mastery ({topicPerf.length})</span>
         </button>
       </div>
+
+      {tab === 'weak-spots' && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-amber-50/60 border border-amber-200/80 p-4 rounded-2xl">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-[24px] text-amber-600 shrink-0 filled">flag_circle</span>
+              <div>
+                <h2 className="font-sans font-bold text-[15px] text-slate-900">
+                  Priority Weak Spots & Knowledge Gaps
+                </h2>
+                <p className="font-sans text-[12.5px] text-slate-600">
+                  Topics where accuracy is below 75% or mistakes exist. Click <span className="font-semibold text-slate-900">Learn</span> to study the theory or <span className="font-semibold text-slate-900">Practice</span> to retest.
+                </p>
+              </div>
+            </div>
+
+            {unresolvedMistakes.length > 0 && (
+              <button
+                type="button"
+                onClick={() => startDrill(unresolvedMistakes)}
+                className="btn-tactile btn-tactile-primary px-3.5 py-2 rounded-xl font-mono text-[11px] font-bold uppercase tracking-wider text-white shrink-0 flex items-center gap-1.5 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[15px]">bolt</span>
+                <span>Drill All Misses</span>
+              </button>
+            )}
+          </div>
+
+          {weakTopics.length === 0 ? (
+            <div className="p-10 bg-white border border-slate-200 rounded-3xl text-center space-y-3 shadow-xs">
+              <div className="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+                <span className="material-symbols-outlined text-[32px] filled">verified</span>
+              </div>
+              <h3 className="font-sans font-bold text-[19px] text-slate-900">
+                No Weak Spots Detected!
+              </h3>
+              <p className="font-sans text-[14px] text-slate-500 max-w-md mx-auto leading-relaxed">
+                Great job! You don&apos;t have any topics with low accuracy or unresolved mistakes. Keep solving new lessons to maintain your streak.
+              </p>
+              <div className="pt-2 flex justify-center gap-3">
+                <Link
+                  href="/skills"
+                  className="btn-tactile btn-tactile-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-mono text-[11px] font-bold tracking-wider uppercase text-white shadow-sm"
+                >
+                  <span>Explore New Topics</span>
+                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </Link>
+                <Link
+                  href="/practice/speed"
+                  className="btn-tactile btn-tactile-secondary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-mono text-[11px] font-bold tracking-wider uppercase text-slate-800"
+                >
+                  <span>Speed Drill</span>
+                  <span className="material-symbols-outlined text-[16px]">timer</span>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {weakTopics.map((topic) => (
+                <WeakSpotTopicCard
+                  key={topic.topicId || topic.name}
+                  topic={topic}
+                  onStartDrill={(items) => startDrill(items)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {tab === 'mistakes' && (
         <div className="space-y-4">

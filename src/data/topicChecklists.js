@@ -67,7 +67,7 @@ const CHECKLISTS = {
 };
 
 const DEFAULT = [
-  { icon: 'edge_sensor',       text: 'Edge cases: empty input, single element, all duplicates, negatives.' },
+  { icon: 'warning',           text: 'Edge cases: empty input, single element, all duplicates, negatives.' },
   { icon: 'speed',             text: 'Could a hash map, two pointers, or sorting make this faster?' },
   { icon: 'psychology',        text: 'Trace your answer on a 3-4 element example before locking in.' },
 ];

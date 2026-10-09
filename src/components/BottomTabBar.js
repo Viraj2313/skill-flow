@@ -12,7 +12,7 @@ const MAIN_NAV = [
 ];
 
 const TOOLS_NAV = [
-  { href: '/focus',                icon: 'troubleshoot',   label: 'Mistakes & Focus' },
+  { href: '/focus',                icon: 'my_location',    label: 'Where I Lack (Focus)' },
   { href: '/practice/visualizer',  icon: 'animation',      label: 'Visualizer'      },
   { href: '/evolutions',           icon: 'trending_up',    label: 'Code Evolution'  },
   { href: '/interview',            icon: 'psychology',     label: 'Interview Mode'  },
@@ -31,8 +31,9 @@ const BOTTOM_TABS = [
 ];
 
 function isActive(pathname, href) {
-  if (href === '/dashboard') return pathname === '/dashboard';
-  return pathname.startsWith(href);
+  const baseHref = href.split('?')[0];
+  if (baseHref === '/dashboard') return pathname === '/dashboard';
+  return pathname.startsWith(baseHref);
 }
 
 export function DesktopSidebar() {
