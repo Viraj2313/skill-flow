@@ -152,12 +152,23 @@ export default function DashboardPage() {
         getUserLessonProgress(u.id),
       ]);
 
-      const completedSet = new Set((userProgress || []).filter(p => p.completed).map(p => p.lesson_id));
+      let localCached = [];
+      try {
+        const raw = localStorage.getItem('aq_completed_lessons');
+        localCached = raw ? JSON.parse(raw) : [];
+      } catch {}
+
+      const completedSet = new Set([
+        ...(userProgress || [])
+          .filter(p => p.completed === true || p.completed === 'true' || p.completed === 1 || Boolean(p.completed_at))
+          .map(p => String(p.lesson_id)),
+        ...localCached.map(String),
+      ]);
       
       const tracks = ['dsa', 'python', 'cs-fundamentals'].map((catId) => {
         const catTopics = (topics || []).filter(t => t.category_id === catId);
         const catLessons = (lessons || []).filter(l => catTopics.some(t => t.id === l.topic_id));
-        const done = catLessons.filter(l => completedSet.has(l.id)).length;
+        const done = catLessons.filter(l => completedSet.has(String(l.id)) || completedSet.has(String(l.slug))).length;
         const total = catLessons.length;
         return {
           id: catId,

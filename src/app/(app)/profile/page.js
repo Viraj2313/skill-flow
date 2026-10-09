@@ -343,11 +343,19 @@ export default function ProfilePage() {
             if (!l.topic_id) continue;
             topicLessonCount[l.topic_id] = (topicLessonCount[l.topic_id] || 0) + 1;
           }
-          const completedSet = new Set(progress.filter(p => p.completed).map(p => p.lesson_id));
+          let localCached = [];
+          try {
+            const raw = localStorage.getItem('aq_completed_lessons');
+            localCached = raw ? JSON.parse(raw) : [];
+          } catch {}
+          const completedSet = new Set([
+            ...progress.filter(p => p.completed === true || p.completed === 'true' || p.completed === 1 || Boolean(p.completed_at)).map(p => String(p.lesson_id)),
+            ...localCached.map(String),
+          ]);
           const earned = topics.filter(t => {
             const total = topicLessonCount[t.id] || 0;
             if (total === 0) return false;
-            const done  = lessons.filter(l => l.topic_id === t.id && completedSet.has(l.id)).length;
+            const done  = lessons.filter(l => l.topic_id === t.id && (completedSet.has(String(l.id)) || completedSet.has(String(l.slug)))).length;
             return done === total;
           });
 

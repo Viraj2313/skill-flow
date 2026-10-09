@@ -106,8 +106,16 @@ export default function CertificatePage() {
       if (!t) { router.push('/profile'); return; }
 
       const topicLessons  = allLessons.filter(l => l.topic_id === topicId);
-      const completedSet  = new Set(userProgress.filter(p => p.completed).map(p => p.lesson_id));
-      const allDone       = topicLessons.length > 0 && topicLessons.every(l => completedSet.has(l.id));
+      let localCached = [];
+      try {
+        const raw = localStorage.getItem('aq_completed_lessons');
+        localCached = raw ? JSON.parse(raw) : [];
+      } catch {}
+      const completedSet  = new Set([
+        ...(userProgress || []).filter(p => p.completed === true || p.completed === 'true' || p.completed === 1 || Boolean(p.completed_at)).map(p => String(p.lesson_id)),
+        ...localCached.map(String),
+      ]);
+      const allDone       = topicLessons.length > 0 && topicLessons.every(l => completedSet.has(String(l.id)) || completedSet.has(String(l.slug)));
 
       if (allDone) {
         const completionDates = userProgress

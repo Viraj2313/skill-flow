@@ -1161,6 +1161,16 @@ export default function LessonPage() {
         setShowConfetti(true);
       }
       try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const cached = JSON.parse(localStorage.getItem('aq_completed_lessons') || '[]');
+          const s = new Set(cached.map(String));
+          s.add(String(lesson.id));
+          if (lesson.slug) s.add(String(lesson.slug));
+          localStorage.setItem('aq_completed_lessons', JSON.stringify(Array.from(s)));
+          window.dispatchEvent(new CustomEvent('aq_lesson_completed', { detail: { lessonId: String(lesson.id) } }));
+        }
+      } catch {}
+      try {
         await completeLesson(
           lesson.id,
           nextCorrect,
@@ -1253,7 +1263,10 @@ export default function LessonPage() {
       <div className="shrink-0 px-5 py-3.5 border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
         <div className="flex items-center gap-3.5">
           <button
-            onClick={() => router.back()}
+            onClick={() => {
+              router.back();
+              router.refresh();
+            }}
             className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shrink-0"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -1311,7 +1324,19 @@ export default function LessonPage() {
               correct={correctCount}
               total={exercises.length}
               color={color}
-              onFinish={() => router.push('/skills')}
+              onFinish={() => {
+                try {
+                  if (typeof window !== 'undefined' && window.localStorage) {
+                    const cached = JSON.parse(localStorage.getItem('aq_completed_lessons') || '[]');
+                    const s = new Set(cached.map(String));
+                    s.add(String(lesson.id));
+                    if (lesson.slug) s.add(String(lesson.slug));
+                    localStorage.setItem('aq_completed_lessons', JSON.stringify(Array.from(s)));
+                  }
+                } catch {}
+                router.push('/skills');
+                router.refresh();
+              }}
               ahaNote={ahaNote}
               setAhaNote={setAhaNote}
               onSaveAha={handleSaveAha}

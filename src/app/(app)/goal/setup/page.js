@@ -24,13 +24,13 @@ function generatePlan(topics, lessons, progress) {
 
   const progressByTopic = {};
   progress.forEach(p => {
-    const lesson = lessonMap[p.lesson_id];
+    const lesson = lessonMap[p.lesson_id] || lessons.find(l => l.slug === p.lesson_id);
     if (!lesson) return;
     const tid = lesson.topic_id;
     if (!progressByTopic[tid]) progressByTopic[tid] = { correct: 0, total: 0, completed: 0 };
     progressByTopic[tid].total    += p.exercises_seen  || 0;
     progressByTopic[tid].correct  += p.exercises_correct || 0;
-    progressByTopic[tid].completed += p.completed ? 1 : 0;
+    progressByTopic[tid].completed += (p.completed || p.completed_at) ? 1 : 0;
   });
 
   const topicLessonCount = {};

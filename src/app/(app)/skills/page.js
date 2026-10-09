@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -60,7 +60,7 @@ const CATEGORIES = [
 
 function TopicRow({ topic, lessons, completedLessonIds, color, onSelect }) {
   const total       = lessons.length;
-  const done        = lessons.filter(l => completedLessonIds.has(l.id)).length;
+  const done        = lessons.filter(l => completedLessonIds.has(String(l.id)) || completedLessonIds.has(String(l.slug))).length;
   const pct         = total > 0 ? done / total : 0;
   const isLocked    = total === 0;
   const isCompleted = !isLocked && done === total;
@@ -157,7 +157,7 @@ function CategorySection({ cat, topics, lessons, completedLessonIds, onSelect })
   const catTopics = topics.filter(t => t.category_id === cat.id);
   const catLessons = lessons.filter(l => catTopics.some(t => t.id === l.topic_id));
   const totalLessons = catLessons.length;
-  const doneLessons  = catLessons.filter(l => completedLessonIds.has(l.id)).length;
+  const doneLessons  = catLessons.filter(l => completedLessonIds.has(String(l.id)) || completedLessonIds.has(String(l.slug))).length;
   const pct = totalLessons > 0 ? Math.round((doneLessons / totalLessons) * 100) : 0;
 
   return (
@@ -248,9 +248,9 @@ function LessonCard({ lesson, isDone, color, onStart }) {
 }
 
 function TopicSheet({ topic, lessons, completedLessonIds, catColor, onClose, onStartLesson }) {
-  const done  = lessons.filter(l => completedLessonIds.has(l.id)).length;
+  const done  = lessons.filter(l => completedLessonIds.has(String(l.id)) || completedLessonIds.has(String(l.slug))).length;
   const total = lessons.length;
-  const firstIncomplete = lessons.find(l => !completedLessonIds.has(l.id));
+  const firstIncomplete = lessons.find(l => !completedLessonIds.has(String(l.id)) && !completedLessonIds.has(String(l.slug)));
 
   return (
     <div
@@ -287,7 +287,7 @@ function TopicSheet({ topic, lessons, completedLessonIds, catColor, onClose, onS
               <LessonCard
                 key={lesson.id}
                 lesson={lesson}
-                isDone={completedLessonIds.has(lesson.id)}
+                isDone={completedLessonIds.has(String(lesson.id)) || completedLessonIds.has(String(lesson.slug))}
                 color={catColor}
                 onStart={onStartLesson}
               />
@@ -320,8 +320,9 @@ export default function SkillsPage() {
   const [loading,        setLoading]        = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
+  const loadSkillsData = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
 
       const [t, l, progress] = await Promise.all([
@@ -330,12 +331,50 @@ export default function SkillsPage() {
         getUserLessonProgress(user.id),
       ]);
 
-      setTopics(t);
-      setLessons(l);
-      setCompletedIds(new Set((progress || []).filter(p => p.completed).map(p => p.lesson_id)));
+      let localCached = [];
+      try {
+        const raw = localStorage.getItem('aq_completed_lessons');
+        localCached = raw ? JSON.parse(raw) : [];
+      } catch {}
+
+      const ids = new Set([
+        ...(progress || [])
+          .filter(p => p.completed === true || p.completed === 'true' || p.completed === 1 || Boolean(p.completed_at))
+          .map(p => String(p.lesson_id)),
+        ...localCached.map(String),
+      ]);
+
+      setTopics(t || []);
+      setLessons(l || []);
+      setCompletedIds(ids);
+    } catch {
+    } finally {
       setLoading(false);
-    });
-  }, []);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    loadSkillsData();
+
+    const onSync = () => loadSkillsData();
+    window.addEventListener('focus', onSync);
+    window.addEventListener('pageshow', onSync);
+    window.addEventListener('aq_lesson_completed', onSync);
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadSkillsData();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      window.removeEventListener('focus', onSync);
+      window.removeEventListener('pageshow', onSync);
+      window.removeEventListener('aq_lesson_completed', onSync);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [loadSkillsData]);
 
   const visibleCats = activeCategory === 'all'
     ? CATEGORIES
