@@ -14,32 +14,12 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false 
 
 const BOILERPLATE = {
   python: `def solution(nums, target):
-    seen = {}
-    for i, num in enumerate(nums):
-        complement = target - num
-        if complement in seen:
-            return [seen[complement], i]
-        seen[num] = i
     return []`,
   javascript: `function solution(nums, target) {
-    const seen = {};
-    for (let i = 0; i < nums.length; i++) {
-        const complement = target - nums[i];
-        if (complement in seen) return [seen[complement], i];
-        seen[nums[i]] = i;
-    }
     return [];
 }`,
   java: `class Solution {
     public int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> seen = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            int complement = target - nums[i];
-            if (seen.containsKey(complement)) {
-                return new int[]{seen.get(complement), i};
-            }
-            seen.put(nums[i], i);
-        }
         return new int[]{};
     }
 }`,

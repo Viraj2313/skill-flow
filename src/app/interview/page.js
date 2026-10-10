@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { supabase } from '@/lib/supabase';
 import { saveMockInterviewSession, getUserMockInterviews } from '@/lib/db';
 import { playSuccessSound, playErrorSound } from '@/lib/audio';
+import { runPython } from '@/lib/python-runner';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
@@ -34,23 +35,8 @@ const CURATED_PROBLEMS = [
     ],
     templates: {
       python: `def two_sum(nums: list[int], target: int) -> list[int]:
-    # Implement your optimal solution here
-    seen = {}
-    for i, n in enumerate(nums):
-        diff = target - n
-        if diff in seen:
-            return [seen[diff], i]
-        seen[n] = i
     return []`,
       javascript: `function twoSum(nums, target) {
-  const seen = new Map();
-  for (let i = 0; i < nums.length; i++) {
-    const diff = target - nums[i];
-    if (seen.has(diff)) {
-      return [seen.get(diff), i];
-    }
-    seen.set(nums[i], i);
-  }
   return [];
 }`,
     },
@@ -79,23 +65,9 @@ const CURATED_PROBLEMS = [
     ],
     templates: {
       python: `def is_palindrome(s: str) -> bool:
-    filtered = [c.lower() for c in s if c.isalnum()]
-    left, right = 0, len(filtered) - 1
-    while left < right:
-        if filtered[left] != filtered[right]:
-            return False
-        left += 1
-        right -= 1
-    return True`,
+    return False`,
       javascript: `function isPalindrome(s) {
-  const clean = s.toLowerCase().replace(/[^a-z0-9]/g, '');
-  let left = 0, right = clean.length - 1;
-  while (left < right) {
-    if (clean[left] !== clean[right]) return false;
-    left++;
-    right--;
-  }
-  return true;
+  return false;
 }`,
     },
     tests: [
@@ -122,22 +94,9 @@ const CURATED_PROBLEMS = [
     ],
     templates: {
       python: `def max_profit(prices: list[int]) -> int:
-    min_price = float('inf')
-    max_p = 0
-    for p in prices:
-        if p < min_price:
-            min_price = p
-        elif p - min_price > max_p:
-            max_p = p - min_price
-    return max_p`,
+    return 0`,
       javascript: `function maxProfit(prices) {
-  let minPrice = Infinity;
-  let maxP = 0;
-  for (const p of prices) {
-    if (p < minPrice) minPrice = p;
-    else if (p - minPrice > maxP) maxP = p - minPrice;
-  }
-  return maxP;
+  return 0;
 }`,
     },
     tests: [
@@ -165,20 +124,9 @@ const CURATED_PROBLEMS = [
     ],
     templates: {
       python: `def max_sub_array(nums: list[int]) -> int:
-    current_sum = nums[0]
-    best_sum = nums[0]
-    for n in nums[1:]:
-        current_sum = max(n, current_sum + n)
-        best_sum = max(best_sum, current_sum)
-    return best_sum`,
+    return 0`,
       javascript: `function maxSubArray(nums) {
-  let currentSum = nums[0];
-  let bestSum = nums[0];
-  for (let i = 1; i < nums.length; i++) {
-    currentSum = Math.max(nums[i], currentSum + nums[i]);
-    bestSum = Math.max(bestSum, currentSum);
-  }
-  return bestSum;
+  return 0;
 }`,
     },
     tests: [
@@ -206,27 +154,9 @@ const CURATED_PROBLEMS = [
     ],
     templates: {
       python: `def is_valid(s: str) -> bool:
-    pairs = {')': '(', '}': '{', ']': '['}
-    stack = []
-    for c in s:
-        if c in pairs:
-            if not stack or stack[-1] != pairs[c]:
-                return False
-            stack.pop()
-        else:
-            stack.append(c)
-    return len(stack) == 0`,
+    return False`,
       javascript: `function isValid(s) {
-  const map = { ')': '(', '}': '{', ']': '[' };
-  const stack = [];
-  for (const c of s) {
-    if (map[c]) {
-      if (stack.pop() !== map[c]) return false;
-    } else {
-      stack.push(c);
-    }
-  }
-  return stack.length === 0;
+  return false;
 }`,
     },
     tests: [
@@ -387,7 +317,7 @@ export default function InterviewPage() {
     }
   };
 
-  const handleRunTests = () => {
+  const handleRunTests = async () => {
     if (!activeProblem.tests) return;
 
     if (language === 'javascript') {
@@ -420,13 +350,32 @@ export default function InterviewPage() {
         playErrorSound();
       }
     } else {
-      setTestResults(activeProblem.tests.map(t => ({
-        label: t.label,
-        passed: true,
-        actual: t.expected,
-        expected: t.expected,
-      })));
-      playSuccessSound();
+      try {
+        let pyFn = 'two_sum';
+        if (activeProblem.id === 'two-sum') pyFn = 'two_sum';
+        if (activeProblem.id === 'valid-palindrome') pyFn = 'is_palindrome';
+        if (activeProblem.id === 'best-time-stock') pyFn = 'max_profit';
+        if (activeProblem.id === 'max-subarray') pyFn = 'max_sub_array';
+        if (activeProblem.id === 'valid-parentheses') pyFn = 'is_valid';
+
+        const pyCodeWithAlias = `${code}\nif '${pyFn}' in locals():\n    solution = locals()['${pyFn}']\nelif '${pyFn}' in globals():\n    solution = globals()['${pyFn}']\n`;
+        const testPayload = activeProblem.tests.map(t => ({ args: t.args, expected: t.expected }));
+        const output = await runPython(pyCodeWithAlias, testPayload);
+        const results = (output.results || []).map((res, i) => ({
+          label: activeProblem.tests[i]?.label || `Test ${i + 1}`,
+          passed: Boolean(res.passed),
+          actual: res.actual,
+          expected: res.expected,
+          error: res.error,
+        }));
+        const allPassed = results.length > 0 && results.every(r => r.passed);
+        if (allPassed) playSuccessSound();
+        else playErrorSound();
+        setTestResults(results);
+      } catch (err) {
+        setTestResults([{ label: 'Python Execution', passed: false, error: err.message || 'Error executing Python.' }]);
+        playErrorSound();
+      }
     }
   };
 
