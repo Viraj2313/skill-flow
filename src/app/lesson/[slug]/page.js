@@ -188,214 +188,217 @@ function ConceptCard({ card, index, total, color, onNext, token }) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#fff' }}>
+    <div className="flex flex-col h-full min-h-0 bg-white">
 
       {/* ── Scrollable content ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '28px 24px 8px' }}>
-        {card.heading && (
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', lineHeight: 1.35, marginBottom: 18, fontFamily: 'Inter, sans-serif' }}>
-            {card.heading}
-          </h2>
-        )}
+      <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-7 pb-6">
+        <div className="max-w-2xl mx-auto">
+          {card.heading && (
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', lineHeight: 1.35, marginBottom: 18, fontFamily: 'Inter, sans-serif' }}>
+              {card.heading}
+            </h2>
+          )}
 
-        {/* Content modes */}
-        {socratic ? (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 15, color: '#7c3aed' }}>psychology</span>
-                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7c3aed' }}>Discover Mode</span>
-              </div>
-              <button onClick={() => { setSocratic(false); setSocraticQs([]); setSocraticIdx(0); setSocraticHistory([]); setSocraticDone(false); }}
-                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, letterSpacing: '0.06em' }}>
-                EXIT ×
-              </button>
-            </div>
-
-            {socraticLoading && socraticHistory.length === 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '16px 0' }}>
-                <span style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #7c3aed', borderTopColor: 'transparent', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
-                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>Crafting questions…</span>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-              {socraticHistory.map((msg, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                  <div style={{
-                    maxWidth: '88%', borderRadius: 16, padding: '10px 16px',
-                    background: msg.role === 'user' ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : msg.isQuestion ? '#f5f3ff' : '#f8fafc',
-                    color: msg.role === 'user' ? 'white' : '#374151',
-                    border: msg.role === 'user' ? 'none' : msg.isQuestion ? '1px solid #ddd6fe' : '1px solid #e2e8f0',
-                  }}>
-                    <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, lineHeight: 1.6, margin: 0 }}>{msg.text}</p>
-                  </div>
+          {/* Content modes */}
+          {socratic ? (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 15, color: '#7c3aed' }}>psychology</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7c3aed' }}>Discover Mode</span>
                 </div>
-              ))}
-              {socraticLoading && socraticHistory.length > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                  <div style={{ background: '#f1f5f9', borderRadius: 16, padding: '10px 16px', display: 'flex', gap: 4, alignItems: 'center' }}>
-                    {[0, 150, 300].map(d => <span key={d} style={{ width: 7, height: 7, borderRadius: '50%', background: '#94a3b8', display: 'inline-block', animation: `bounce 1.2s ${d}ms ease-in-out infinite` }} />)}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {socraticDone && (
-              <div style={{ padding: '14px 16px', borderRadius: 12, border: '1px solid #ddd6fe', background: '#faf5ff', marginBottom: 12 }}>
-                <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7c3aed', marginBottom: 8 }}>You worked it out — now read it fully</p>
-                <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>{card.body}</p>
-              </div>
-            )}
-
-            {!socraticDone && !socraticLoading && socraticQs.length > 0 && (
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  value={socraticInput}
-                  onChange={e => setSocraticInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && submitSocraticAnswer()}
-                  placeholder="Your answer…"
-                  style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontSize: 14, border: '1px solid #e2e8f0', borderRadius: 12, padding: '10px 14px', outline: 'none', color: '#0f172a', background: '#fff' }}
-                />
-                <button onClick={submitSocraticAnswer} disabled={!socraticInput.trim()}
-                  style={{ padding: '10px 18px', borderRadius: 12, background: 'linear-gradient(135deg,#7c3aed,#6366f1)', border: 'none', cursor: 'pointer', color: 'white', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, fontSize: 14, opacity: !socraticInput.trim() ? 0.4 : 1 }}>
-                  →
+                <button onClick={() => { setSocratic(false); setSocraticQs([]); setSocraticIdx(0); setSocraticHistory([]); setSocraticDone(false); }}
+                  style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, letterSpacing: '0.06em' }}>
+                  EXIT ×
                 </button>
               </div>
-            )}
-            {socraticErr && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#ef4444', marginTop: 8 }}>{socraticErr}</p>}
-          </div>
-        ) : altText ? (
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-              <span className="material-symbols-outlined filled" style={{ fontSize: 15, color: '#9333ea' }}>auto_awesome</span>
-              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#9333ea' }}>AI Explanation</span>
+
+              {socraticLoading && socraticHistory.length === 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '16px 0' }}>
+                  <span style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #7c3aed', borderTopColor: 'transparent', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>Crafting questions…</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+                {socraticHistory.map((msg, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                    <div style={{
+                      maxWidth: '88%', borderRadius: 16, padding: '10px 16px',
+                      background: msg.role === 'user' ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : msg.isQuestion ? '#f5f3ff' : '#f8fafc',
+                      color: msg.role === 'user' ? 'white' : '#374151',
+                      border: msg.role === 'user' ? 'none' : msg.isQuestion ? '1px solid #ddd6fe' : '1px solid #e2e8f0',
+                    }}>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, lineHeight: 1.6, margin: 0 }}>{msg.text}</p>
+                    </div>
+                  </div>
+                ))}
+                {socraticLoading && socraticHistory.length > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    <div style={{ background: '#f1f5f9', borderRadius: 16, padding: '10px 16px', display: 'flex', gap: 4, alignItems: 'center' }}>
+                      {[0, 150, 300].map(d => <span key={d} style={{ width: 7, height: 7, borderRadius: '50%', background: '#94a3b8', display: 'inline-block', animation: `bounce 1.2s ${d}ms ease-in-out infinite` }} />)}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {socraticDone && (
+                <div style={{ padding: '14px 16px', borderRadius: 12, border: '1px solid #ddd6fe', background: '#faf5ff', marginBottom: 12 }}>
+                  <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7c3aed', marginBottom: 8 }}>You worked it out — now read it fully</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>{card.body}</p>
+                </div>
+              )}
+
+              {!socraticDone && !socraticLoading && socraticQs.length > 0 && (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    value={socraticInput}
+                    onChange={e => setSocraticInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && submitSocraticAnswer()}
+                    placeholder="Your answer…"
+                    style={{ flex: 1, fontFamily: 'Inter, sans-serif', fontSize: 14, border: '1px solid #e2e8f0', borderRadius: 12, padding: '10px 14px', outline: 'none', color: '#0f172a', background: '#fff' }}
+                  />
+                  <button onClick={submitSocraticAnswer} disabled={!socraticInput.trim()}
+                    style={{ padding: '10px 18px', borderRadius: 12, background: 'linear-gradient(135deg,#7c3aed,#6366f1)', border: 'none', cursor: 'pointer', color: 'white', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, fontSize: 14, opacity: !socraticInput.trim() ? 0.4 : 1 }}>
+                    →
+                  </button>
+                </div>
+              )}
+              {socraticErr && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#ef4444', marginTop: 8 }}>{socraticErr}</p>}
             </div>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#374151', lineHeight: 1.75, whiteSpace: 'pre-line', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: 12, padding: '16px 18px', margin: 0 }}>
-              {altText}
+          ) : altText ? (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <span className="material-symbols-outlined filled" style={{ fontSize: 15, color: '#9333ea' }}>auto_awesome</span>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#9333ea' }}>AI Explanation</span>
+              </div>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#374151', lineHeight: 1.75, whiteSpace: 'pre-line', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: 12, padding: '16px 18px', margin: 0 }}>
+                {altText}
+              </p>
+              <button onClick={() => setAltText(null)}
+                style={{ marginTop: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: '#94a3b8', padding: 0 }}>
+                ← Back to original
+              </button>
+            </div>
+          ) : (
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#334155', lineHeight: 1.8, whiteSpace: 'pre-line', marginBottom: 20, margin: 0 }}>
+              {card.body}
             </p>
-            <button onClick={() => setAltText(null)}
-              style={{ marginTop: 10, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: '#94a3b8', padding: 0 }}>
-              ← Back to original
-            </button>
-          </div>
-        ) : (
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 17, color: '#334155', lineHeight: 1.8, whiteSpace: 'pre-line', marginBottom: 20, margin: 0 }}>
-            {card.body}
-          </p>
-        )}
+          )}
 
-        {!socratic && card.code && (
-          <div style={{ marginTop: 20 }}>
-            <CodeBlock text={card.code} />
-          </div>
-        )}
+          {!socratic && card.code && (
+            <div style={{ marginTop: 20 }}>
+              <CodeBlock text={card.code} />
+            </div>
+          )}
 
-        {/* Angle result — shown inline in content */}
-        {angleText && (
-          <div style={{ marginTop: 20, padding: '14px 18px', borderRadius: 12, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-            <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: ANGLES.find(a => a.id === activeAngle)?.color, marginBottom: 10 }}>
-              {ANGLES.find(a => a.id === activeAngle)?.label}
-            </p>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#374151', lineHeight: 1.75, whiteSpace: 'pre-line', margin: 0 }}>{angleText}</p>
-          </div>
-        )}
+          {/* Angle result — shown inline in content */}
+          {angleText && (
+            <div style={{ marginTop: 20, padding: '14px 18px', borderRadius: 12, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: ANGLES.find(a => a.id === activeAngle)?.color, marginBottom: 10 }}>
+                {ANGLES.find(a => a.id === activeAngle)?.label}
+              </p>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 15, color: '#374151', lineHeight: 1.75, whiteSpace: 'pre-line', margin: 0 }}>{angleText}</p>
+            </div>
+          )}
 
-        {explainErr && (
-          <p style={{ marginTop: 12, fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#ef4444' }}>{explainErr}</p>
-        )}
+          {explainErr && (
+            <p style={{ marginTop: 12, fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#ef4444' }}>{explainErr}</p>
+          )}
+        </div>
       </div>
 
       {/* ── Bottom action bar ── */}
-      <div style={{ flexShrink: 0, borderTop: '1px solid #f1f5f9', background: '#fff', padding: '14px 20px 22px' }}>
-
-        {/* Tool pills row */}
-        {!socratic && (
-          <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 14, scrollbarWidth: 'none' }}>
-            {/* Discover */}
-            <button onClick={startSocratic} style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '6px 14px', borderRadius: 100, flexShrink: 0, cursor: 'pointer',
-              fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
-              border: '1px solid #ddd6fe', color: '#7c3aed', background: '#faf5ff',
-              transition: 'background 150ms',
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 13 }}>psychology</span>
-              DISCOVER
-            </button>
-
-            {/* Angle pills */}
-            {ANGLES.map(a => (
-              <button key={a.id} onClick={() => handleAngle(a.id)} disabled={angleLoading}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '6px 14px', borderRadius: 100, flexShrink: 0, cursor: angleLoading ? 'default' : 'pointer',
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
-                  border: `1px solid ${activeAngle === a.id ? a.color : '#e2e8f0'}`,
-                  color: activeAngle === a.id ? a.color : '#64748b',
-                  background: activeAngle === a.id ? a.color + '18' : '#f8fafc',
-                  opacity: angleLoading && activeAngle !== a.id ? 0.45 : 1,
-                  transition: 'all 150ms',
-                }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 12, color: activeAngle === a.id ? a.color : '#94a3b8' }}>{a.icon}</span>
-                {a.label.toUpperCase()}
+      <div className="shrink-0 border-t border-slate-100 bg-white px-5 pt-3.5 pb-6 shadow-[0_-4px_16px_rgba(0,0,0,0.03)] z-10">
+        <div className="max-w-2xl mx-auto">
+          {/* Tool pills row */}
+          {!socratic && (
+            <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 14, scrollbarWidth: 'none' }}>
+              {/* Discover */}
+              <button onClick={startSocratic} style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '6px 14px', borderRadius: 100, flexShrink: 0, cursor: 'pointer',
+                fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+                border: '1px solid #ddd6fe', color: '#7c3aed', background: '#faf5ff',
+                transition: 'background 150ms',
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 13 }}>psychology</span>
+                DISCOVER
               </button>
-            ))}
 
-            {/* AI Explain */}
-            {!altText && !angleText && (
-              <button onClick={handleExplain} disabled={explaining}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '6px 14px', borderRadius: 100, flexShrink: 0,
-                  cursor: explaining ? 'default' : 'pointer',
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
-                  border: '1px solid #e9d5ff', color: '#9333ea', background: '#fdf4ff',
-                  opacity: explaining ? 0.6 : 1, transition: 'opacity 150ms',
-                }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 12 }}>auto_awesome</span>
-                {explaining ? 'THINKING…' : 'EXPLAIN'}
-              </button>
-            )}
-          </div>
-        )}
+              {/* Angle pills */}
+              {ANGLES.map(a => (
+                <button key={a.id} onClick={() => handleAngle(a.id)} disabled={angleLoading}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    padding: '6px 14px', borderRadius: 100, flexShrink: 0, cursor: angleLoading ? 'default' : 'pointer',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+                    border: `1px solid ${activeAngle === a.id ? a.color : '#e2e8f0'}`,
+                    color: activeAngle === a.id ? a.color : '#64748b',
+                    background: activeAngle === a.id ? a.color + '18' : '#f8fafc',
+                    opacity: angleLoading && activeAngle !== a.id ? 0.45 : 1,
+                    transition: 'all 150ms',
+                  }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 12, color: activeAngle === a.id ? a.color : '#94a3b8' }}>{a.icon}</span>
+                  {a.label.toUpperCase()}
+                </button>
+              ))}
 
-        {/* Loading state for angle */}
-        {angleLoading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <span style={{ width: 13, height: 13, borderRadius: '50%', border: '2px solid #6366f1', borderTopColor: 'transparent', display: 'inline-block', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', color: '#94a3b8', textTransform: 'uppercase' }}>
-              Generating {ANGLES.find(a => a.id === activeAngle)?.label}…
-            </span>
-          </div>
-        )}
+              {/* AI Explain */}
+              {!altText && !angleText && (
+                <button onClick={handleExplain} disabled={explaining}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    padding: '6px 14px', borderRadius: 100, flexShrink: 0,
+                    cursor: explaining ? 'default' : 'pointer',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em',
+                    border: '1px solid #e9d5ff', color: '#9333ea', background: '#fdf4ff',
+                    opacity: explaining ? 0.6 : 1, transition: 'opacity 150ms',
+                  }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 12 }}>auto_awesome</span>
+                  {explaining ? 'THINKING…' : 'EXPLAIN'}
+                </button>
+              )}
+            </div>
+          )}
 
-        <button
-          onClick={onNext}
-          className="btn-tactile w-full py-4 rounded-2xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all"
-          style={{
-            backgroundColor: color,
-            borderBottom: '4px solid rgba(0,0,0,0.25)',
-          }}
-        >
-          {index + 1 < total ? 'Got it →' : 'Start Exercises →'}
-        </button>
+          {/* Loading state for angle */}
+          {angleLoading && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ width: 13, height: 13, borderRadius: '50%', border: '2px solid #6366f1', borderTopColor: 'transparent', display: 'inline-block', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+              <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', color: '#94a3b8', textTransform: 'uppercase' }}>
+                Generating {ANGLES.find(a => a.id === activeAngle)?.label}…
+              </span>
+            </div>
+          )}
 
-        {/* Skip — demoted to a quiet text link */}
-        <button
-          onClick={onNext}
-          style={{
-            display: 'block', width: '100%', marginTop: 10,
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 600,
-            letterSpacing: '0.07em', textTransform: 'uppercase',
-            color: '#cbd5e1', textAlign: 'center', transition: 'color 150ms',
-          }}
-          onMouseEnter={e => e.currentTarget.style.color = '#64748b'}
-          onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}
-        >
-          skip
-        </button>
+          <button
+            onClick={onNext}
+            className="btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all"
+            style={{
+              backgroundColor: color,
+              borderBottom: '4px solid rgba(0,0,0,0.25)',
+            }}
+          >
+            {index + 1 < total ? 'Got it →' : 'Start Exercises →'}
+          </button>
+
+          {/* Skip — demoted to a quiet text link */}
+          <button
+            onClick={onNext}
+            style={{
+              display: 'block', width: '100%', marginTop: 8,
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fontWeight: 600,
+              letterSpacing: '0.07em', textTransform: 'uppercase',
+              color: '#cbd5e1', textAlign: 'center', transition: 'color 150ms',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = '#64748b'}
+            onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}
+          >
+            skip
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -525,121 +528,125 @@ function MCQExercise({ exercise, onAnswer, lessonTitle, token, onReviewCards }) 
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4">
-        {exercise.explanation_context && (
-          <p className="font-sans text-[13px] text-aq-text-muted mb-3 italic">{exercise.explanation_context}</p>
-        )}
-        <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-6">
-          {exercise.question}
-        </h2>
-        <div className="flex flex-col gap-3">
-          {exercise.options.map((opt, i) => {
-            let border = 'border-aq-border';
-            let bg = 'bg-aq-surface';
-            let text = 'text-aq-text-primary';
+    <div className="flex flex-col h-full min-h-0 bg-white">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-6 pb-6">
+        <div className="max-w-2xl mx-auto">
+          {exercise.explanation_context && (
+            <p className="font-sans text-[13px] text-aq-text-muted mb-3 italic">{exercise.explanation_context}</p>
+          )}
+          <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-6">
+            {exercise.question}
+          </h2>
+          <div className="flex flex-col gap-3">
+            {exercise.options.map((opt, i) => {
+              let border = 'border-aq-border';
+              let bg = 'bg-aq-surface';
+              let text = 'text-aq-text-primary';
 
-            if (answered) {
-              if (i === exercise.correct) {
-                border = 'border-aq-success';
-                bg = 'bg-aq-success-bg';
-                text = 'text-aq-success';
+              if (answered) {
+                if (i === exercise.correct) {
+                  border = 'border-aq-success';
+                  bg = 'bg-aq-success-bg';
+                  text = 'text-aq-success';
+                } else if (wrongPicks.has(i)) {
+                  border = 'border-aq-error';
+                  bg = 'bg-aq-error-bg';
+                  text = 'text-aq-error';
+                } else {
+                  text = 'text-aq-text-muted';
+                }
               } else if (wrongPicks.has(i)) {
                 border = 'border-aq-error';
                 bg = 'bg-aq-error-bg';
-                text = 'text-aq-error';
-              } else {
-                text = 'text-aq-text-muted';
+                text = 'text-aq-error opacity-60';
+              } else if (selected === i) {
+                border = 'border-aq-primary';
+                bg = 'bg-aq-primary-dim';
               }
-            } else if (wrongPicks.has(i)) {
-              border = 'border-aq-error';
-              bg = 'bg-aq-error-bg';
-              text = 'text-aq-error opacity-60';
-            } else if (selected === i) {
-              border = 'border-aq-primary';
-              bg = 'bg-aq-primary-dim';
-            }
 
-            return (
-              <button
-                key={i}
-                onClick={() => handleSelect(i)}
-                disabled={wrongPicks.has(i) && !answered}
-                className={`w-full text-left px-4 py-3.5 border rounded-card transition-colors ${border} ${bg} disabled:cursor-default`}
-              >
-                <span className={`font-sans text-[15px] font-medium ${text}`}>{opt}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {!answered && attempts > 0 && hint && (
-          <div className="mt-4 flex items-start gap-2 p-3 rounded-card bg-amber-50 border border-amber-200">
-            <span className="material-symbols-outlined text-[16px] text-amber-600 shrink-0 mt-0.5">lightbulb</span>
-            <p className="font-sans text-[13px] text-amber-800 leading-snug">{hint}</p>
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleSelect(i)}
+                  disabled={wrongPicks.has(i) && !answered}
+                  className={`w-full text-left px-4 py-3.5 border rounded-card transition-colors ${border} ${bg} disabled:cursor-default`}
+                >
+                  <span className={`font-sans text-[15px] font-medium ${text}`}>{opt}</span>
+                </button>
+              );
+            })}
           </div>
-        )}
 
-        {answered && (
-          <div className="mt-5 p-4 rounded-card border border-aq-border bg-aq-surface">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`material-symbols-outlined filled text-[18px] ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
-                {isCorrect ? 'check_circle' : 'cancel'}
-              </span>
-              <span className={`font-mono text-[11px] font-bold tracking-widest ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
-                {isCorrect ? 'CORRECT' : 'ANSWER REVEALED'}
-              </span>
-              {attempts > 0 && (
-                <span className="ml-auto font-mono text-[10px] text-aq-text-muted">{attempts} attempt{attempts > 1 ? 's' : ''}</span>
+          {!answered && attempts > 0 && hint && (
+            <div className="mt-4 flex items-start gap-2 p-3 rounded-card bg-amber-50 border border-amber-200">
+              <span className="material-symbols-outlined text-[16px] text-amber-600 shrink-0 mt-0.5">lightbulb</span>
+              <p className="font-sans text-[13px] text-amber-800 leading-snug">{hint}</p>
+            </div>
+          )}
+
+          {answered && (
+            <div className="mt-5 p-4 rounded-card border border-aq-border bg-aq-surface">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`material-symbols-outlined filled text-[18px] ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {isCorrect ? 'check_circle' : 'cancel'}
+                </span>
+                <span className={`font-mono text-[11px] font-bold tracking-widest ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {isCorrect ? 'CORRECT' : 'ANSWER REVEALED'}
+                </span>
+                {attempts > 0 && (
+                  <span className="ml-auto font-mono text-[10px] text-aq-text-muted">{attempts} attempt{attempts > 1 ? 's' : ''}</span>
+                )}
+              </div>
+              <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
+              {token && (
+                <AIReviewPanel
+                  exercise={exercise}
+                  selected={selected}
+                  lessonTitle={lessonTitle}
+                  token={token}
+                />
               )}
             </div>
-            <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
-            {token && (
-              <AIReviewPanel
-                exercise={exercise}
-                selected={selected}
-                lessonTitle={lessonTitle}
-                token={token}
-              />
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
-        {!answered ? (
-          <button
-            onClick={handleCheck}
-            disabled={selected === null || wrongPicks.has(selected)}
-            className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
-              selected !== null && !wrongPicks.has(selected)
-                ? 'btn-tactile btn-tactile-dark'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
-            }`}
-          >
-            CHECK
-          </button>
-        ) : (
-          <div className="flex flex-col gap-2.5">
-            {!isCorrect && onReviewCards && (
-              <button
-                onClick={onReviewCards}
-                className="btn-tactile btn-tactile-secondary w-full py-2.5 rounded-xl font-mono text-[11px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-[15px]">arrow_back</span>
-                Re-read concept cards
-              </button>
-            )}
+      <div className="shrink-0 border-t border-aq-border bg-white px-5 py-4 pb-6 shadow-[0_-4px_16px_rgba(0,0,0,0.03)] z-10">
+        <div className="max-w-2xl mx-auto">
+          {!answered ? (
             <button
-              onClick={() => onAnswer(isCorrect)}
-              className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
-                isCorrect ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+              onClick={handleCheck}
+              disabled={selected === null || wrongPicks.has(selected)}
+              className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
+                selected !== null && !wrongPicks.has(selected)
+                  ? 'btn-tactile btn-tactile-dark'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
               }`}
             >
-              CONTINUE →
+              CHECK
             </button>
-          </div>
-        )}
+          ) : (
+            <div className="flex flex-col gap-2.5">
+              {!isCorrect && onReviewCards && (
+                <button
+                  onClick={onReviewCards}
+                  className="btn-tactile btn-tactile-secondary w-full py-2.5 rounded-xl font-mono text-[11px] font-bold tracking-widest uppercase flex items-center justify-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+                  Re-read concept cards
+                </button>
+              )}
+              <button
+                onClick={() => onAnswer(isCorrect)}
+                className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+                  isCorrect ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+                }`}
+              >
+                CONTINUE →
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -666,80 +673,84 @@ function CodePickExercise({ exercise, onAnswer }) {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4">
-        <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-4">
-          {exercise.question}
-        </h2>
-        {exercise.context && (
-          <div className="mb-6">
-            <CodeBlock text={exercise.context} />
-          </div>
-        )}
-        <div className="flex flex-col gap-3">
-          {exercise.options.map((opt, i) => {
-            let border = 'border-aq-border';
-            let bg = 'bg-aq-surface';
-            let text = 'text-aq-text-primary';
-
-            if (answered) {
-              if (i === exercise.correct) { border = 'border-aq-success'; bg = 'bg-aq-success-bg'; text = 'text-aq-success'; }
-              else if (i === selected) { border = 'border-aq-error'; bg = 'bg-aq-error-bg'; text = 'text-aq-error'; }
-              else { text = 'text-aq-text-muted'; }
-            } else if (selected === i) {
-              border = 'border-aq-primary'; bg = 'bg-aq-primary-dim';
-            }
-
-            return (
-              <button
-                key={i}
-                onClick={() => handleSelect(i)}
-                className={`w-full text-left px-4 py-3 border rounded-card transition-colors ${border} ${bg}`}
-              >
-                <span className={`font-mono text-[14px] ${text}`}>{opt}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {answered && (
-          <div className="mt-5 p-4 rounded-card border border-aq-border bg-aq-surface">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`material-symbols-outlined filled text-[18px] ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
-                {selected === exercise.correct ? 'check_circle' : 'cancel'}
-              </span>
-              <span className={`font-mono text-[11px] font-bold tracking-widest ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
-                {selected === exercise.correct ? 'CORRECT' : 'NOT QUITE'}
-              </span>
+    <div className="flex flex-col h-full min-h-0 bg-white">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-6 pb-6">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-4">
+            {exercise.question}
+          </h2>
+          {exercise.context && (
+            <div className="mb-6">
+              <CodeBlock text={exercise.context} />
             </div>
-            <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
+          )}
+          <div className="flex flex-col gap-3">
+            {exercise.options.map((opt, i) => {
+              let border = 'border-aq-border';
+              let bg = 'bg-aq-surface';
+              let text = 'text-aq-text-primary';
+
+              if (answered) {
+                if (i === exercise.correct) { border = 'border-aq-success'; bg = 'bg-aq-success-bg'; text = 'text-aq-success'; }
+                else if (i === selected) { border = 'border-aq-error'; bg = 'bg-aq-error-bg'; text = 'text-aq-error'; }
+                else { text = 'text-aq-text-muted'; }
+              } else if (selected === i) {
+                border = 'border-aq-primary'; bg = 'bg-aq-primary-dim';
+              }
+
+              return (
+                <button
+                  key={i}
+                  onClick={() => handleSelect(i)}
+                  className={`w-full text-left px-4 py-3 border rounded-card transition-colors ${border} ${bg}`}
+                >
+                  <span className={`font-mono text-[14px] ${text}`}>{opt}</span>
+                </button>
+              );
+            })}
           </div>
-        )}
+
+          {answered && (
+            <div className="mt-5 p-4 rounded-card border border-aq-border bg-aq-surface">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`material-symbols-outlined filled text-[18px] ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {selected === exercise.correct ? 'check_circle' : 'cancel'}
+                </span>
+                <span className={`font-mono text-[11px] font-bold tracking-widest ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {selected === exercise.correct ? 'CORRECT' : 'NOT QUITE'}
+                </span>
+              </div>
+              <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
-        {!answered ? (
-          <button
-            disabled={selected === null}
-            onClick={handleCheck}
-            className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
-              selected !== null
-                ? 'btn-tactile btn-tactile-dark'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
-            }`}
-          >
-            CHECK
-          </button>
-        ) : (
-          <button
-            onClick={() => onAnswer(selected === exercise.correct)}
-            className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
-              selected === exercise.correct ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
-            }`}
-          >
-            CONTINUE →
-          </button>
-        )}
+      <div className="shrink-0 border-t border-aq-border bg-white px-5 py-4 pb-6 shadow-[0_-4px_16px_rgba(0,0,0,0.03)] z-10">
+        <div className="max-w-2xl mx-auto">
+          {!answered ? (
+            <button
+              disabled={selected === null}
+              onClick={handleCheck}
+              className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
+                selected !== null
+                  ? 'btn-tactile btn-tactile-dark'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
+              }`}
+            >
+              CHECK
+            </button>
+          ) : (
+            <button
+              onClick={() => onAnswer(selected === exercise.correct)}
+              className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+                selected === exercise.correct ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+              }`}
+            >
+              CONTINUE →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -761,96 +772,100 @@ function FillBlankExercise({ exercise, onAnswer }) {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4">
-        <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-4">
-          {exercise.question}
-        </h2>
+    <div className="flex flex-col h-full min-h-0 bg-white">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-6 pb-6">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-4">
+            {exercise.question}
+          </h2>
 
-        <div className="bg-aq-surface-raised rounded-card px-4 py-4 font-mono text-[14px] leading-loose mb-6">
-          {exercise.code_lines.map((line, i) => {
-            if (i === exercise.blank_index) {
-              const filled = selected !== null ? exercise.options[selected] : null;
-              return (
-                <div key={i}>
-                  {line.replace(exercise.blank_placeholder, '')}
-                  <span
-                    className={`inline-block px-2 py-0.5 rounded mx-1 border transition-colors ${
-                      filled
-                        ? answered
-                          ? selected === exercise.correct
-                            ? 'border-aq-success bg-aq-success-bg text-aq-success'
-                            : 'border-aq-error bg-aq-error-bg text-aq-error'
-                          : 'border-aq-primary bg-aq-primary-dim text-aq-primary'
-                        : 'border-dashed border-aq-border text-aq-text-muted w-16 text-center'
-                    }`}
-                  >
-                    {filled || '____'}
-                  </span>
-                </div>
-              );
-            }
-            return <div key={i} className="text-aq-text-primary">{line}</div>;
-          })}
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-4">
-          {exercise.options.map((opt, i) => {
-            const isSelected = selected === i;
-            return (
-              <button
-                key={i}
-                onClick={() => !answered && setSelected(isSelected ? null : i)}
-                className={`px-4 py-2.5 rounded-input border font-mono text-[14px] font-medium transition-colors ${
-                  isSelected
-                    ? 'border-aq-primary bg-aq-primary-dim text-aq-primary'
-                    : 'border-aq-border bg-aq-surface text-aq-text-primary hover:border-aq-border-strong'
-                }`}
-              >
-                {opt}
-              </button>
-            );
-          })}
-        </div>
-
-        {answered && (
-          <div className="p-4 rounded-card border border-aq-border bg-aq-surface mt-2">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`material-symbols-outlined filled text-[18px] ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
-                {selected === exercise.correct ? 'check_circle' : 'cancel'}
-              </span>
-              <span className={`font-mono text-[11px] font-bold tracking-widest ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
-                {selected === exercise.correct ? 'CORRECT' : 'NOT QUITE'}
-              </span>
-            </div>
-            <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
+          <div className="bg-aq-surface-raised rounded-card px-4 py-4 font-mono text-[14px] leading-loose mb-6">
+            {exercise.code_lines.map((line, i) => {
+              if (i === exercise.blank_index) {
+                const filled = selected !== null ? exercise.options[selected] : null;
+                return (
+                  <div key={i}>
+                    {line.replace(exercise.blank_placeholder, '')}
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded mx-1 border transition-colors ${
+                        filled
+                          ? answered
+                            ? selected === exercise.correct
+                              ? 'border-aq-success bg-aq-success-bg text-aq-success'
+                              : 'border-aq-error bg-aq-error-bg text-aq-error'
+                            : 'border-aq-primary bg-aq-primary-dim text-aq-primary'
+                          : 'border-dashed border-aq-border text-aq-text-muted w-16 text-center'
+                      }`}
+                    >
+                      {filled || '____'}
+                    </span>
+                  </div>
+                );
+              }
+              return <div key={i} className="text-aq-text-primary">{line}</div>;
+            })}
           </div>
-        )}
+
+          <div className="flex flex-wrap gap-2 mb-4">
+            {exercise.options.map((opt, i) => {
+              const isSelected = selected === i;
+              return (
+                <button
+                  key={i}
+                  onClick={() => !answered && setSelected(isSelected ? null : i)}
+                  className={`px-4 py-2.5 rounded-input border font-mono text-[14px] font-medium transition-colors ${
+                    isSelected
+                      ? 'border-aq-primary bg-aq-primary-dim text-aq-primary'
+                      : 'border-aq-border bg-aq-surface text-aq-text-primary hover:border-aq-border-strong'
+                  }`}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+
+          {answered && (
+            <div className="p-4 rounded-card border border-aq-border bg-aq-surface mt-2">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`material-symbols-outlined filled text-[18px] ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {selected === exercise.correct ? 'check_circle' : 'cancel'}
+                </span>
+                <span className={`font-mono text-[11px] font-bold tracking-widest ${selected === exercise.correct ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {selected === exercise.correct ? 'CORRECT' : 'NOT QUITE'}
+                </span>
+              </div>
+              <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
-        {!answered ? (
-          <button
-            disabled={selected === null}
-            onClick={handleCheck}
-            className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
-              selected !== null
-                ? 'btn-tactile btn-tactile-dark'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
-            }`}
-          >
-            CHECK
-          </button>
-        ) : (
-          <button
-            onClick={() => onAnswer(selected === exercise.correct)}
-            className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
-              selected === exercise.correct ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
-            }`}
-          >
-            CONTINUE →
-          </button>
-        )}
+      <div className="shrink-0 border-t border-aq-border bg-white px-5 py-4 pb-6 shadow-[0_-4px_16px_rgba(0,0,0,0.03)] z-10">
+        <div className="max-w-2xl mx-auto">
+          {!answered ? (
+            <button
+              disabled={selected === null}
+              onClick={handleCheck}
+              className={`w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase transition-all ${
+                selected !== null
+                  ? 'btn-tactile btn-tactile-dark'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed border-b-2 border-slate-300'
+              }`}
+            >
+              CHECK
+            </button>
+          ) : (
+            <button
+              onClick={() => onAnswer(selected === exercise.correct)}
+              className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+                selected === exercise.correct ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+              }`}
+            >
+              CONTINUE →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -889,81 +904,85 @@ function ArrangeExercise({ exercise, onAnswer }) {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-5 pt-6 pb-4">
-        <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-2">
-          {exercise.question}
-        </h2>
-        <p className="font-sans text-[13px] text-aq-text-muted mb-5">Tap ↑ ↓ to reorder the lines.</p>
+    <div className="flex flex-col h-full min-h-0 bg-white">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-6 pb-6">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="font-sans font-bold text-[20px] text-aq-text-primary leading-snug mb-2">
+            {exercise.question}
+          </h2>
+          <p className="font-sans text-[13px] text-aq-text-muted mb-5">Tap ↑ ↓ to reorder the lines.</p>
 
-        <div className="flex flex-col gap-2">
-          {order.map((blockIdx, pos) => {
-            const isCorrectPos = submitted && exercise.correct_order[pos] === blockIdx;
-            const isWrongPos = submitted && exercise.correct_order[pos] !== blockIdx;
-            return (
-              <div
-                key={blockIdx}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-card border transition-colors ${
-                  isCorrectPos ? 'border-aq-success bg-aq-success-bg' :
-                  isWrongPos ? 'border-aq-error bg-aq-error-bg' :
-                  'border-aq-border bg-aq-surface'
-                }`}
-              >
-                <div className="flex flex-col gap-0.5 flex-shrink-0">
-                  <button
-                    onClick={() => moveUp(pos)}
-                    disabled={pos === 0 || submitted}
-                    className="text-aq-text-muted hover:text-aq-text-primary disabled:opacity-20 text-[14px] leading-none"
-                  >↑</button>
-                  <button
-                    onClick={() => moveDown(pos)}
-                    disabled={pos === order.length - 1 || submitted}
-                    className="text-aq-text-muted hover:text-aq-text-primary disabled:opacity-20 text-[14px] leading-none"
-                  >↓</button>
+          <div className="flex flex-col gap-2">
+            {order.map((blockIdx, pos) => {
+              const isCorrectPos = submitted && exercise.correct_order[pos] === blockIdx;
+              const isWrongPos = submitted && exercise.correct_order[pos] !== blockIdx;
+              return (
+                <div
+                  key={blockIdx}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-card border transition-colors ${
+                    isCorrectPos ? 'border-aq-success bg-aq-success-bg' :
+                    isWrongPos ? 'border-aq-error bg-aq-error-bg' :
+                    'border-aq-border bg-aq-surface'
+                  }`}
+                >
+                  <div className="flex flex-col gap-0.5 flex-shrink-0">
+                    <button
+                      onClick={() => moveUp(pos)}
+                      disabled={pos === 0 || submitted}
+                      className="text-aq-text-muted hover:text-aq-text-primary disabled:opacity-20 text-[14px] leading-none"
+                    >↑</button>
+                    <button
+                      onClick={() => moveDown(pos)}
+                      disabled={pos === order.length - 1 || submitted}
+                      className="text-aq-text-muted hover:text-aq-text-primary disabled:opacity-20 text-[14px] leading-none"
+                    >↓</button>
+                  </div>
+                  <span className={`font-mono text-[13px] flex-1 ${
+                    isCorrectPos ? 'text-aq-success' : isWrongPos ? 'text-aq-error' : 'text-aq-text-primary'
+                  }`}>
+                    {exercise.blocks[blockIdx]}
+                  </span>
                 </div>
-                <span className={`font-mono text-[13px] flex-1 ${
-                  isCorrectPos ? 'text-aq-success' : isWrongPos ? 'text-aq-error' : 'text-aq-text-primary'
-                }`}>
-                  {exercise.blocks[blockIdx]}
+              );
+            })}
+          </div>
+
+          {submitted && (
+            <div className="mt-5 p-4 rounded-card border border-aq-border bg-aq-surface">
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`material-symbols-outlined filled text-[18px] ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {isCorrect ? 'check_circle' : 'cancel'}
+                </span>
+                <span className={`font-mono text-[11px] font-bold tracking-widest ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
+                  {isCorrect ? 'CORRECT' : 'NOT QUITE'}
                 </span>
               </div>
-            );
-          })}
-        </div>
-
-        {submitted && (
-          <div className="mt-5 p-4 rounded-card border border-aq-border bg-aq-surface">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`material-symbols-outlined filled text-[18px] ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
-                {isCorrect ? 'check_circle' : 'cancel'}
-              </span>
-              <span className={`font-mono text-[11px] font-bold tracking-widest ${isCorrect ? 'text-aq-success' : 'text-aq-error'}`}>
-                {isCorrect ? 'CORRECT' : 'NOT QUITE'}
-              </span>
+              <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
             </div>
-            <p className="font-sans text-[14px] text-aq-text-secondary leading-relaxed">{exercise.explanation}</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      <div className="px-5 pb-6 pt-3 border-t border-aq-border">
-        {!submitted ? (
-          <button
-            onClick={handleCheck}
-            className="btn-tactile btn-tactile-dark w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase"
-          >
-            CHECK
-          </button>
-        ) : (
-          <button
-            onClick={() => onAnswer(isCorrect)}
-            className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
-              isCorrect ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
-            }`}
-          >
-            CONTINUE →
-          </button>
-        )}
+      <div className="shrink-0 border-t border-aq-border bg-white px-5 py-4 pb-6 shadow-[0_-4px_16px_rgba(0,0,0,0.03)] z-10">
+        <div className="max-w-2xl mx-auto">
+          {!submitted ? (
+            <button
+              onClick={handleCheck}
+              className="btn-tactile btn-tactile-dark w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase"
+            >
+              CHECK
+            </button>
+          ) : (
+            <button
+              onClick={() => onAnswer(isCorrect)}
+              className={`btn-tactile w-full py-3.5 rounded-xl font-mono text-[13px] font-bold tracking-widest uppercase text-white shadow-sm transition-all ${
+                isCorrect ? 'btn-tactile-primary' : 'bg-red-600 hover:bg-red-500 border-b-[3.5px] border-red-800'
+              }`}
+            >
+              CONTINUE →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1217,7 +1236,7 @@ export default function LessonPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-aq-surface flex flex-col" style={{ maxHeight: '100dvh', overflow: 'hidden' }}>
+    <div className="h-[100dvh] max-h-[100dvh] bg-aq-surface flex flex-col overflow-hidden">
       {/* Alex — floats over lesson, auto-detects topic from slug */}
       <Companion />
       {unstuckOpen && (
@@ -1254,96 +1273,100 @@ export default function LessonPage() {
 
       {showConfetti && <Confetti onComplete={() => setShowConfetti(false)} />}
       {!showingCards && !done && (
-        <button onClick={() => setUnstuckOpen(true)} className="fixed bottom-6 left-4 z-40 flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-lg border border-slate-200 bg-white hover:bg-slate-50 transition-all" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <button onClick={() => setUnstuckOpen(true)} className="fixed bottom-24 left-4 z-40 flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-lg border border-slate-200 bg-white hover:bg-slate-50 transition-all" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
           <span className="text-[16px]">🆘</span>
           <span className="font-mono text-[9px] font-bold tracking-widest uppercase text-slate-500">Stuck?</span>
         </button>
       )}
 
       <div className="shrink-0 px-5 py-3.5 border-b border-slate-200/80 bg-white/95 backdrop-blur-md sticky top-0 z-20 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-        <div className="flex items-center gap-3.5">
-          <button
-            onClick={() => {
-              router.back();
-              router.refresh();
-            }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shrink-0"
-          >
-            <span className="material-symbols-outlined text-[20px]">close</span>
-          </button>
-          
-          <div className="flex-1 h-3.5 bg-slate-100 rounded-full p-0.5 border border-slate-200/70 overflow-hidden relative shadow-inner">
-            <div
-              className="h-full rounded-full transition-all duration-500 ease-out relative"
-              style={{
-                backgroundColor: color,
-                width: `${Math.round(((done ? totalSteps : cardIndex + exerciseIndex) / totalSteps) * 100)}%`,
-                boxShadow: `0 0 10px ${color}60`,
+        <div className="max-w-2xl mx-auto w-full">
+          <div className="flex items-center gap-3.5">
+            <button
+              onClick={() => {
+                router.back();
+                router.refresh();
               }}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shrink-0"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-white/35 to-transparent rounded-full" />
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+            
+            <div className="flex-1 h-3.5 bg-slate-100 rounded-full p-0.5 border border-slate-200/70 overflow-hidden relative shadow-inner">
+              <div
+                className="h-full rounded-full transition-all duration-500 ease-out relative"
+                style={{
+                  backgroundColor: color,
+                  width: `${Math.round(((done ? totalSteps : cardIndex + exerciseIndex) / totalSteps) * 100)}%`,
+                  boxShadow: `0 0 10px ${color}60`,
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-white/35 to-transparent rounded-full" />
+              </div>
             </div>
+
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-mono text-[11px] font-bold tracking-wide shrink-0">
+              <span>{done ? totalSteps : cardIndex + exerciseIndex}</span>
+              <span className="text-slate-400">/</span>
+              <span>{totalSteps}</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleMute}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shrink-0"
+              title={muted ? 'Unmute sounds' : 'Mute sounds'}
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {muted ? 'volume_off' : 'volume_up'}
+              </span>
+            </button>
           </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-mono text-[11px] font-bold tracking-wide shrink-0">
-            <span>{done ? totalSteps : cardIndex + exerciseIndex}</span>
-            <span className="text-slate-400">/</span>
-            <span>{totalSteps}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={toggleMute}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shrink-0"
-            title={muted ? 'Unmute sounds' : 'Mute sounds'}
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              {muted ? 'volume_off' : 'volume_up'}
+          <div className="flex items-center justify-between mt-2.5 px-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+              <span className="font-mono text-[10px] font-bold tracking-widest uppercase text-slate-700">
+                {lesson.title}
+              </span>
+            </div>
+            <span className="font-mono text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+              {showingCards ? 'Concepts' : 'Exercise'}
             </span>
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between mt-2.5 px-0.5">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-            <span className="font-mono text-[10px] font-bold tracking-widest uppercase text-slate-700">
-              {lesson.title}
-            </span>
           </div>
-          <span className="font-mono text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
-            {showingCards ? 'Concepts' : 'Exercise'}
-          </span>
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {done ? (
           <div className="h-full overflow-y-auto px-5 py-6">
-            <CompletionScreen
-              lesson={lesson}
-              correct={correctCount}
-              total={exercises.length}
-              color={color}
-              onFinish={() => {
-                try {
-                  if (typeof window !== 'undefined' && window.localStorage) {
-                    const cached = JSON.parse(localStorage.getItem('aq_completed_lessons') || '[]');
-                    const s = new Set(cached.map(String));
-                    s.add(String(lesson.id));
-                    if (lesson.slug) s.add(String(lesson.slug));
-                    localStorage.setItem('aq_completed_lessons', JSON.stringify(Array.from(s)));
-                  }
-                } catch {}
-                router.push('/skills');
-                router.refresh();
-              }}
-              ahaNote={ahaNote}
-              setAhaNote={setAhaNote}
-              onSaveAha={handleSaveAha}
-              ahaSaved={ahaSaved}
-              ahaSaving={ahaSaving}
-            />
-            {saveError && <p role="alert" className="px-5 pb-4 font-sans text-[13px] text-aq-error text-center">{saveError}</p>}
+            <div className="max-w-md mx-auto h-full flex flex-col justify-center">
+              <CompletionScreen
+                lesson={lesson}
+                correct={correctCount}
+                total={exercises.length}
+                color={color}
+                onFinish={() => {
+                  try {
+                    if (typeof window !== 'undefined' && window.localStorage) {
+                      const cached = JSON.parse(localStorage.getItem('aq_completed_lessons') || '[]');
+                      const s = new Set(cached.map(String));
+                      s.add(String(lesson.id));
+                      if (lesson.slug) s.add(String(lesson.slug));
+                      localStorage.setItem('aq_completed_lessons', JSON.stringify(Array.from(s)));
+                    }
+                  } catch {}
+                  router.push('/skills');
+                  router.refresh();
+                }}
+                ahaNote={ahaNote}
+                setAhaNote={setAhaNote}
+                onSaveAha={handleSaveAha}
+                ahaSaved={ahaSaved}
+                ahaSaving={ahaSaving}
+              />
+              {saveError && <p role="alert" className="px-5 pb-4 font-sans text-[13px] text-aq-error text-center">{saveError}</p>}
+            </div>
           </div>
         ) : showingCards ? (
           <ConceptCard
