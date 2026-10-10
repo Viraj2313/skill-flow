@@ -81,28 +81,79 @@ export async function getUserProfile() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('id', user.id)
-    .maybeSingle();
+  const metaName = user.user_metadata?.display_name ||
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name;
+  const emailPrefix = user.email ? user.email.split('@')[0] : 'Engineer';
+  const cleanBase = (emailPrefix || 'user').replace(/[^a-zA-Z0-9_]/g, '');
+  const preferredName = metaName || emailPrefix || 'Engineer';
+  const preferredUsername = user.user_metadata?.username || (cleanBase || 'user') + '_' + Date.now().toString(36).slice(-4);
 
-  if (error) return null;
-
-  // Profile missing — trigger exception handler skipped the insert.
-  // Create it now so the user can use the app immediately.
-  if (!data) {
-    const base = (user.email?.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_]/g, '');
-    const username = (base || 'user') + '_' + Date.now().toString(36).slice(-4);
-    const { data: created } = await supabase
-      .from('user_profiles')
-      .insert({ id: user.id, username, display_name: base || 'User' })
-      .select()
-      .maybeSingle();
-    return created || null;
+  let localLessonsCount = 0;
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const raw = localStorage.getItem('aq_completed_lessons');
+      if (raw) localLessonsCount = JSON.parse(raw).length;
+    } catch {}
   }
 
-  return data;
+  const fallback = {
+    id: user.id,
+    username: preferredUsername,
+    display_name: preferredName,
+    xp: localLessonsCount * 25,
+    streak_current: localLessonsCount > 0 ? 1 : 0,
+    streak_best: localLessonsCount > 0 ? 1 : 0,
+    created_at: user.created_at || new Date().toISOString(),
+    email: user.email,
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!error && data) {
+      return {
+        ...fallback,
+        ...data,
+        display_name: (data.display_name && data.display_name !== 'User' && data.display_name !== 'Engineer')
+          ? data.display_name
+          : preferredName,
+        xp: Math.max(Number(data.xp) || 0, fallback.xp),
+        streak_current: Math.max(Number(data.streak_current) || 0, fallback.streak_current),
+        streak_best: Math.max(Number(data.streak_best) || 0, fallback.streak_best),
+        created_at: data.created_at || user.created_at || fallback.created_at,
+      };
+    }
+
+    if (!data) {
+      const { data: created } = await supabase
+        .from('user_profiles')
+        .upsert({
+          id: user.id,
+          username: preferredUsername,
+          display_name: preferredName,
+          xp: fallback.xp,
+          streak_current: fallback.streak_current,
+          streak_best: fallback.streak_best,
+        })
+        .select()
+        .maybeSingle();
+
+      if (created) {
+        return {
+          ...fallback,
+          ...created,
+          created_at: created.created_at || user.created_at || fallback.created_at,
+        };
+      }
+    }
+  } catch {}
+
+  return fallback;
 }
 
 export async function getUserTopicProgress(userId) {
@@ -178,34 +229,64 @@ export async function getWeekActivity(userId) {
 }
 
 export async function getUserLessonProgress(userId) {
+  let dbProgress = [];
   try {
     const { data, error } = await supabase
       .from('user_lesson_progress')
       .select('*, lessons(id, title, slug, topic_id, topics(category_id, name))')
       .eq('user_id', userId);
 
-    if (!error && data) return data;
+    if (!error && data && data.length > 0) dbProgress = data;
   } catch {}
 
-  try {
-    const { data, error } = await supabase
-      .from('user_lesson_progress')
-      .select('*, lessons(id, title, slug, topics(category_id))')
-      .eq('user_id', userId);
+  if (dbProgress.length === 0) {
+    try {
+      const { data, error } = await supabase
+        .from('user_lesson_progress')
+        .select('*, lessons(id, title, slug, topics(category_id))')
+        .eq('user_id', userId);
 
-    if (!error && data) return data;
-  } catch {}
+      if (!error && data && data.length > 0) dbProgress = data;
+    } catch {}
+  }
 
-  try {
-    const { data, error } = await supabase
-      .from('user_lesson_progress')
-      .select('*')
-      .eq('user_id', userId);
+  if (dbProgress.length === 0) {
+    try {
+      const { data, error } = await supabase
+        .from('user_lesson_progress')
+        .select('*')
+        .eq('user_id', userId);
 
-    if (!error && data) return data;
-  } catch {}
+      if (!error && data && data.length > 0) dbProgress = data;
+    } catch {}
+  }
 
-  return [];
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const raw = localStorage.getItem('aq_completed_lessons');
+      if (raw) {
+        const localLessonIds = JSON.parse(raw);
+        const existingIds = new Set(dbProgress.map(p => String(p.lesson_id)));
+        const now = new Date().toISOString();
+        for (const lid of localLessonIds) {
+          const lidStr = String(lid);
+          if (!existingIds.has(lidStr)) {
+            dbProgress.push({
+              lesson_id: lidStr,
+              completed: true,
+              completed_at: now,
+              correct_count: 5,
+              total_count: 5,
+              xp_earned: 25,
+            });
+            existingIds.add(lidStr);
+          }
+        }
+      }
+    } catch {}
+  }
+
+  return dbProgress;
 }
 
 export async function getExercisesByTopic(topicId, limit = 20) {
@@ -359,6 +440,23 @@ export async function completeLesson(lessonId, correctCount, totalCount, xpEarne
             last_activity_date: today,
           })
           .eq('id', user.id);
+      } else {
+        const metaName = user.user_metadata?.display_name || user.user_metadata?.full_name || user.user_metadata?.name;
+        const emailPrefix = user.email ? user.email.split('@')[0] : 'Engineer';
+        const cleanBase = (emailPrefix || 'user').replace(/[^a-zA-Z0-9_]/g, '');
+        const fallbackName = metaName || emailPrefix || 'Engineer';
+        const username = user.user_metadata?.username || (cleanBase || 'user') + '_' + Date.now().toString(36).slice(-4);
+        await supabase
+          .from('user_profiles')
+          .upsert({
+            id: user.id,
+            username,
+            display_name: fallbackName,
+            xp: Number(xpEarned) || 25,
+            streak_current: 1,
+            streak_best: 1,
+            last_activity_date: today,
+          });
       }
     } catch {}
 

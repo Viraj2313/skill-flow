@@ -22,8 +22,8 @@ function ActivityHeatmap({ progress }) {
 
   const activityMap = new Map();
   for (const p of progress) {
-    if (!p.completed_at) continue;
-    const d = new Date(p.completed_at);
+    if (!p.completed) continue;
+    const d = p.completed_at ? new Date(p.completed_at) : new Date();
     d.setHours(0, 0, 0, 0);
     const key = d.getTime();
     activityMap.set(key, (activityMap.get(key) || 0) + 1);
@@ -53,7 +53,7 @@ function ActivityHeatmap({ progress }) {
     return '#059669';
   }
 
-  const totalActive = [...activityMap.values()].filter(v => v > 0).length;
+  const totalActive = Math.max([...activityMap.values()].filter(v => v > 0).length, progress.filter(p => p.completed).length > 0 ? 1 : 0);
   const totalLessons = progress.filter(p => p.completed).length;
 
   return (
@@ -149,6 +149,7 @@ function MistakeBreakdown({ progress, topics, lessons }) {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const [user, setUser]         = useState(null);
   const [profile, setProfile]   = useState(null);
   const [progress, setProgress] = useState([]);
   const [topics, setTopics]     = useState([]);
@@ -156,11 +157,12 @@ export default function ProfilePage() {
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) { router.push('/login'); return; }
+    supabase.auth.getUser().then(async ({ data: { user: authUser } }) => {
+      if (!authUser) { router.push('/login'); return; }
+      setUser(authUser);
       const [prof, prog, t, l] = await Promise.all([
         getUserProfile(),
-        getUserLessonProgress(user.id),
+        getUserLessonProgress(authUser.id),
         getTopics(),
         getAllLessons(),
       ]);
@@ -180,24 +182,59 @@ export default function ProfilePage() {
     );
   }
 
-  const completed  = progress.filter(p => p.completed);
-  const xp         = profile?.xp ?? 0;
-  const streak     = profile?.streak_current ?? 0;
-  const bestStreak = profile?.streak_best ?? 0;
-  const name       = profile?.display_name || 'Engineer';
-  const initials   = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  let localCached = [];
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem('aq_completed_lessons') : null;
+    localCached = raw ? JSON.parse(raw) : [];
+  } catch {}
+  const localSet = new Set(localCached.map(String));
 
-  const memberSince = profile?.created_at
-    ? new Date(profile.created_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+  const completed = progress.filter(p => p.completed === true || p.completed === 'true' || p.completed === 1 || Boolean(p.completed_at) || localSet.has(String(p.lesson_id)));
+  const completedLessonIds = new Set([
+    ...completed.map(p => String(p.lesson_id)),
+    ...localCached.map(String),
+  ]);
+  const totalCompletedCount = Math.max(completed.length, completedLessonIds.size);
+
+  const totalProgressXp = progress.reduce((s, p) => s + (Number(p.xp_earned) || 0), 0);
+  const xp = (profile?.xp && Number(profile.xp) > 0)
+    ? Number(profile.xp)
+    : (totalProgressXp > 0 ? totalProgressXp : totalCompletedCount * 25);
+
+  const streak = (profile?.streak_current && Number(profile.streak_current) > 0)
+    ? Number(profile.streak_current)
+    : (totalCompletedCount > 0 ? 1 : 0);
+
+  const bestStreak = Math.max(Number(profile?.streak_best) || 0, streak);
+
+  const metaName = user?.user_metadata?.display_name ||
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name;
+  const emailPrefix = user?.email ? user.email.split('@')[0] : '';
+  const name = (profile?.display_name && profile.display_name !== 'User' && profile.display_name !== 'Engineer')
+    ? profile.display_name
+    : (metaName || emailPrefix || profile?.display_name || 'Engineer');
+
+  const initials = name
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'E';
+
+  const memberSinceDate = profile?.created_at || user?.created_at;
+  const memberSince = memberSinceDate
+    ? new Date(memberSinceDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
     : '—';
 
   const avgScore = completed.length > 0
-    ? Math.round(completed.reduce((s, p) => s + (p.total_count > 0 ? p.correct_count / p.total_count : 0), 0) / completed.length * 100)
-    : 0;
+    ? Math.round(completed.reduce((s, p) => s + (p.total_count > 0 ? p.correct_count / p.total_count : 1), 0) / completed.length * 100)
+    : (totalCompletedCount > 0 ? 100 : 0);
 
   const stats = [
     { label: 'Total XP',       value: xp.toLocaleString(),   mono: true,  color: 'text-emerald-700' },
-    { label: 'Lessons Done',   value: completed.length,       mono: true,  color: 'text-slate-900' },
+    { label: 'Lessons Done',   value: totalCompletedCount,   mono: true,  color: 'text-slate-900' },
     { label: 'Avg Score',      value: `${avgScore}%`,         mono: true,  color: avgScore >= 80 ? 'text-emerald-700' : 'text-amber-600' },
     { label: 'Current Streak', value: `${streak}d`,           mono: true,  color: 'text-amber-600' },
     { label: 'Best Streak',    value: `${bestStreak}d`,       mono: true,  color: 'text-slate-900' },
@@ -235,8 +272,8 @@ export default function ProfilePage() {
     ? Math.round((completed.length / progress.length) * 100)
     : 100;
 
-  const daysOnPlatform = profile?.created_at
-    ? Math.max(1, Math.floor((Date.now() - new Date(profile.created_at)) / 86400000))
+  const daysOnPlatform = memberSinceDate
+    ? Math.max(1, Math.floor((Date.now() - new Date(memberSinceDate)) / 86400000))
     : 1;
 
   const storyItems = [
