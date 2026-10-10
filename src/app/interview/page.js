@@ -175,6 +175,36 @@ const PHASES = [
   { id: 'complexity', label: '4. Big-O' },
 ];
 
+const PHASE_PROMPTS = {
+  clarification: [
+    'Can the input array be empty or have fewer elements than required?',
+    'Are values bounded, and could negative numbers appear?',
+    'Is the output guaranteed to exist or should we handle null?',
+  ],
+  approach: [
+    'I plan an optimal approach using a Hash Map. Does that work?',
+    'What are the trade-offs between two-pointers vs sorting here?',
+    'Let me explain the algorithm before jumping into code.',
+  ],
+  coding: [
+    'I am implementing the main function in the code editor.',
+    'Could you review my loop condition and boundary checks?',
+    'I am testing against the example test cases now.',
+  ],
+  complexity: [
+    'What are the expected Time and Space complexity bounds?',
+    'Can we optimize the auxiliary space complexity further?',
+    'How would this scale if the input data were 100x larger?',
+  ],
+};
+
+const PHASE_SYSTEM_MESSAGES = {
+  clarification: "Phase 1: Clarification. Let's discuss constraints and edge cases before coding. What questions do you have about the input?",
+  approach: "Phase 2: Strategy. Walk me through your high-level algorithm. What data structures will you use?",
+  coding: "Phase 3: Coding. Implement your solution in the editor on the left. Feel free to explain your code as you write.",
+  complexity: "Phase 4: Complexity. Analyze the Time Complexity and Space Complexity of your solution.",
+};
+
 function VerdictBadge({ verdict }) {
   const config = {
     strong_hire: { label: 'Strong Hire', bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300' },
@@ -199,6 +229,7 @@ export default function InterviewPage() {
   const [language, setLanguage] = useState('javascript');
   const [currentPhase, setCurrentPhase] = useState('clarification');
   const [code, setCode] = useState('');
+  const [codeMap, setCodeMap] = useState({});
   const [testResults, setTestResults] = useState(null);
   const [historyInterviews, setHistoryInterviews] = useState([]);
 
@@ -246,10 +277,56 @@ export default function InterviewPage() {
     return () => clearInterval(timer);
   }, [state, isPaused, timeLeft]);
 
+  const switchProblem = (probId) => {
+    const nextProb = CURATED_PROBLEMS.find(p => p.id === probId) || CURATED_PROBLEMS[0];
+    setCodeMap(prev => ({ ...prev, [activeProblem.id]: code }));
+    setSelectedProbId(nextProb.id);
+    const initialCode = codeMap[nextProb.id] || nextProb.templates[language] || nextProb.templates.javascript;
+    setCode(initialCode);
+    setTestResults(null);
+    setCurrentPhase('clarification');
+    const msg = {
+      role: 'assistant',
+      content: `Moving to question: ${nextProb.title} (${nextProb.difficulty}). Take a moment to read the problem statement and constraints on the left. What questions or edge cases do you have?`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages(prev => [...prev, msg]);
+  };
+
+  const handleNextProblem = () => {
+    const currentIndex = CURATED_PROBLEMS.findIndex(p => p.id === selectedProbId);
+    const nextIndex = (currentIndex + 1) % CURATED_PROBLEMS.length;
+    switchProblem(CURATED_PROBLEMS[nextIndex].id);
+  };
+
+  const handlePrevProblem = () => {
+    const currentIndex = CURATED_PROBLEMS.findIndex(p => p.id === selectedProbId);
+    const prevIndex = (currentIndex - 1 + CURATED_PROBLEMS.length) % CURATED_PROBLEMS.length;
+    switchProblem(CURATED_PROBLEMS[prevIndex].id);
+  };
+
+  const handlePhaseChange = (phaseId) => {
+    if (phaseId === currentPhase) return;
+    setCurrentPhase(phaseId);
+    const promptNote = PHASE_SYSTEM_MESSAGES[phaseId];
+    if (promptNote) {
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: promptNote,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
+    }
+  };
+
   const handleStartInterview = (probId = selectedProbId) => {
     const prob = CURATED_PROBLEMS.find(p => p.id === probId) || CURATED_PROBLEMS[0];
     setSelectedProbId(prob.id);
-    setCode(prob.templates[language] || prob.templates.javascript);
+    const initialCode = codeMap[prob.id] || prob.templates[language] || prob.templates.javascript;
+    setCode(initialCode);
+    setCodeMap(prev => ({ ...prev, [prob.id]: initialCode }));
     setTestResults(null);
     setCurrentPhase('clarification');
     setTimeLeft(INTERVIEW_DURATION);
@@ -757,7 +834,7 @@ export default function InterviewPage() {
   return (
     <div className="h-screen flex flex-col bg-slate-900 text-white overflow-hidden">
       <header className="h-14 border-b border-slate-800 bg-slate-950 px-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => {
@@ -771,26 +848,54 @@ export default function InterviewPage() {
 
           <span className="text-slate-700">|</span>
 
-          <div className="flex items-center gap-2">
-            <span className="font-sans font-bold text-sm text-white">{activeProblem.title}</span>
-            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700">
-              {activeProblem.difficulty}
-            </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handlePrevProblem}
+              title="Previous Question"
+              className="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg border border-slate-800 flex items-center gap-0.5 font-mono text-[11px] transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[14px]">chevron_left</span>
+              <span className="hidden sm:inline">Prev</span>
+            </button>
+
+            <select
+              value={activeProblem.id}
+              onChange={(e) => switchProblem(e.target.value)}
+              className="bg-slate-900 border border-slate-800 text-white font-sans text-xs font-bold rounded-lg px-2.5 py-1 focus:outline-none cursor-pointer max-w-[160px] sm:max-w-none truncate"
+            >
+              {CURATED_PROBLEMS.map((p, idx) => (
+                <option key={p.id} value={p.id}>
+                  Q{idx + 1}: {p.title} ({p.difficulty})
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="button"
+              onClick={handleNextProblem}
+              title="Next Question"
+              className="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg border border-slate-800 flex items-center gap-0.5 font-mono text-[11px] transition-colors cursor-pointer"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
           {PHASES.map((p) => {
             const isActive = currentPhase === p.id;
             return (
               <button
                 key={p.id}
                 type="button"
-                onClick={() => setCurrentPhase(p.id)}
-                className={`px-2.5 py-1 rounded-lg font-mono text-[10px] font-bold uppercase transition-all ${
-                  isActive ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                onClick={() => handlePhaseChange(p.id)}
+                className={`px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
+                  isActive ? 'bg-emerald-500 text-slate-950 shadow-md font-extrabold ring-1 ring-emerald-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                 }`}
               >
+                {isActive && <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-pulse" />}
                 {p.label}
               </button>
             );
@@ -867,7 +972,11 @@ export default function InterviewPage() {
                 language={language}
                 theme="vs-dark"
                 value={code}
-                onChange={(val) => setCode(val || '')}
+                onChange={(val) => {
+                  const updated = val || '';
+                  setCode(updated);
+                  setCodeMap(prev => ({ ...prev, [activeProblem.id]: updated }));
+                }}
                 options={{
                   fontSize: 13,
                   minimap: { enabled: false },
@@ -919,7 +1028,9 @@ export default function InterviewPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="font-mono text-xs font-bold text-slate-200">Alex • Technical Interviewer</span>
             </div>
-            <span className="font-mono text-[10px] uppercase text-slate-500">Live Feedback</span>
+            <span className="font-mono text-[10px] uppercase text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800 font-bold">
+              Current: {PHASES.find(p => p.id === currentPhase)?.label || currentPhase}
+            </span>
           </div>
 
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
@@ -958,34 +1069,16 @@ export default function InterviewPage() {
 
           <div className="p-3 border-t border-slate-800 bg-slate-950 space-y-2 shrink-0">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px] font-mono">
-              <button
-                type="button"
-                onClick={() => handleSendMessage('Can we assume the input array is always non-empty and fits in memory?')}
-                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
-              >
-                Ask input constraints
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSendMessage(`I am planning an optimal ${activeProblem.expectedTime} approach. Does that align with what you're looking for?`)}
-                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
-              >
-                Propose approach
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSendMessage('Could you provide a subtle hint on the optimal data structure?')}
-                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
-              >
-                Request hint
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSendMessage('I have written my solution in the code editor. Could you review my implementation and test cases?')}
-                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-800/80 text-emerald-300 hover:text-emerald-200"
-              >
-                Review my code
-              </button>
+              {(PHASE_PROMPTS[currentPhase] || PHASE_PROMPTS.clarification).map((promptText, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSendMessage(promptText)}
+                  className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition-colors cursor-pointer"
+                >
+                  {promptText}
+                </button>
+              ))}
             </div>
 
             <form
