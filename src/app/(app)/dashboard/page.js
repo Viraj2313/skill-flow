@@ -230,7 +230,19 @@ export default function DashboardPage() {
 
   if (loading) return <DashboardSkeleton />;
 
-  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'Engineer';
+  const emailPrefix = user?.email ? user.email.split('@')[0] : '';
+  const normalNameFromEmail = emailPrefix
+    ? emailPrefix
+        .replace(/[._-]/g, ' ')
+        .split(' ')
+        .filter(Boolean)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+    : 'Engineer';
+
+  const displayName = (profile?.display_name && profile.display_name !== 'User' && profile.display_name !== 'Engineer' && profile.display_name !== 'Alex')
+    ? profile.display_name
+    : (user?.user_metadata?.display_name || user?.user_metadata?.full_name || normalNameFromEmail || 'Engineer');
   const xp          = profile?.xp ?? 0;
   const streak      = profile?.streak_current ?? 0;
   const nextCatId   = nextLesson?.topics?.category_id || 'dsa';

@@ -211,9 +211,17 @@ export default function ProfilePage() {
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name;
   const emailPrefix = user?.email ? user.email.split('@')[0] : '';
-  const name = (profile?.display_name && profile.display_name !== 'User' && profile.display_name !== 'Engineer')
+  const normalNameFromEmail = emailPrefix
+    ? emailPrefix
+        .replace(/[._-]/g, ' ')
+        .split(' ')
+        .filter(Boolean)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+    : 'Engineer';
+  const name = (profile?.display_name && profile.display_name !== 'User' && profile.display_name !== 'Engineer' && profile.display_name !== 'Alex')
     ? profile.display_name
-    : (metaName || emailPrefix || profile?.display_name || 'Engineer');
+    : (metaName || normalNameFromEmail || 'Engineer');
 
   const initials = name
     .split(' ')

@@ -84,9 +84,17 @@ export async function getUserProfile() {
   const metaName = user.user_metadata?.display_name ||
     user.user_metadata?.full_name ||
     user.user_metadata?.name;
-  const emailPrefix = user.email ? user.email.split('@')[0] : 'Engineer';
+  const emailPrefix = user.email ? user.email.split('@')[0] : '';
+  const normalNameFromEmail = emailPrefix
+    ? emailPrefix
+        .replace(/[._-]/g, ' ')
+        .split(' ')
+        .filter(Boolean)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+    : 'Engineer';
   const cleanBase = (emailPrefix || 'user').replace(/[^a-zA-Z0-9_]/g, '');
-  const preferredName = metaName || emailPrefix || 'Engineer';
+  const preferredName = metaName || normalNameFromEmail || 'Engineer';
   const preferredUsername = user.user_metadata?.username || (cleanBase || 'user') + '_' + Date.now().toString(36).slice(-4);
 
   let localLessonsCount = 0;
@@ -119,7 +127,7 @@ export async function getUserProfile() {
       return {
         ...fallback,
         ...data,
-        display_name: (data.display_name && data.display_name !== 'User' && data.display_name !== 'Engineer')
+        display_name: (data.display_name && data.display_name !== 'User' && data.display_name !== 'Engineer' && data.display_name !== 'Alex')
           ? data.display_name
           : preferredName,
         xp: Math.max(Number(data.xp) || 0, fallback.xp),

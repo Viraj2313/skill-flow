@@ -1,17 +1,78 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Toggle } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
+import { getUserProfile } from '@/lib/db';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const [profile, setProfile] = useState(null);
+  const [user, setUser]       = useState(null);
   const [notifications, setNotifications] = useState({
     dailyChallenge: true,
     streakAlert: true,
     rankChanges: false,
   });
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user: authUser } }) => {
+      if (!authUser) return;
+      setUser(authUser);
+      const prof = await getUserProfile();
+      setProfile(prof);
+    });
+  }, []);
+
+  const emailPrefix = user?.email ? user.email.split('@')[0] : '';
+  const metaName = user?.user_metadata?.display_name ||
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name;
+
+  const normalNameFromEmail = emailPrefix
+    ? emailPrefix
+        .replace(/[._-]/g, ' ')
+        .split(' ')
+        .filter(Boolean)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+    : 'Engineer';
+
+  const displayName = (profile?.display_name && profile.display_name !== 'User' && profile.display_name !== 'Engineer' && profile.display_name !== 'Alex')
+    ? profile.display_name
+    : (metaName || normalNameFromEmail || 'Engineer');
+
+  const username = (profile?.username && profile.username !== 'AlexCodes')
+    ? profile.username
+    : (user?.user_metadata?.username || (emailPrefix ? emailPrefix.replace(/[^a-zA-Z0-9_]/g, '') : 'user'));
+
+  const handleEditDisplayName = async () => {
+    const next = prompt('Enter display name:', displayName);
+    if (!next || !next.trim() || next.trim() === displayName) return;
+    const trimmed = next.trim();
+    try {
+      if (user?.id) {
+        await supabase.from('user_profiles').update({ display_name: trimmed }).eq('id', user.id);
+        await supabase.auth.updateUser({ data: { display_name: trimmed } });
+      }
+      setProfile(prev => ({ ...prev, display_name: trimmed }));
+    } catch {}
+  };
+
+  const handleEditUsername = async () => {
+    const next = prompt('Enter username:', username);
+    if (!next || !next.trim() || next.trim() === username) return;
+    const sanitized = next.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (!sanitized) return;
+    try {
+      if (user?.id) {
+        await supabase.from('user_profiles').update({ username: sanitized }).eq('id', user.id);
+        await supabase.auth.updateUser({ data: { username: sanitized } });
+      }
+      setProfile(prev => ({ ...prev, username: sanitized }));
+    } catch {}
+  };
 
   const toggle = (key) => setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -50,15 +111,47 @@ export default function SettingsPage() {
 
       <div className="max-w-2xl mx-auto pb-8">
         <Section label="ACCOUNT">
-          <Row label="Display Name" right={<div className="flex items-center gap-1 text-aq-text-muted"><span className="font-sans text-[14px]">Alex</span><span className="material-symbols-outlined text-[18px]">chevron_right</span></div>} />
-          <Row label="Username" right={<div className="flex items-center gap-1 text-aq-text-muted"><span className="font-sans text-[14px]">AlexCodes</span><span className="material-symbols-outlined text-[18px]">chevron_right</span></div>} />
-          <Row label="Change Password" right={<span className="material-symbols-outlined text-[18px] text-aq-text-muted">chevron_right</span>} />
-          <Row label="Connected Accounts" noBorder right={
-            <div className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 bg-aq-surface-raised border border-aq-border rounded-pill font-mono text-[10px] text-aq-text-secondary">Google</span>
-              <span className="material-symbols-outlined text-[18px] text-aq-text-muted">chevron_right</span>
-            </div>
-          } />
+          <Row
+            label="Display Name"
+            onPress={handleEditDisplayName}
+            right={
+              <div className="flex items-center gap-1 text-aq-text-muted">
+                <span className="font-sans text-[14px] text-slate-800 font-medium">{displayName}</span>
+                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              </div>
+            }
+          />
+          <Row
+            label="Username"
+            onPress={handleEditUsername}
+            right={
+              <div className="flex items-center gap-1 text-aq-text-muted">
+                <span className="font-sans text-[14px] text-slate-800 font-medium">{username}</span>
+                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              </div>
+            }
+          />
+          <Row
+            label="Change Password"
+            onPress={async () => {
+              const nextPwd = prompt('Enter new password (min 6 characters):');
+              if (!nextPwd || nextPwd.length < 6) return;
+              const { error } = await supabase.auth.updateUser({ password: nextPwd });
+              if (error) alert('Failed to update password: ' + error.message);
+              else alert('Password updated successfully!');
+            }}
+            right={<span className="material-symbols-outlined text-[18px] text-aq-text-muted">chevron_right</span>}
+          />
+          <Row
+            label="Connected Accounts"
+            noBorder
+            right={
+              <div className="flex items-center gap-1.5">
+                <span className="px-2 py-0.5 bg-aq-surface-raised border border-aq-border rounded-pill font-mono text-[10px] text-aq-text-secondary">Email</span>
+                <span className="material-symbols-outlined text-[18px] text-aq-text-muted">chevron_right</span>
+              </div>
+            }
+          />
         </Section>
 
         <Section label="NOTIFICATIONS">
