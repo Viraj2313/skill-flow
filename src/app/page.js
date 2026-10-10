@@ -161,13 +161,13 @@ export default function LandingPage() {
             </p>
           </div>
           <div style={{ flex: '0 0 auto' }}>
-            <div style={{ background: '#fff', border: '1px solid #e8edf2', borderRadius: 18, padding: '20px 24px', width: 256, boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: '#fff', border: '1px solid #e8edf2', borderRadius: 18, padding: '20px', width: 320, maxWidth: '100%', boxSizing: 'border-box', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>This Week</p>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8, marginBottom: 20 }}>
                 {['M','T','W','T','F','S','S'].map((d, i) => (
-                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'JetBrains Mono, monospace' }}>{d}</span>
-                    <div style={{ width: 30, height: 30, borderRadius: '50%', background: weekDone[i] ? '#f59e0b' : '#f1f5f9', border: weekDone[i] ? 'none' : '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: weekDone[i] ? '#f59e0b' : '#f1f5f9', border: weekDone[i] ? 'none' : '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {weekDone[i] && <span className="material-symbols-outlined filled text-white" style={{ fontSize: 14 }}>check</span>}
                     </div>
                   </div>
